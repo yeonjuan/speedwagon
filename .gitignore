@@ -1,0 +1,8 @@
+node_modules
+dist
+*.log
+.DS_Store
+report.json
+report.html
+__temp-fixtures__
+tsconfig.tsbuildinfo

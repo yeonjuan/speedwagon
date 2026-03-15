@@ -1,0 +1,53 @@
+{
+  "name": "dedupe",
+  "version": "1.0.0",
+  "description": "Code duplicate detection tool",
+  "type": "module",
+  "packageManager": "pnpm@9.0.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "dedupe": "dist/cli/bin.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest --coverage",
+    "format": "prettier --write .",
+    "knip": "knip"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yeonjuan/untitled.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yeonjuan/untitled/issues"
+  },
+  "homepage": "https://github.com/yeonjuan/untitled#readme",
+  "dependencies": {
+    "chalk": "^5.6.2",
+    "fast-glob": "^3.3.3",
+    "ignore": "^7.0.5",
+    "oxc-parser": "^0.123.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.5",
+    "@vitest/coverage-v8": "^4.1.2",
+    "@vitest/ui": "^4.1.0",
+    "knip": "^6.3.0",
+    "prettier": "^3.8.1",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.0"
+  }
+}
