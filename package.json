@@ -1,0 +1,34 @@
+{
+  "name": "untitiled",
+  "version": "1.0.0",
+  "description": "Code analysis CLI tool",
+  "main": "dist/index.js",
+  "bin": {
+    "code-analyzer": "dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yeonjuan/untitled.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yeonjuan/untitled/issues"
+  },
+  "homepage": "https://github.com/yeonjuan/untitled#readme",
+  "dependencies": {
+    "@swc/core": "^1.10.6",
+    "commander": "^13.0.1",
+    "glob": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.5",
+    "typescript": "^5.9.3"
+  }
+}
