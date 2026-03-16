@@ -28,7 +28,9 @@
   "dependencies": {
     "@swc/core": "^1.10.6",
     "commander": "^13.0.1",
-    "glob": "^11.0.0"
+    "fast-glob": "^3.3.3",
+    "glob": "^11.0.0",
+    "ignore": "^7.0.5"
   },
   "devDependencies": {
     "@types/node": "^22.15.5",

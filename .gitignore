@@ -4,3 +4,4 @@ dist
 .DS_Store
 report.json
 report.html
+__temp-fixtures__
