@@ -1,7 +1,8 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "commonjs",
+    "module": "NodeNext", // 또는 Node16
+    "moduleResolution": "NodeNext",
     "lib": ["ES2020"],
     "outDir": "./dist",
     "rootDir": "./src",
@@ -10,10 +11,11 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "moduleResolution": "node",
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true
+    "sourceMap": true,
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": false
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
