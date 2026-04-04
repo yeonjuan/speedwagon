@@ -89,10 +89,9 @@ export class Runner {
           sourceCode,
         );
 
-        collector.onStart?.();
         this.log(`  Visiting AST for ${filePath}`);
-        collector.visit(program);
-        collector.onEnd?.();
+        const visitor = collector.visitor();
+        visitor.visit(program);
         this.log(
           `  Finished collecting from ${filePath} with ${detector.name}`,
         );

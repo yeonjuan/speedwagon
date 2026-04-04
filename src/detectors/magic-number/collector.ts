@@ -1,4 +1,4 @@
-import { Visitor, type VisitorObject, type Program } from "oxc-parser";
+import { Visitor, type VisitorObject } from "oxc-parser";
 import type { Collector, GlobalContext } from "../../types/index.js";
 import type { ConstantLiteral, LiteralType } from "./types.js";
 import { getPosition } from "../../utils/index.js";
@@ -16,11 +16,7 @@ export class MagicNumberCollector implements Collector {
     this.sourceCode = sourceCode;
   }
 
-  onStart(): void {}
-
-  onEnd(): void {}
-
-  visit(program: Program): void {
+  visitor(): Visitor {
     const visitorObject: VisitorObject = {
       Literal: (node) => {
         if (node.value === null) return;
@@ -33,8 +29,7 @@ export class MagicNumberCollector implements Collector {
       },
     };
 
-    const visitor = new Visitor(visitorObject);
-    visitor.visit(program);
+    return new Visitor(visitorObject);
   }
 
   private collectLiteral(
