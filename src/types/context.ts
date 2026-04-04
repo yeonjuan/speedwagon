@@ -1,3 +1,18 @@
+import type { Report } from "./report.js";
+
+export interface DetectorContext {
+  set<T>(key: string, value: T): void;
+  get<T>(key: string): T | undefined;
+  getAll<T>(): Map<string, T>;
+  has(key: string): boolean;
+  clear(): void;
+}
+
+export interface ReportContext {
+  addReport(report: Report): void;
+  getReports(): Report[];
+}
+
 export interface GlobalContext {
   store: Store;
 
@@ -12,6 +27,9 @@ export interface GlobalContext {
   clear(namespace: string): void;
 
   size(): number;
+
+  createDetectorContext(namespace: string): DetectorContext;
+  createReportContext(): ReportContext;
 }
 
 export type Store = Map<string, Map<string, unknown>>;

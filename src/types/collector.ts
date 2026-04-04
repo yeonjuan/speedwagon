@@ -1,14 +1,14 @@
 import type { Visitor } from "oxc-parser";
-import type { GlobalContext } from "./context.js";
+import type { DetectorContext } from "./context.js";
 
 export interface Collector {
-  context: GlobalContext;
+  context: DetectorContext;
   filePath: string;
   visitor(): Visitor;
 }
 
 export type CollectorFactory = (
-  context: GlobalContext,
+  context: DetectorContext,
   filePath: string,
   sourceCode: string,
 ) => Collector;

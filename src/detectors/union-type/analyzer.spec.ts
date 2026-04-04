@@ -1,22 +1,24 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { UnionTypeAnalyzer } from "./analyzer.js";
+import { createAnalyzer } from "./analyzer.js";
 import { Context } from "../../core/context.js";
-import type { GlobalContext } from "../../types/index.js";
+import type { DetectorContext, ReportContext } from "../../types/index.js";
 import type { UnionTypeInfo } from "./types.js";
 
 describe("UnionTypeAnalyzer", () => {
-  let context: GlobalContext;
-  const namespace = "union-type";
+  let collectContext: DetectorContext;
+  let reportContext: ReportContext;
 
   beforeEach(() => {
-    context = new Context();
+    const globalContext = new Context();
+    collectContext = globalContext.createDetectorContext("union-type");
+    reportContext = globalContext.createReportContext();
   });
 
-  it("should return empty reports when no duplicates", () => {
-    const analyzer = new UnionTypeAnalyzer(2);
-    const reports = analyzer.analyze(context);
+  it("should return empty reports when no duplicates", async () => {
+    const analyze = createAnalyzer(2);
+    await analyze(collectContext, reportContext);
 
-    expect(reports).resolves.toHaveLength(0);
+    expect(reportContext.getReports()).toHaveLength(0);
   });
 
   it("should detect duplicates with minOccurrences", async () => {
@@ -43,11 +45,12 @@ describe("UnionTypeAnalyzer", () => {
       },
     ];
 
-    context.set(namespace, '"active" | "inactive"', unionTypes);
+    collectContext.set('"active" | "inactive"', unionTypes);
 
-    const analyzer = new UnionTypeAnalyzer(2);
-    const reports = await analyzer.analyze(context);
+    const analyze = createAnalyzer(2);
+    await analyze(collectContext, reportContext);
 
+    const reports = reportContext.getReports();
     expect(reports).toHaveLength(1);
     expect(reports[0].type).toBe("union-type");
     expect(reports[0].similarity).toBe(100);
@@ -70,12 +73,12 @@ describe("UnionTypeAnalyzer", () => {
       },
     ];
 
-    context.set(namespace, '"active" | "inactive"', unionTypes);
+    collectContext.set('"active" | "inactive"', unionTypes);
 
-    const analyzer = new UnionTypeAnalyzer(2);
-    const reports = await analyzer.analyze(context);
+    const analyze = createAnalyzer(2);
+    await analyze(collectContext, reportContext);
 
-    expect(reports).toHaveLength(0);
+    expect(reportContext.getReports()).toHaveLength(0);
   });
 
   it("should use default minOccurrences of 2", async () => {
@@ -102,12 +105,12 @@ describe("UnionTypeAnalyzer", () => {
       },
     ];
 
-    context.set(namespace, '"active" | "inactive"', unionTypes);
+    collectContext.set('"active" | "inactive"', unionTypes);
 
-    const analyzer = new UnionTypeAnalyzer();
-    const reports = await analyzer.analyze(context);
+    const analyze = createAnalyzer();
+    await analyze(collectContext, reportContext);
 
-    expect(reports).toHaveLength(1);
+    expect(reportContext.getReports()).toHaveLength(1);
   });
 
   it("should handle multiple different union types", async () => {
@@ -157,13 +160,13 @@ describe("UnionTypeAnalyzer", () => {
       },
     ];
 
-    context.set(namespace, '"active" | "inactive"', statusUnions);
-    context.set(namespace, '"admin" | "user"', roleUnions);
+    collectContext.set('"active" | "inactive"', statusUnions);
+    collectContext.set('"admin" | "user"', roleUnions);
 
-    const analyzer = new UnionTypeAnalyzer(2);
-    const reports = await analyzer.analyze(context);
+    const analyze = createAnalyzer(2);
+    await analyze(collectContext, reportContext);
 
-    expect(reports).toHaveLength(2);
+    expect(reportContext.getReports()).toHaveLength(2);
   });
 
   it("should sort reports by duplicate count descending", async () => {
@@ -195,12 +198,13 @@ describe("UnionTypeAnalyzer", () => {
       }),
     );
 
-    context.set(namespace, '"active" | "inactive"', manyDuplicates);
-    context.set(namespace, '"admin" | "user"', fewDuplicates);
+    collectContext.set('"active" | "inactive"', manyDuplicates);
+    collectContext.set('"admin" | "user"', fewDuplicates);
 
-    const analyzer = new UnionTypeAnalyzer(2);
-    const reports = await analyzer.analyze(context);
+    const analyze = createAnalyzer(2);
+    await analyze(collectContext, reportContext);
 
+    const reports = reportContext.getReports();
     expect(reports[0].duplicates).toHaveLength(5);
     expect(reports[1].duplicates).toHaveLength(2);
   });
@@ -229,11 +233,12 @@ describe("UnionTypeAnalyzer", () => {
       },
     ];
 
-    context.set(namespace, '"active" | "inactive"', unionTypes);
+    collectContext.set('"active" | "inactive"', unionTypes);
 
-    const analyzer = new UnionTypeAnalyzer(2);
-    const reports = await analyzer.analyze(context);
+    const analyze = createAnalyzer(2);
+    await analyze(collectContext, reportContext);
 
+    const reports = reportContext.getReports();
     const duplicate = reports[0].duplicates[0];
     expect(duplicate.metadata).toHaveProperty("types");
     expect(duplicate.metadata).toHaveProperty("raw");
@@ -263,11 +268,12 @@ describe("UnionTypeAnalyzer", () => {
       },
     ];
 
-    context.set(namespace, '"active" | "inactive"', unionTypes);
+    collectContext.set('"active" | "inactive"', unionTypes);
 
-    const analyzer = new UnionTypeAnalyzer(2);
-    const reports = await analyzer.analyze(context);
+    const analyze = createAnalyzer(2);
+    await analyze(collectContext, reportContext);
 
+    const reports = reportContext.getReports();
     expect(reports[0].suggestion).toContain("type alias");
     expect(reports[0].suggestion).toContain('"active" | "inactive"');
   });

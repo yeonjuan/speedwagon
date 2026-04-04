@@ -1,12 +1,11 @@
 import type { CollectorFactory } from "./collector.js";
-import type { GlobalContext } from "./context.js";
-import type { Report } from "./report.js";
+import type { DetectorContext, ReportContext } from "./context.js";
 
 export interface Detector {
   readonly name: string;
   readonly description: string;
   createCollector: CollectorFactory;
-  analyze(context: GlobalContext): Promise<Report[]>;
+  analyze(collectContext: DetectorContext, reportContext: ReportContext): Promise<void>;
   config?: DetectorConfig;
 }
 

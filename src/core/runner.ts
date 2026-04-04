@@ -2,6 +2,7 @@ import { readFile } from "fs/promises";
 import type {
   Detector,
   GlobalContext,
+  ReportContext,
   Report,
   Language,
 } from "../types/index.js";
@@ -25,12 +26,21 @@ export class Runner {
   private config: RunnerConfig;
   private reporter: Reporter;
   private languages: Language[];
+  private collectContexts: Map<string, any>;
 
   constructor(config: RunnerConfig) {
     this.context = new Context();
     this.config = config;
     this.reporter = config.reporter ?? new StdoutReporter();
     this.languages = [tsxLanguage, tsLanguage, jsxLanguage, jsLanguage];
+    this.collectContexts = new Map();
+
+    for (const detector of config.detectors) {
+      this.collectContexts.set(
+        detector.name,
+        this.context.createDetectorContext(detector.name),
+      );
+    }
   }
 
   async run(): Promise<Report[]> {
@@ -42,8 +52,9 @@ export class Runner {
       `Detectors: ${this.config.detectors.map((d) => d.name).join(", ")}`,
     );
 
-    await this.runPhase1();
-    const reports = await this.runPhase2();
+    await this.collectMetadata();
+    const reportContext = await this.analyzeAndReport();
+    const reports = reportContext.getReports();
 
     const duration = Date.now() - startTime;
     this.log(`Analysis completed in ${duration}ms`);
@@ -54,8 +65,8 @@ export class Runner {
     return reports;
   }
 
-  private async runPhase1(): Promise<void> {
-    this.log("\n=== Phase 1: Collection ===");
+  private async collectMetadata(): Promise<void> {
+    this.log("\n=== Collecting Metadata ===");
     const startTime = Date.now();
 
     for (const filePath of this.config.files) {
@@ -83,8 +94,9 @@ export class Runner {
 
       for (const detector of this.config.detectors) {
         this.log(`  Creating collector for ${detector.name}`);
+        const collectContext = this.collectContexts.get(detector.name)!;
         const collector = detector.createCollector(
-          this.context,
+          collectContext,
           filePath,
           sourceCode,
         );
@@ -101,18 +113,24 @@ export class Runner {
     }
   }
 
-  private async runPhase2(): Promise<Report[]> {
-    this.log("\n=== Phase 2: Analysis ===");
+  private async analyzeAndReport(): Promise<ReportContext> {
+    this.log("\n=== Analyzing Duplicates ===");
     const startTime = Date.now();
 
-    const allReports: Report[] = [];
+    const reportContext = this.context.createReportContext();
 
     for (const detector of this.config.detectors) {
       try {
         this.log(`Analyzing: ${detector.name}`);
-        const reports = await detector.analyze(this.context);
-        allReports.push(...reports);
-        this.log(`  Found ${reports.length} duplicates`);
+        const collectContext = this.collectContexts.get(detector.name)!;
+
+        await detector.analyze(collectContext, reportContext);
+
+        const currentReports = reportContext.getReports();
+        this.log(`  Found ${currentReports.length} duplicates`);
+
+        collectContext.clear();
+        this.log(`  Cleared collect context for ${detector.name}`);
       } catch (error) {
         console.error(`Error analyzing with ${detector.name}:`, error);
       }
@@ -121,7 +139,7 @@ export class Runner {
     const duration = Date.now() - startTime;
     this.log(`Analysis completed in ${duration}ms`);
 
-    return allReports;
+    return reportContext;
   }
 
   private log(message: string): void {
