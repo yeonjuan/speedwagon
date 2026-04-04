@@ -1,11 +1,11 @@
 import type { Location } from "../../types/index.js";
 
-export type LiteralType = "string" | "number" | "boolean" | "bigint";
+export type LiteralType = "number";
 
 export interface ConstantLiteral {
   id: string;
 
-  value: string | number | boolean | bigint;
+  value: number;
 
   type: LiteralType;
 
@@ -15,7 +15,7 @@ export interface ConstantLiteral {
 }
 
 export interface ConstantGroup {
-  value: string | number | boolean | bigint;
+  value: number;
 
   type: LiteralType;
 

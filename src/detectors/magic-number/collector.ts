@@ -25,18 +25,10 @@ export class MagicNumberCollector implements Collector {
       Literal: (node) => {
         if (node.value === null) return;
 
-        if (typeof node.value === "string") {
-          if (node.value.length > 2) {
-            this.collectLiteral(node.value, "string", node.start, node.end);
-          }
-        } else if (typeof node.value === "number") {
+        if (typeof node.value === "number") {
           if (this.shouldCollectNumber(node.value)) {
             this.collectLiteral(node.value, "number", node.start, node.end);
           }
-        } else if (typeof node.value === "boolean") {
-          this.collectLiteral(node.value, "boolean", node.start, node.end);
-        } else if (typeof node.value === "bigint") {
-          this.collectLiteral(node.value, "bigint", node.start, node.end);
         }
       },
     };
@@ -46,7 +38,7 @@ export class MagicNumberCollector implements Collector {
   }
 
   private collectLiteral(
-    value: string | number | boolean | bigint,
+    value: number,
     type: LiteralType,
     start: number,
     end: number,

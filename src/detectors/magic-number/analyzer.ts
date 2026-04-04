@@ -69,7 +69,7 @@ export class MagicNumberAnalyzer {
       };
     });
 
-    const valueStr = this.formatValue(group.value, group.type);
+    const valueStr = this.formatValue(group.value);
 
     return {
       type: "magic-number",
@@ -95,27 +95,12 @@ export class MagicNumberAnalyzer {
     }
   }
 
-  private formatValue(
-    value: string | number | boolean | bigint,
-    type: string,
-  ): string {
-    if (type === "string") {
-      return `"${value}"`;
-    }
+  private formatValue(value: number): string {
     return String(value);
   }
 
   private generateSuggestion(group: ConstantGroup): string {
-    const valueStr = this.formatValue(group.value, group.type);
-
-    if (group.type === "string") {
-      return `Consider extracting ${valueStr} into a named constant (e.g., const MY_CONSTANT = ${valueStr})`;
-    }
-
-    if (group.type === "number") {
-      return `This magic number ${valueStr} appears ${group.count} times. Consider extracting it into a named constant with a descriptive name.`;
-    }
-
-    return `Consider extracting this ${group.type} value into a named constant.`;
+    const valueStr = this.formatValue(group.value);
+    return `This magic number ${valueStr} appears ${group.count} times. Consider extracting it into a named constant with a descriptive name.`;
   }
 }
