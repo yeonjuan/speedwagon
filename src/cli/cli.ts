@@ -1,4 +1,4 @@
-import { Runner, MagicNumberDetector } from "../index.js";
+import { Runner, MagicNumberDetector, UnionTypeDetector } from "../index.js";
 import { collectFiles } from "../utils/index.js";
 import { logger } from "../logger/index.js";
 
@@ -29,7 +29,10 @@ export class CLI {
 
     const runner = new Runner({
       files,
-      detectors: [new MagicNumberDetector(3)],
+      detectors: [
+        new MagicNumberDetector(3),
+        new UnionTypeDetector({ minOccurrences: 2 }),
+      ],
       verbose: false,
     });
 

@@ -19,3 +19,4 @@ export { StdoutReporter } from "./reporters/stdout-reporter.js";
 export type { Reporter } from "./reporters/types.js";
 
 export { MagicNumberDetector } from "./detectors/magic-number/index.js";
+export { UnionTypeDetector } from "./detectors/union-type/index.js";
