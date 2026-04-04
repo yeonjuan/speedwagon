@@ -1,9 +1,17 @@
-import { parseSync } from "oxc-parser";
-import { readFileSync } from "fs";
-import type { Detector, GlobalContext, Report } from "../types/index.js";
+import { readFile } from "fs/promises";
+import type {
+  Detector,
+  GlobalContext,
+  Report,
+  Language,
+} from "../types/index.js";
 import type { Reporter } from "../reporters/types.js";
 import { Context } from "./context.js";
 import { StdoutReporter } from "../reporters/stdout-reporter.js";
+import { jsLanguage } from "../languages/js/index.js";
+import { tsLanguage } from "../languages/ts/index.js";
+import { jsxLanguage } from "../languages/jsx/index.js";
+import { tsxLanguage } from "../languages/tsx/index.js";
 
 export interface RunnerConfig {
   files: string[];
@@ -16,11 +24,13 @@ export class Runner {
   private context: GlobalContext;
   private config: RunnerConfig;
   private reporter: Reporter;
+  private languages: Language[];
 
   constructor(config: RunnerConfig) {
     this.context = new Context();
     this.config = config;
     this.reporter = config.reporter ?? new StdoutReporter();
+    this.languages = [tsxLanguage, tsLanguage, jsxLanguage, jsLanguage];
   }
 
   async run(): Promise<Report[]> {
@@ -32,7 +42,7 @@ export class Runner {
       `Detectors: ${this.config.detectors.map((d) => d.name).join(", ")}`,
     );
 
-    this.runPhase1();
+    await this.runPhase1();
     const reports = await this.runPhase2();
 
     const duration = Date.now() - startTime;
@@ -44,12 +54,12 @@ export class Runner {
     return reports;
   }
 
-  private runPhase1(): void {
+  private async runPhase1(): Promise<void> {
     this.log("\n=== Phase 1: Collection ===");
     const startTime = Date.now();
 
     for (const filePath of this.config.files) {
-      this.collectFromFile(filePath);
+      await this.collectFromFile(filePath);
     }
 
     const duration = Date.now() - startTime;
@@ -57,25 +67,19 @@ export class Runner {
     this.log(`Metadata entries: ${this.context.size()}`);
   }
 
-  private collectFromFile(filePath: string): void {
+  private async collectFromFile(filePath: string): Promise<void> {
     try {
       this.log(`Collecting: ${filePath}`);
 
-      const sourceCode = readFileSync(filePath, "utf-8");
+      const sourceCode = await readFile(filePath, "utf-8");
 
-      const parseResult = parseSync(filePath, sourceCode, {
-        lang: this.inferLanguage(filePath),
-      });
-
-      if (parseResult.errors.length > 0) {
-        console.error(`Parse errors in ${filePath}:`);
-        parseResult.errors.forEach((err) => {
-          console.error(`  ${err.message}`);
-        });
+      const language = this.languages.find((lang) => lang.match(filePath));
+      if (!language) {
+        console.error(`No language found for ${filePath}`);
         return;
       }
 
-      const program = parseResult.program;
+      const program = await language.parse(sourceCode, filePath);
 
       for (const detector of this.config.detectors) {
         this.log(`  Creating collector for ${detector.name}`);
@@ -119,13 +123,6 @@ export class Runner {
     this.log(`Analysis completed in ${duration}ms`);
 
     return allReports;
-  }
-
-  private inferLanguage(filePath: string): "js" | "jsx" | "ts" | "tsx" {
-    if (filePath.endsWith(".tsx")) return "tsx";
-    if (filePath.endsWith(".ts")) return "ts";
-    if (filePath.endsWith(".jsx")) return "jsx";
-    return "js";
   }
 
   private log(message: string): void {

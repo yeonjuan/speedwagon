@@ -2,15 +2,11 @@ import { parse as oxcParse, type Program } from "oxc-parser";
 import type { Language } from "../../types/index.js";
 
 function match(filePath: string): boolean {
-  return (
-    filePath.endsWith(".ts") ||
-    filePath.endsWith(".mts") ||
-    filePath.endsWith(".cts")
-  );
+  return filePath.endsWith(".tsx");
 }
 
 async function parse(sourceCode: string, filePath: string): Promise<Program> {
-  const result = await oxcParse(filePath, sourceCode, { lang: "ts" });
+  const result = await oxcParse(filePath, sourceCode, { lang: "tsx" });
 
   if (result.errors.length > 0) {
     throw new Error(`Parse error: ${result.errors[0].message}`);
@@ -19,7 +15,7 @@ async function parse(sourceCode: string, filePath: string): Promise<Program> {
   return result.program;
 }
 
-export const tsLanguage: Language = {
+export const tsxLanguage: Language = {
   match,
   parse,
 };
