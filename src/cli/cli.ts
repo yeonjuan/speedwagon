@@ -1,5 +1,5 @@
 import { Runner, MagicNumberDetector } from "../index.js";
-import { collectFiles } from "./helpers/index.js";
+import { collectFiles } from "../utils/index.js";
 import { logger } from "../logger/index.js";
 
 export class CLI {
