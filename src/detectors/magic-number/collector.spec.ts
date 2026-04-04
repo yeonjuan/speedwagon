@@ -13,10 +13,10 @@ describe("MagicNumberCollector", () => {
     context = new Context();
   });
 
-  it("should collect magic numbers", () => {
+  it("should collect magic numbers in expressions", () => {
     const sourceCode = `
-const timeout = 5000;
-const delay = 3000;
+setTimeout(callback, 5000);
+const result = calculate(3000);
 `;
 
     const result = parseSync(filePath, sourceCode, { lang: "ts" });
@@ -73,8 +73,8 @@ const ten = 10;
 
   it("should collect numbers outside 2-10 range", () => {
     const sourceCode = `
-const eleven = 11;
-const hundred = 100;
+foo(11);
+bar(100);
 `;
 
     const result = parseSync(filePath, sourceCode, { lang: "ts" });
@@ -90,8 +90,8 @@ const hundred = 100;
 
   it("should collect decimal numbers", () => {
     const sourceCode = `
-const pi = 3.14;
-const ratio = 0.5;
+calculate(3.14);
+transform(0.5);
 `;
 
     const result = parseSync(filePath, sourceCode, { lang: "ts" });
@@ -124,9 +124,9 @@ const minusEleven = -11;
 
   it("should group duplicate numbers", () => {
     const sourceCode = `
-const timeout1 = 5000;
-const timeout2 = 5000;
-const timeout3 = 5000;
+setTimeout(callback, 5000);
+fetch(url, { timeout: 5000 });
+poll(5000);
 `;
 
     const result = parseSync(filePath, sourceCode, { lang: "ts" });
@@ -142,7 +142,7 @@ const timeout3 = 5000;
   });
 
   it("should store correct location information", () => {
-    const sourceCode = `const timeout = 5000;`;
+    const sourceCode = `setTimeout(callback, 5000);`;
 
     const result = parseSync(filePath, sourceCode, { lang: "ts" });
     const collector = new MagicNumberCollector(context, filePath, sourceCode);
@@ -154,12 +154,12 @@ const timeout3 = 5000;
 
     expect(literals[0].location.file).toBe(filePath);
     expect(literals[0].location.start.line).toBe(1);
-    expect(literals[0].location.start.column).toBe(16);
+    expect(literals[0].location.start.column).toBe(21);
   });
 
   it("should handle multiple files", () => {
-    const sourceCode1 = `const timeout = 5000;`;
-    const sourceCode2 = `const delay = 5000;`;
+    const sourceCode1 = `setTimeout(callback, 5000);`;
+    const sourceCode2 = `delay(5000);`;
     const filePath1 = "/test/file1.ts";
     const filePath2 = "/test/file2.ts";
 
@@ -199,5 +199,137 @@ const timeout3 = 5000;
 
     const collected = context.getAll<ConstantLiteral[]>("magic-number");
     expect(collected.size).toBe(0);
+  });
+
+  it("should skip variable declarations", () => {
+    const sourceCode = `
+const timeout = 5000;
+let delay = 3000;
+var retry = 1000;
+`;
+
+    const result = parseSync(filePath, sourceCode, { lang: "ts" });
+    const collector = new MagicNumberCollector(context, filePath, sourceCode);
+    const visitor = collector.visitor();
+    visitor.visit(result.program);
+
+    const collected = context.getAll<ConstantLiteral[]>("magic-number");
+    expect(collected.size).toBe(0);
+  });
+
+  it("should collect object property values", () => {
+    const sourceCode = `
+const config = { timeout: 5000 };
+const options = { retry: 3000 };
+`;
+
+    const result = parseSync(filePath, sourceCode, { lang: "ts" });
+    const collector = new MagicNumberCollector(context, filePath, sourceCode);
+    const visitor = collector.visitor();
+    visitor.visit(result.program);
+
+    const collected = context.getAll<ConstantLiteral[]>("magic-number");
+    expect(collected.size).toBe(2);
+    expect(collected.has("number:5000")).toBe(true);
+    expect(collected.has("number:3000")).toBe(true);
+  });
+
+  it("should skip class property values", () => {
+    const sourceCode = `
+class MyClass {
+  timeout = 5000;
+  delay = 3000;
+}
+`;
+
+    const result = parseSync(filePath, sourceCode, { lang: "ts" });
+    const collector = new MagicNumberCollector(context, filePath, sourceCode);
+    const visitor = collector.visitor();
+    visitor.visit(result.program);
+
+    const collected = context.getAll<ConstantLiteral[]>("magic-number");
+    expect(collected.size).toBe(0);
+  });
+
+  it("should skip assignment expressions", () => {
+    const sourceCode = `
+let timeout;
+timeout = 5000;
+`;
+
+    const result = parseSync(filePath, sourceCode, { lang: "ts" });
+    const collector = new MagicNumberCollector(context, filePath, sourceCode);
+    const visitor = collector.visitor();
+    visitor.visit(result.program);
+
+    const collected = context.getAll<ConstantLiteral[]>("magic-number");
+    expect(collected.size).toBe(0);
+  });
+
+  it("should collect magic numbers in function calls", () => {
+    const sourceCode = `
+setTimeout(callback, 5000);
+fetch(url, { timeout: 3000 });
+`;
+
+    const result = parseSync(filePath, sourceCode, { lang: "ts" });
+    const collector = new MagicNumberCollector(context, filePath, sourceCode);
+    const visitor = collector.visitor();
+    visitor.visit(result.program);
+
+    const collected = context.getAll<ConstantLiteral[]>("magic-number");
+    expect(collected.size).toBe(2);
+    expect(collected.has("number:5000")).toBe(true);
+    expect(collected.has("number:3000")).toBe(true);
+  });
+
+  it("should collect magic numbers in array literals", () => {
+    const sourceCode = `
+const arr = [1, 2, 100, 200];
+`;
+
+    const result = parseSync(filePath, sourceCode, { lang: "ts" });
+    const collector = new MagicNumberCollector(context, filePath, sourceCode);
+    const visitor = collector.visitor();
+    visitor.visit(result.program);
+
+    const collected = context.getAll<ConstantLiteral[]>("magic-number");
+    expect(collected.size).toBe(2);
+    expect(collected.has("number:100")).toBe(true);
+    expect(collected.has("number:200")).toBe(true);
+  });
+
+  it("should collect magic numbers in return statements", () => {
+    const sourceCode = `
+function getTimeout() {
+  return 5000;
+}
+`;
+
+    const result = parseSync(filePath, sourceCode, { lang: "ts" });
+    const collector = new MagicNumberCollector(context, filePath, sourceCode);
+    const visitor = collector.visitor();
+    visitor.visit(result.program);
+
+    const collected = context.getAll<ConstantLiteral[]>("magic-number");
+    expect(collected.size).toBe(1);
+    expect(collected.has("number:5000")).toBe(true);
+  });
+
+  it("should collect magic numbers in binary expressions", () => {
+    const sourceCode = `
+const result = x + 5000;
+const check = y > 3000;
+`;
+
+    const result = parseSync(filePath, sourceCode, { lang: "ts" });
+    const collector = new MagicNumberCollector(context, filePath, sourceCode);
+    const visitor = collector.visitor();
+    visitor.visit(result.program);
+
+    const collected = context.getAll<ConstantLiteral[]>("magic-number");
+    expect(collected.size).toBe(2);
+    expect(collected.has("number:5000")).toBe(true);
+    expect(collected.has("number:3000")).toBe(true);
   });
 });

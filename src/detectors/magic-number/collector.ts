@@ -17,9 +17,27 @@ export class MagicNumberCollector implements Collector {
   }
 
   visitor(): Visitor {
+    const skipNodes = new Set<number>();
+
     const visitorObject: VisitorObject = {
+      VariableDeclarator: (node) => {
+        if (node.init && node.init.type === "Literal") {
+          skipNodes.add(node.init.start);
+        }
+      },
+      PropertyDefinition: (node) => {
+        if (node.value && node.value.type === "Literal") {
+          skipNodes.add(node.value.start);
+        }
+      },
+      AssignmentExpression: (node) => {
+        if (node.right && node.right.type === "Literal") {
+          skipNodes.add(node.right.start);
+        }
+      },
       Literal: (node) => {
         if (node.value === null) return;
+        if (skipNodes.has(node.start)) return;
 
         if (typeof node.value === "number") {
           if (this.shouldCollectNumber(node.value)) {

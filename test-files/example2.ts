@@ -1,12 +1,14 @@
-// Test file 2 with duplicate constants
-
-export function fetchData() {
-  const url = "https://api.example.com";
-  const timeout = 5000;
-
-  return fetch(url, { timeout });
+export async function fetchData(url: string) {
+  const controller = new AbortController();
+  setTimeout(() => controller.abort(), 5000);
+  return fetch(url, { signal: controller.signal });
 }
 
-export function retryDelay() {
-  return 5000;
+export function retryFetch(callback: () => void) {
+  setTimeout(callback, 5000);
+  poll(5000);
+}
+
+function poll(interval: number) {
+  return interval;
 }
