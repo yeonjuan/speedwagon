@@ -73,7 +73,7 @@ export class MagicNumberAnalyzer {
 
     return {
       type: "magic-number",
-      similarity: 100, // Exact duplicates
+      similarity: 100,
       duplicates,
       description: `Constant value ${valueStr} appears ${group.count} times across the codebase`,
       suggestion: this.generateSuggestion(group),
@@ -84,7 +84,7 @@ export class MagicNumberAnalyzer {
     try {
       const content = readFileSync(literal.location.file, "utf-8");
       const lines = content.split("\n");
-      const lineIndex = literal.location.start.line - 1; // Convert to 0-based
+      const lineIndex = literal.location.start.line - 1;
 
       const startLine = Math.max(0, lineIndex - 1);
       const endLine = Math.min(lines.length, lineIndex + 2);

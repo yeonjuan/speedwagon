@@ -26,26 +26,21 @@ export class StdoutReporter implements Reporter {
   }
 
   private printReport(report: Report, index: number): void {
-    // Header
     console.log(chalk.bold.cyan(`\n${index}. ${report.type}`));
     console.log(chalk.gray("─".repeat(80)));
 
-    // Description
     if (report.description) {
       console.log(chalk.yellow(`📝 ${report.description}`));
     }
 
-    // Similarity
     const similarityColor = this.getSimilarityColor(report.similarity);
     console.log(similarityColor(`🔍 Similarity: ${report.similarity}%`));
 
-    // Duplicates
     console.log(chalk.bold(`\n📍 Locations (${report.duplicates.length}):`));
     report.duplicates.forEach((duplicate, idx) => {
       this.printDuplicate(duplicate, idx + 1);
     });
 
-    // Suggestion
     if (report.suggestion) {
       console.log(chalk.green(`\n💡 Suggestion: ${report.suggestion}`));
     }
@@ -56,11 +51,9 @@ export class StdoutReporter implements Reporter {
   private printDuplicate(duplicate: DuplicateEntry, index: number): void {
     const { location, snippet } = duplicate;
 
-    // Location
     const locationStr = `${location.file}:${location.start.line}:${location.start.column}`;
     console.log(chalk.blue(`\n  ${index}. ${locationStr}`));
 
-    // Metadata if available
     if (duplicate.metadata) {
       const metaStr = Object.entries(duplicate.metadata)
         .map(([key, value]) => `${key}: ${this.formatMetadataValue(value)}`)
@@ -68,7 +61,6 @@ export class StdoutReporter implements Reporter {
       console.log(chalk.gray(`     ${metaStr}`));
     }
 
-    // Code snippet
     if (snippet) {
       console.log(chalk.gray("     ┌──────"));
       const snippetLines = snippet.split("\n");
