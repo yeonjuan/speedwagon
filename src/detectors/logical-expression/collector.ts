@@ -1,5 +1,9 @@
 import type { LogicalExpressionInfo } from "./types.js";
-import { getPosition, createCollector, isObjectNode } from "../../utils/index.js";
+import {
+  getPosition,
+  createCollector,
+  isObjectNode,
+} from "../../utils/index.js";
 import { TYPE_LOGICAL_EXPRESSION, TYPE_IDENTIFIER } from "../../constants.js";
 
 function getOperandCount(node: any): number {
