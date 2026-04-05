@@ -5,7 +5,10 @@ export interface Detector {
   readonly name: string;
   readonly description: string;
   createCollector: CollectorFactory;
-  analyze(collectContext: DetectorContext, reportContext: ReportContext): Promise<void>;
+  analyze(
+    collectContext: DetectorContext,
+    reportContext: ReportContext,
+  ): Promise<void>;
   config?: DetectorConfig;
 }
 
