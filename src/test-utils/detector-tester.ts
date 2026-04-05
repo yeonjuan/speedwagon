@@ -44,7 +44,10 @@ export class DetectorTester {
     return this.reportContext.getReports();
   }
 
-  async testSingleFile(code: string, filePath = "/test/file.ts"): Promise<Report[]> {
+  async testSingleFile(
+    code: string,
+    filePath = "/test/file.ts",
+  ): Promise<Report[]> {
     return this.test([{ path: filePath, code }]);
   }
 

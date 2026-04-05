@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createStringLiteralDetector } from "./index.js";
-import { DetectorTester } from "../../test-utils/index.js";
+import { DetectorTester } from "../../test-utils/detector-tester.js";
 
 describe("StringLiteralDetector", () => {
   const detector = createStringLiteralDetector({ minOccurrences: 3 });
@@ -174,8 +174,8 @@ const msg3 = "Hello";
       const duplicate = reports[0].duplicates[0];
       expect(duplicate.metadata).toHaveProperty("value");
       expect(duplicate.metadata).toHaveProperty("context");
-      expect(duplicate.metadata.value).toBe("Hello");
-      expect(duplicate.metadata.context).toBe("variable");
+      expect(duplicate.metadata?.value).toBe("Hello");
+      expect(duplicate.metadata?.context).toBe("variable");
     });
 
     it("should differentiate between variable and expression context", async () => {
@@ -187,9 +187,9 @@ return "Test";
       `);
 
       expect(reports).toHaveLength(1);
-      expect(reports[0].duplicates[0].metadata.context).toBe("variable");
-      expect(reports[0].duplicates[1].metadata.context).toBe("expression");
-      expect(reports[0].duplicates[2].metadata.context).toBe("expression");
+      expect(reports[0].duplicates[0].metadata?.context).toBe("variable");
+      expect(reports[0].duplicates[1].metadata?.context).toBe("expression");
+      expect(reports[0].duplicates[2].metadata?.context).toBe("expression");
     });
 
     it("should generate appropriate suggestion", async () => {
