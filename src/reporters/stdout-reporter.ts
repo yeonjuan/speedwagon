@@ -1,6 +1,7 @@
 import type { Report, DuplicateEntry } from "../types/index.js";
 import type { Reporter } from "./types.js";
 import chalk from "chalk";
+import { TYPE_STRING } from "../constants.js";
 
 /**
  * Reporter that outputs to stdout with colored formatting
@@ -85,7 +86,7 @@ export class StdoutReporter implements Reporter {
   }
 
   private formatMetadataValue(value: unknown): string {
-    if (typeof value === "string") {
+    if (typeof value === TYPE_STRING) {
       return `"${value}"`;
     }
     return String(value);

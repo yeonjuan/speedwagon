@@ -13,6 +13,7 @@ export type {
   Store,
   Position,
   Location,
+  Maybe,
 } from "./context.js";
 export type { Detector, DetectorConfig } from "./detector.js";
 export type { Report, DuplicateEntry } from "./report.js";

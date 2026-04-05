@@ -1,5 +1,6 @@
 import { getPosition, createCollector } from "../../utils/index.js";
 import type { StringLiteralInfo } from "./types.js";
+import { TYPE_LITERAL, TYPE_STRING } from "../../constants.js";
 
 export const stringLiteralCollector = createCollector(
   (context, filePath, sourceCode) => {
@@ -12,10 +13,10 @@ export const stringLiteralCollector = createCollector(
     return {
       VariableDeclarator: (node) => {
         if (
-          node.init?.type === "Literal" &&
-          typeof node.init.value === "string"
+          node.init?.type === TYPE_LITERAL &&
+          typeof node.init.value === TYPE_STRING
         ) {
-          const value = node.init.value;
+          const value = node.init.value as string;
           if (shouldSkip(value)) return;
 
           const existing = context.get<StringLiteralInfo[]>(value) ?? [];
@@ -35,8 +36,8 @@ export const stringLiteralCollector = createCollector(
       },
       CallExpression: (node) => {
         for (const arg of node.arguments) {
-          if (arg.type === "Literal" && typeof arg.value === "string") {
-            const value = arg.value;
+          if (arg.type === TYPE_LITERAL && typeof arg.value === TYPE_STRING) {
+            const value = arg.value as string;
             if (shouldSkip(value)) return;
 
             const existing = context.get<StringLiteralInfo[]>(value) ?? [];
@@ -57,10 +58,10 @@ export const stringLiteralCollector = createCollector(
       },
       ReturnStatement: (node) => {
         if (
-          node.argument?.type === "Literal" &&
-          typeof node.argument.value === "string"
+          node.argument?.type === TYPE_LITERAL &&
+          typeof node.argument.value === TYPE_STRING
         ) {
-          const value = node.argument.value;
+          const value = node.argument.value as string;
           if (shouldSkip(value)) return;
 
           const existing = context.get<StringLiteralInfo[]>(value) ?? [];
@@ -80,10 +81,10 @@ export const stringLiteralCollector = createCollector(
       },
       BinaryExpression: (node) => {
         if (
-          node.left.type === "Literal" &&
-          typeof node.left.value === "string"
+          node.left.type === TYPE_LITERAL &&
+          typeof node.left.value === TYPE_STRING
         ) {
-          const value = node.left.value;
+          const value = node.left.value as string;
           if (!shouldSkip(value)) {
             const existing = context.get<StringLiteralInfo[]>(value) ?? [];
             const info: StringLiteralInfo = {
@@ -101,10 +102,10 @@ export const stringLiteralCollector = createCollector(
           }
         }
         if (
-          node.right.type === "Literal" &&
-          typeof node.right.value === "string"
+          node.right.type === TYPE_LITERAL &&
+          typeof node.right.value === TYPE_STRING
         ) {
-          const value = node.right.value;
+          const value = node.right.value as string;
           if (!shouldSkip(value)) {
             const existing = context.get<StringLiteralInfo[]>(value) ?? [];
             const info: StringLiteralInfo = {

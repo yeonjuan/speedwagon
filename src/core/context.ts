@@ -4,6 +4,7 @@ import type {
   ReportContext,
   Store,
   Report,
+  Maybe,
 } from "../types/index.js";
 
 export class Context implements GlobalContext {
@@ -21,12 +22,12 @@ export class Context implements GlobalContext {
     namespaceMap.set(key, value);
   }
 
-  get<T>(namespace: string, key: string): T | undefined {
+  get<T>(namespace: string, key: string): Maybe<T> {
     const namespaceMap = this.store.get(namespace);
     if (!namespaceMap) {
       return undefined;
     }
-    return namespaceMap.get(key) as T | undefined;
+    return namespaceMap.get(key) as Maybe<T>;
   }
 
   getAll<T>(namespace: string): Map<string, T> {
@@ -74,7 +75,7 @@ export class Context implements GlobalContext {
       set: <T>(key: string, value: T): void => {
         this.set(namespace, key, value);
       },
-      get: <T>(key: string): T | undefined => {
+      get: <T>(key: string): Maybe<T> => {
         return this.get<T>(namespace, key);
       },
       getAll: <T>(): Map<string, T> => {

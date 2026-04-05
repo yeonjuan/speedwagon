@@ -13,6 +13,7 @@ import { jsLanguage } from "../languages/js/index.js";
 import { tsLanguage } from "../languages/ts/index.js";
 import { jsxLanguage } from "../languages/jsx/index.js";
 import { tsxLanguage } from "../languages/tsx/index.js";
+import { ENCODING_UTF8 } from "../constants.js";
 
 export interface RunnerConfig {
   files: string[];
@@ -82,7 +83,7 @@ export class Runner {
     try {
       this.log(`Collecting: ${filePath}`);
 
-      const sourceCode = await readFile(filePath, "utf-8");
+      const sourceCode = await readFile(filePath, ENCODING_UTF8);
 
       const language = this.languages.find((lang) => lang.match(filePath));
       if (!language) {

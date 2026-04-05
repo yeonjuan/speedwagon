@@ -1,8 +1,10 @@
 import type { Report } from "./report.js";
 
+export type Maybe<T> = T | undefined;
+
 export interface DetectorContext {
   set<T>(key: string, value: T): void;
-  get<T>(key: string): T | undefined;
+  get<T>(key: string): Maybe<T>;
   getAll<T>(): Map<string, T>;
   has(key: string): boolean;
   clear(): void;
@@ -18,7 +20,7 @@ export interface GlobalContext {
 
   set<T>(namespace: string, key: string, value: T): void;
 
-  get<T>(namespace: string, key: string): T | undefined;
+  get<T>(namespace: string, key: string): Maybe<T>;
 
   getAll<T>(namespace: string): Map<string, T>;
 

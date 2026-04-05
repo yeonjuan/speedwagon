@@ -1,14 +1,15 @@
 import type { VisitorObject } from "oxc-parser";
 import type { UnionTypeInfo } from "./types.js";
 import { getPosition, createCollector } from "../../utils/index.js";
+import { TYPE_LITERAL, TYPE_STRING } from "../../constants.js";
 
 function extractTypeName(type: any): string | null {
   if (!type) return null;
 
   switch (type.type) {
     case "TSLiteralType":
-      if (type.literal.type === "Literal") {
-        if (typeof type.literal.value === "string") {
+      if (type.literal.type === TYPE_LITERAL) {
+        if (typeof type.literal.value === TYPE_STRING) {
           return `"${type.literal.value}"`;
         }
         if (typeof type.literal.value === "number") {
@@ -30,7 +31,7 @@ function extractTypeName(type: any): string | null {
       return null;
 
     case "TSStringKeyword":
-      return "string";
+      return TYPE_STRING;
 
     case "TSNumberKeyword":
       return "number";

@@ -2,6 +2,7 @@ import fg from "fast-glob";
 import ignore, { type Ignore } from "ignore";
 import fs from "node:fs/promises";
 import path from "node:path";
+import { ENCODING_UTF8 } from "../constants.js";
 
 export async function collectFiles(
   patterns: string[],
@@ -44,7 +45,7 @@ async function buildIgnoreFilter(cwd: string): Promise<Ignore> {
 
   for (const gitignoreFile of gitignoreFiles) {
     try {
-      const content = await fs.readFile(gitignoreFile, "utf-8");
+      const content = await fs.readFile(gitignoreFile, ENCODING_UTF8);
       ig.add(content);
     } catch {}
   }

@@ -6,6 +6,7 @@ import type {
 } from "../../types/index.js";
 import type { UnionTypeInfo, UnionTypeGroup } from "./types.js";
 import { readFileSync } from "fs";
+import { ENCODING_UTF8 } from "../../constants.js";
 
 function groupUnionTypes(
   allUnionTypes: Map<string, UnionTypeInfo[]>,
@@ -31,7 +32,7 @@ function groupUnionTypes(
 
 function extractSnippet(unionType: UnionTypeInfo): string {
   try {
-    const content = readFileSync(unionType.location.file, "utf-8");
+    const content = readFileSync(unionType.location.file, ENCODING_UTF8);
     const lines = content.split("\n");
     const lineIndex = unionType.location.start.line - 1;
 
