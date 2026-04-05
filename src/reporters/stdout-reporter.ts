@@ -1,7 +1,8 @@
 import type { Report, DuplicateEntry } from "../types/index.js";
+import { formatStringLiteral } from "../utils/index.js";
 import type { Reporter } from "./types.js";
 import chalk from "chalk";
-import { TYPE_STRING } from "../constants.js";
+import { TYPE_STRING } from "../constants/index.js";
 
 /**
  * Reporter that outputs to stdout with colored formatting
@@ -33,9 +34,6 @@ export class StdoutReporter implements Reporter {
     if (report.description) {
       console.log(chalk.yellow(`📝 ${report.description}`));
     }
-
-    const similarityColor = this.getSimilarityColor(report.similarity);
-    console.log(similarityColor(`🔍 Similarity: ${report.similarity}%`));
 
     console.log(chalk.bold(`\n📍 Locations (${report.duplicates.length}):`));
     report.duplicates.forEach((duplicate, idx) => {
@@ -73,21 +71,9 @@ export class StdoutReporter implements Reporter {
     }
   }
 
-  private getSimilarityColor(similarity: number): typeof chalk {
-    if (similarity === 100) {
-      return chalk.red.bold;
-    } else if (similarity >= 80) {
-      return chalk.red;
-    } else if (similarity >= 60) {
-      return chalk.yellow;
-    } else {
-      return chalk.cyan;
-    }
-  }
-
   private formatMetadataValue(value: unknown): string {
     if (typeof value === TYPE_STRING) {
-      return `"${value}"`;
+      return formatStringLiteral(value as string);
     }
     return String(value);
   }

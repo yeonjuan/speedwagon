@@ -1,10 +1,10 @@
 import type {
   GlobalContext,
-  DetectorContext,
-  ReportContext,
+  CollectorContext,
   Store,
-  Report,
   Maybe,
+  Location,
+  CollectorInfo,
 } from "../types/index.js";
 
 export class Context implements GlobalContext {
@@ -14,7 +14,7 @@ export class Context implements GlobalContext {
     this.store = new Map();
   }
 
-  set<T>(namespace: string, key: string, value: T): void {
+  private set<T>(namespace: string, key: string, value: T): void {
     if (!this.store.has(namespace)) {
       this.store.set(namespace, new Map());
     }
@@ -22,7 +22,7 @@ export class Context implements GlobalContext {
     namespaceMap.set(key, value);
   }
 
-  get<T>(namespace: string, key: string): Maybe<T> {
+  private get<T>(namespace: string, key: string): Maybe<T> {
     const namespaceMap = this.store.get(namespace);
     if (!namespaceMap) {
       return undefined;
@@ -30,24 +30,12 @@ export class Context implements GlobalContext {
     return namespaceMap.get(key) as Maybe<T>;
   }
 
-  getAll<T>(namespace: string): Map<string, T> {
+  private getAll<T>(namespace: string): Map<string, T> {
     const namespaceMap = this.store.get(namespace);
     if (!namespaceMap) {
       return new Map();
     }
     return namespaceMap as Map<string, T>;
-  }
-
-  has(namespace: string, key: string): boolean {
-    const namespaceMap = this.store.get(namespace);
-    if (!namespaceMap) {
-      return false;
-    }
-    return namespaceMap.has(key);
-  }
-
-  clear(namespace: string): void {
-    this.store.delete(namespace);
   }
 
   clearAll(): void {
@@ -66,39 +54,25 @@ export class Context implements GlobalContext {
     return total;
   }
 
-  createDetectorContext(namespace: string): DetectorContext {
+  createCollectorContext(namespace: string): CollectorContext {
     if (!this.store.has(namespace)) {
       this.store.set(namespace, new Map());
     }
 
     return {
-      set: <T>(key: string, value: T): void => {
-        this.set(namespace, key, value);
+      addInfo: <T>(
+        key: string,
+        id: string,
+        location: Location,
+        snippet: string,
+        data: T,
+      ): void => {
+        const existing = this.get<CollectorInfo<T>[]>(namespace, key) ?? [];
+        existing.push({ id, location, snippet, data });
+        this.set(namespace, key, existing);
       },
-      get: <T>(key: string): Maybe<T> => {
-        return this.get<T>(namespace, key);
-      },
-      getAll: <T>(): Map<string, T> => {
-        return this.getAll<T>(namespace);
-      },
-      has: (key: string): boolean => {
-        return this.has(namespace, key);
-      },
-      clear: (): void => {
-        this.clear(namespace);
-      },
-    };
-  }
-
-  createReportContext(): ReportContext {
-    const reports: Report[] = [];
-
-    return {
-      addReport: (report: Report): void => {
-        reports.push(report);
-      },
-      getReports: (): Report[] => {
-        return reports;
+      getAllInfos: <T>(): Map<string, CollectorInfo<T>[]> => {
+        return this.getAll<CollectorInfo<T>[]>(namespace);
       },
     };
   }

@@ -1,24 +1,26 @@
 import type { LogicalExpressionInfo } from "./types.js";
+import { formatId } from "../../utils/index.js";
 import {
   getPosition,
   createCollector,
   isObjectNode,
+  extractSnippet,
 } from "../../utils/index.js";
-import { TYPE_LOGICAL_EXPRESSION, TYPE_IDENTIFIER } from "../../constants.js";
+import { AST_TYPES } from "../../constants/index.js";
 
 function getOperandCount(node: any): number {
-  if (node.type === TYPE_LOGICAL_EXPRESSION) {
+  if (node.type === AST_TYPES.LogicalExpression) {
     return getOperandCount(node.left) + getOperandCount(node.right);
   }
   return 1;
 }
 
-export interface LogicalExpressionDetectorConfig {
+export interface LogicalExpressionCollectorConfig {
   minOperands?: number;
 }
 
 export const logicalExpressionCollector = (
-  config: LogicalExpressionDetectorConfig,
+  config: LogicalExpressionCollectorConfig,
 ) =>
   createCollector((context, filePath, sourceCode) => {
     let counter = 0;
@@ -27,16 +29,16 @@ export const logicalExpressionCollector = (
 
     function markVisited(n: any) {
       if (!isObjectNode(n)) return;
-      if (n.type === TYPE_LOGICAL_EXPRESSION) {
-        visitedLogicalExpressions.add(`${n.start}:${n.end}`);
+      if (n.type === AST_TYPES.LogicalExpression) {
+        visitedLogicalExpressions.add(formatId(n.start, n.end));
         markVisited(n.left);
         markVisited(n.right);
       }
     }
 
     return {
-      LogicalExpression: (node) => {
-        const range = `${node.start}:${node.end}`;
+      [AST_TYPES.LogicalExpression]: (node) => {
+        const range = formatId(node.start, node.end);
         if (visitedLogicalExpressions.has(range)) return;
 
         markVisited(node);
@@ -53,21 +55,24 @@ export const logicalExpressionCollector = (
             return;
           }
 
-          if (n.type === TYPE_LOGICAL_EXPRESSION) {
+          if (n.type === AST_TYPES.LogicalExpression) {
             findTargets(n.left);
             findTargets(n.right);
             return;
           }
-          if (n.type === "BinaryExpression") {
+          if (n.type === AST_TYPES.BinaryExpression) {
             findTargets(n.left);
             findTargets(n.right);
             return;
           }
-          if (n.type === "UnaryExpression" || n.type === "UpdateExpression") {
+          if (
+            n.type === AST_TYPES.UnaryExpression ||
+            n.type === AST_TYPES.UpdateExpression
+          ) {
             findTargets(n.argument);
             return;
           }
-          if (n.type === "CallExpression") {
+          if (n.type === AST_TYPES.CallExpression) {
             findTargets(n.callee, { isCallee: true });
             for (const arg of n.arguments || []) {
               findTargets(arg);
@@ -75,10 +80,10 @@ export const logicalExpressionCollector = (
             return;
           }
 
-          if (n.type === "MemberExpression") {
+          if (n.type === AST_TYPES.MemberExpression) {
             const obj = n.object;
             let shouldParameterize = true;
-            if (obj.type === TYPE_IDENTIFIER && /^[A-Z]/.test(obj.name)) {
+            if (obj.type === AST_TYPES.Identifier && /^[A-Z]/.test(obj.name)) {
               shouldParameterize = false;
             }
             if (shouldParameterize) {
@@ -96,7 +101,7 @@ export const logicalExpressionCollector = (
             return;
           }
 
-          if (n.type === TYPE_IDENTIFIER) {
+          if (n.type === AST_TYPES.Identifier) {
             if (ctx.isCallee) return;
             if (/^[A-Z]/.test(n.name)) return;
 
@@ -132,7 +137,7 @@ export const logicalExpressionCollector = (
         // Deduplicate targets that have exact same start and end
         const uniqueTargetsMap = new Map<string, (typeof targets)[0]>();
         for (const t of validTargets) {
-          uniqueTargetsMap.set(`${t.start}:${t.end}`, t);
+          uniqueTargetsMap.set(formatId(t.start, t.end), t);
         }
         const flatTargets = Array.from(uniqueTargetsMap.values());
 
@@ -155,24 +160,22 @@ export const logicalExpressionCollector = (
             normalized.slice(0, relStart) + param + normalized.slice(relEnd);
         }
 
-        const id = `${filePath}:${counter++}`;
         const raw = sourceCode.slice(node.start, node.end);
-
-        const info: LogicalExpressionInfo = {
-          id,
-          normalized,
-          raw,
-          operandsCount,
-          location: {
-            file: filePath,
-            start: getPosition(sourceCode, node.start),
-            end: getPosition(sourceCode, node.end),
-          },
+        const location = {
+          file: filePath,
+          start: getPosition(sourceCode, node.start),
+          end: getPosition(sourceCode, node.end),
         };
-
-        const existing = context.get<LogicalExpressionInfo[]>(normalized) ?? [];
-        existing.push(info);
-        context.set(normalized, existing);
+        const snippet = extractSnippet(sourceCode, location, {
+          expandLines: 2,
+        });
+        context.addInfo(
+          normalized,
+          formatId(filePath, counter++),
+          location,
+          snippet,
+          { normalized, raw, operandsCount },
+        );
       },
     };
   });

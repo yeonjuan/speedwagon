@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { createStringInterpolationDetector } from "./index.js";
-import { DetectorTester } from "../../test-utils/index.js";
+import { createStringInterpolationCollector } from "./index.js";
+import { CollectorTester } from "../../test-utils/index.js";
 
-describe("StringInterpolationDetector", () => {
-  const detector = createStringInterpolationDetector({ minOccurrences: 2 });
+describe("StringInterpolationCollector", () => {
+  const collector = createStringInterpolationCollector({ minOccurrences: 2 });
 
   describe("Collection and Analysis", () => {
     it("should detect identical format strings", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
         const a = \`\${name}:\${age}\`;
         const b = \`\${user.name}:\${user.age}\`;
@@ -16,11 +16,10 @@ describe("StringInterpolationDetector", () => {
       expect(reports).toHaveLength(1);
       expect(reports[0].duplicates).toHaveLength(2);
       expect(reports[0].type).toBe("string-interpolation");
-      expect(reports[0].similarity).toBe(100);
     });
 
     it("should ignore simple concatenations without formatting", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
         const a = \`\${name}\${postfix}\`;
         const b = \`\${foo}\${bar}\`;
@@ -30,7 +29,7 @@ describe("StringInterpolationDetector", () => {
     });
 
     it("should ignore concatenations with simple spaces", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
         const a = \`\${name} \${postfix}\`;
         const b = \`\${foo} \${bar}\`;
@@ -40,7 +39,7 @@ describe("StringInterpolationDetector", () => {
     });
 
     it("should ignore single expressions without any literals", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
         const a = \`\${num}\`;
         const b = \`\${otherNum}\`;

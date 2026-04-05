@@ -3,8 +3,6 @@ import type { Location } from "./context.js";
 export interface Report {
   type: string;
 
-  similarity: number;
-
   duplicates: DuplicateEntry[];
 
   description?: string;
@@ -17,5 +15,5 @@ export interface DuplicateEntry {
 
   snippet: string;
 
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, any>;
 }

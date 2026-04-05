@@ -1,9 +1,8 @@
 import { parseSync } from "oxc-parser";
 import { Context } from "../core/context.js";
 import type {
-  Detector,
-  DetectorContext,
-  ReportContext,
+  Collector,
+  CollectorContext,
   Report,
 } from "../types/index.js";
 
@@ -13,16 +12,14 @@ export interface TestFile {
   lang?: "ts" | "tsx" | "js" | "jsx";
 }
 
-export class DetectorTester {
-  private detector: Detector;
-  private collectContext: DetectorContext;
-  private reportContext: ReportContext;
+export class CollectorTester {
+  private collector: Collector;
+  private collectContext: CollectorContext;
 
-  constructor(detector: Detector) {
-    this.detector = detector;
+  constructor(collector: Collector) {
+    this.collector = collector;
     const globalContext = new Context();
-    this.collectContext = globalContext.createDetectorContext(detector.name);
-    this.reportContext = globalContext.createReportContext();
+    this.collectContext = globalContext.createCollectorContext(collector.name);
   }
 
   async test(files: TestFile[]): Promise<Report[]> {
@@ -30,18 +27,16 @@ export class DetectorTester {
       const lang = file.lang ?? "ts";
       const result = parseSync(file.path, file.code, { lang });
 
-      const collector = this.detector.createCollector(
+      const visitorObj = this.collector.createVisitor(
         this.collectContext,
         file.path,
         file.code,
       );
-      const visitor = collector.visitor();
+      const visitor = visitorObj.visitor();
       visitor.visit(result.program);
     }
 
-    await this.detector.analyze(this.collectContext, this.reportContext);
-
-    return this.reportContext.getReports();
+    return this.collector.report(this.collectContext);
   }
 
   async testSingleFile(
@@ -51,11 +46,7 @@ export class DetectorTester {
     return this.test([{ path: filePath, code }]);
   }
 
-  getCollectContext(): DetectorContext {
+  getCollectContext(): CollectorContext {
     return this.collectContext;
-  }
-
-  getReportContext(): ReportContext {
-    return this.reportContext;
   }
 }

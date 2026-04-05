@@ -1,16 +1,21 @@
 import type { VisitorObject } from "oxc-parser";
+import { formatId, formatStringLiteral } from "../../utils/index.js";
 import type { UnionTypeInfo } from "./types.js";
-import { getPosition, createCollector } from "../../utils/index.js";
-import { TYPE_LITERAL, TYPE_STRING, TYPE_IDENTIFIER } from "../../constants.js";
+import {
+  getPosition,
+  createCollector,
+  extractSnippet,
+} from "../../utils/index.js";
+import { TYPE_STRING, AST_TYPES } from "../../constants/index.js";
 
 function extractTypeName(type: any): string | null {
   if (!type) return null;
 
   switch (type.type) {
-    case "TSLiteralType":
-      if (type.literal.type === TYPE_LITERAL) {
+    case AST_TYPES.TSLiteralType:
+      if (type.literal.type === AST_TYPES.Literal) {
         if (typeof type.literal.value === TYPE_STRING) {
-          return `"${type.literal.value}"`;
+          return formatStringLiteral(type.literal.value);
         }
         if (typeof type.literal.value === "number") {
           return String(type.literal.value);
@@ -24,37 +29,37 @@ function extractTypeName(type: any): string | null {
       }
       return null;
 
-    case "TSTypeReference":
-      if (type.typeName?.type === TYPE_IDENTIFIER) {
+    case AST_TYPES.TSTypeReference:
+      if (type.typeName?.type === AST_TYPES.Identifier) {
         return type.typeName.name;
       }
       return null;
 
-    case "TSStringKeyword":
+    case AST_TYPES.TSStringKeyword:
       return TYPE_STRING;
 
-    case "TSNumberKeyword":
+    case AST_TYPES.TSNumberKeyword:
       return "number";
 
-    case "TSBooleanKeyword":
+    case AST_TYPES.TSBooleanKeyword:
       return "boolean";
 
-    case "TSNullKeyword":
+    case AST_TYPES.TSNullKeyword:
       return "null";
 
-    case "TSUndefinedKeyword":
+    case AST_TYPES.TSUndefinedKeyword:
       return "undefined";
 
-    case "TSVoidKeyword":
+    case AST_TYPES.TSVoidKeyword:
       return "void";
 
-    case "TSAnyKeyword":
+    case AST_TYPES.TSAnyKeyword:
       return "any";
 
-    case "TSUnknownKeyword":
+    case AST_TYPES.TSUnknownKeyword:
       return "unknown";
 
-    case "TSNeverKeyword":
+    case AST_TYPES.TSNeverKeyword:
       return "never";
 
     default:
@@ -72,34 +77,23 @@ export const unionTypeCollector = createCollector(
       start: number,
       end: number,
     ): void {
-      const id = `${filePath}:${counter++}`;
+      const id = formatId(filePath, counter++);
       const startPos = getPosition(sourceCode, start);
       const endPos = getPosition(sourceCode, end);
 
-      const unionType: UnionTypeInfo = {
-        id,
-        types,
-        raw,
-        location: {
-          file: filePath,
-          start: startPos,
-          end: endPos,
-        },
+      const location = {
+        file: filePath,
+        start: startPos,
+        end: endPos,
       };
-
+      const snippet = extractSnippet(sourceCode, location, { expandLines: 1 });
       const key = types.join(" | ");
-      const existing = context.get<UnionTypeInfo[]>(key);
 
-      if (existing) {
-        existing.push(unionType);
-        context.set(key, existing);
-      } else {
-        context.set(key, [unionType]);
-      }
+      context.addInfo(key, id, location, snippet, { types, raw });
     }
 
     return {
-      TSUnionType: (node) => {
+      [AST_TYPES.TSUnionType]: (node) => {
         const types = node.types
           .map((type) => extractTypeName(type))
           .filter((name): name is string => name !== null)

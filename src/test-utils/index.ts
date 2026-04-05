@@ -1,2 +1,2 @@
-export { DetectorTester } from "./detector-tester.js";
-export type { TestFile } from "./detector-tester.js";
+export { CollectorTester } from "./collector-tester.js";
+export type { TestFile } from "./collector-tester.js";

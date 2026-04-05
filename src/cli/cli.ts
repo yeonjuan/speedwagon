@@ -1,9 +1,9 @@
 import {
   Runner,
-  createUnionTypeDetector,
-  createStringLiteralDetector,
-  createLogicalExpressionDetector,
-  createStringInterpolationDetector,
+  createUnionTypeCollector,
+  createStringLiteralCollector,
+  createLogicalExpressionCollector,
+  createStringInterpolationCollector,
 } from "../index.js";
 import { collectFiles } from "../utils/index.js";
 import { logger } from "../logger/index.js";
@@ -46,11 +46,11 @@ export class CLI {
 
     const runner = new Runner({
       files,
-      detectors: [
-        createUnionTypeDetector({ minOccurrences: 2 }),
-        createStringLiteralDetector({ minOccurrences: 3 }),
-        createLogicalExpressionDetector({ minOccurrences: 2, minOperands: 2 }),
-        createStringInterpolationDetector({ minOccurrences: 2 }),
+      collectors: [
+        createUnionTypeCollector({ minOccurrences: 2 }),
+        createStringLiteralCollector({ minOccurrences: 3 }),
+        createLogicalExpressionCollector({ minOccurrences: 2, minOperands: 3 }),
+        createStringInterpolationCollector({ minOccurrences: 2 }),
       ],
       verbose: false,
     });

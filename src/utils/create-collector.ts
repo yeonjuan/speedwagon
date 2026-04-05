@@ -1,29 +1,29 @@
 import { Visitor, type VisitorObject } from "oxc-parser";
-import type { Collector, DetectorContext } from "../types/index.js";
+import type { CollectorContext, VisitorInstance } from "../types/index.js";
 
-export type VisitorFactory = (
-  context: DetectorContext,
+type RawVisitorFactory = (
+  context: CollectorContext,
   filePath: string,
   sourceCode: string,
 ) => VisitorObject;
 
 export function createCollector(
-  visitorFactory: VisitorFactory,
+  factory: RawVisitorFactory,
 ): (
-  context: DetectorContext,
+  context: CollectorContext,
   filePath: string,
   sourceCode: string,
-) => Collector {
+) => VisitorInstance {
   return (
-    context: DetectorContext,
+    context: CollectorContext,
     filePath: string,
     sourceCode: string,
-  ): Collector => {
+  ): VisitorInstance => {
     return {
       context,
       filePath,
       visitor(): Visitor {
-        const visitorObject = visitorFactory(context, filePath, sourceCode);
+        const visitorObject = factory(context, filePath, sourceCode);
         return new Visitor(visitorObject);
       },
     };

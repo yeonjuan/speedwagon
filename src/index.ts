@@ -1,24 +1,9 @@
-export { Context } from "./core/context.js";
-export { Runner } from "./core/runner.js";
-export type { RunnerConfig } from "./core/runner.js";
+export * from "./core/runner.js";
+export * from "./core/context.js";
+export * from "./reporters/stdout-reporter.js";
+export * from "./types/index.js";
 
-export type {
-  GlobalContext,
-  Store,
-  Position,
-  Location,
-  Collector,
-  CollectorFactory,
-  Detector,
-  DetectorConfig,
-  Report,
-  DuplicateEntry,
-} from "./types/index.js";
-
-export { StdoutReporter } from "./reporters/stdout-reporter.js";
-export type { Reporter } from "./reporters/types.js";
-
-export { createUnionTypeDetector } from "./detectors/union-type/index.js";
-export { createStringLiteralDetector } from "./detectors/string-literal/index.js";
-export { createLogicalExpressionDetector } from "./detectors/logical-expression/index.js";
-export { createStringInterpolationDetector } from "./detectors/string-interpolation/index.js";
+export * from "./collectors/logical-expression/index.js";
+export * from "./collectors/string-interpolation/index.js";
+export * from "./collectors/string-literal/index.js";
+export * from "./collectors/union-type/index.js";
