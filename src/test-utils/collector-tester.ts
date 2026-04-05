@@ -1,10 +1,6 @@
 import { parseSync } from "oxc-parser";
 import { Context } from "../core/context.js";
-import type {
-  Collector,
-  CollectorContext,
-  Report,
-} from "../types/index.js";
+import type { Collector, CollectorContext, Report } from "../types/index.js";
 
 export interface TestFile {
   path: string;

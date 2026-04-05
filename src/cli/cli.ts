@@ -4,6 +4,7 @@ import {
   createStringLiteralCollector,
   createLogicalExpressionCollector,
   createStringInterpolationCollector,
+  createRegexLiteralCollector,
 } from "../index.js";
 import { collectFiles } from "../utils/index.js";
 import { logger } from "../logger/index.js";
@@ -51,6 +52,7 @@ export class CLI {
         createStringLiteralCollector({ minOccurrences: 3 }),
         createLogicalExpressionCollector({ minOccurrences: 2, minOperands: 3 }),
         createStringInterpolationCollector({ minOccurrences: 2 }),
+        createRegexLiteralCollector({ minOccurrences: 2 }),
       ],
       verbose: false,
     });
