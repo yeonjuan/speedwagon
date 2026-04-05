@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { createStringLiteralDetector } from "./index.js";
-import { DetectorTester } from "../../test-utils/detector-tester.js";
+import { createStringLiteralCollector } from "./index.js";
+import { CollectorTester } from "../../test-utils/collector-tester.js";
 
-describe("StringLiteralDetector", () => {
-  const detector = createStringLiteralDetector({ minOccurrences: 3 });
+describe("StringLiteralCollector", () => {
+  const collector = createStringLiteralCollector({ minOccurrences: 3 });
 
   describe("Collection and Analysis", () => {
     it("should detect no duplicates when string literals are unique", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
 const greeting = "Hello";
 const farewell = "Goodbye";
@@ -17,7 +17,7 @@ const farewell = "Goodbye";
     });
 
     it("should detect duplicates in variable declarations", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
 const msg1 = "Hello World";
 const msg2 = "Hello World";
@@ -32,7 +32,7 @@ const msg3 = "Hello World";
     });
 
     it("should detect duplicates in function call expressions", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
 console.log("Error occurred");
 console.error("Error occurred");
@@ -45,7 +45,7 @@ alert("Error occurred");
     });
 
     it("should detect duplicates in return statements", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
 function foo() { return "Success"; }
 function bar() { return "Success"; }
@@ -57,7 +57,7 @@ function baz() { return "Success"; }
     });
 
     it("should detect duplicates in binary expressions", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
 const a = status === "active";
 const b = state === "active";
@@ -69,7 +69,7 @@ const c = mode === "active";
     });
 
     it("should detect duplicates in mixed contexts", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
 const status = "pending";
 console.log("pending");
@@ -81,7 +81,7 @@ if (state === "pending") {}
     });
 
     it("should skip short strings (less than 3 characters)", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
 const a = "a";
 const b = "a";
@@ -93,8 +93,8 @@ const d = "a";
     });
 
     it("should respect minOccurrences configuration", async () => {
-      const detectorWith2 = createStringLiteralDetector({ minOccurrences: 2 });
-      const tester = new DetectorTester(detectorWith2);
+      const collectorWith2 = createStringLiteralCollector({ minOccurrences: 2 });
+      const tester = new CollectorTester(collectorWith2);
       const reports = await tester.testSingleFile(`
 const msg1 = "Hello";
 const msg2 = "Hello";
@@ -104,7 +104,7 @@ const msg2 = "Hello";
     });
 
     it("should detect multiple different string literal duplicates", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
 const s1 = "Success";
 const s2 = "Success";
@@ -119,7 +119,7 @@ const e3 = "Error";
     });
 
     it("should sort reports by duplicate count descending", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
 const a1 = "Many";
 const a2 = "Many";
@@ -138,7 +138,7 @@ const b3 = "Few";
     });
 
     it("should handle multiple files", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.test([
         {
           path: "/test/file1.ts",
@@ -162,7 +162,7 @@ const b3 = "Few";
     });
 
     it("should include metadata in duplicate entries", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
 const msg1 = "Hello";
 const msg2 = "Hello";
@@ -178,7 +178,7 @@ const msg3 = "Hello";
     });
 
     it("should differentiate between variable and expression context", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
 const msg = "Test";
 console.log("Test");
@@ -192,7 +192,7 @@ return "Test";
     });
 
     it("should generate appropriate suggestion", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
 const a = "constant value";
 const b = "constant value";
@@ -205,8 +205,8 @@ const c = "constant value";
     });
 
     it("should use default minOccurrences of 3", async () => {
-      const defaultDetector = createStringLiteralDetector();
-      const tester = new DetectorTester(defaultDetector);
+      const defaultCollector = createStringLiteralCollector();
+      const tester = new CollectorTester(defaultCollector);
       const reports = await tester.testSingleFile(`
 const a = "Test";
 const b = "Test";
@@ -216,7 +216,7 @@ const b = "Test";
     });
 
     it("should handle strings with special characters", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
 const a = "Hello\\nWorld";
 const b = "Hello\\nWorld";
@@ -227,7 +227,7 @@ const c = "Hello\\nWorld";
     });
 
     it("should handle empty strings", async () => {
-      const tester = new DetectorTester(detector);
+      const tester = new CollectorTester(collector);
       const reports = await tester.testSingleFile(`
 const a = "";
 const b = "";

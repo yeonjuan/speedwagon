@@ -1,6 +1,6 @@
-import type { DetectorInfo } from "../../types/index.js";
+import type { CollectorInfo } from "../../types/index.js";
 
-export type LogicalExpressionInfo = DetectorInfo<{
+export type LogicalExpressionInfo = CollectorInfo<{
   normalized: string;
   raw: string;
   operandsCount: number;

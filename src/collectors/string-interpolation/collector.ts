@@ -6,12 +6,12 @@ import {
 } from "../../utils/index.js";
 import { AST_TYPES } from "../../constants/index.js";
 
-export interface StringInterpolationDetectorConfig {
+export interface StringInterpolationCollectorConfig {
   minOccurrences?: number;
 }
 
 export const stringInterpolationCollector = (
-  config: StringInterpolationDetectorConfig,
+  config: StringInterpolationCollectorConfig,
 ) =>
   createCollector((context, filePath, sourceCode) => {
     let counter = 0;

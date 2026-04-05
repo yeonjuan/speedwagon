@@ -14,12 +14,12 @@ function getOperandCount(node: any): number {
   return 1;
 }
 
-export interface LogicalExpressionDetectorConfig {
+export interface LogicalExpressionCollectorConfig {
   minOperands?: number;
 }
 
 export const logicalExpressionCollector = (
-  config: LogicalExpressionDetectorConfig,
+  config: LogicalExpressionCollectorConfig,
 ) =>
   createCollector((context, filePath, sourceCode) => {
     let counter = 0;

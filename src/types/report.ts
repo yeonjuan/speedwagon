@@ -15,5 +15,5 @@ export interface DuplicateEntry {
 
   snippet: string;
 
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, any>;
 }

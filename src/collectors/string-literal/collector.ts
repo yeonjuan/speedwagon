@@ -6,11 +6,11 @@ import {
 } from "../../utils/index.js";
 import { AST_TYPES } from "../../constants/index.js";
 
-export interface StringLiteralDetectorConfig {
+export interface StringLiteralCollectorConfig {
   minOccurrences?: number;
 }
 
-export const stringLiteralCollector = (config: StringLiteralDetectorConfig) =>
+export const stringLiteralCollector = (config: StringLiteralCollectorConfig) =>
   createCollector((context, filePath, sourceCode) => {
     let counter = 0;
 

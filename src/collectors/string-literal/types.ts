@@ -1,8 +1,8 @@
-import type { DetectorInfo } from "../../types/index.js";
+import type { CollectorInfo } from "../../types/index.js";
 
 export type StringLiteralContext = "variable" | "expression";
 
-export type StringLiteralInfo = DetectorInfo<{
+export type StringLiteralInfo = CollectorInfo<{
   value: string;
   context: StringLiteralContext;
 }>;

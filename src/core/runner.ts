@@ -1,8 +1,7 @@
 import { readFile } from "fs/promises";
 import type {
-  Detector,
+  Collector,
   GlobalContext,
-  ReportContext,
   Report,
   Language,
 } from "../types/index.js";
@@ -17,7 +16,7 @@ import { ENCODING_UTF8 } from "../constants/index.js";
 
 export interface RunnerConfig {
   files: string[];
-  detectors: Detector[];
+  collectors: Collector[];
   reporter?: Reporter;
   verbose?: boolean;
 }
@@ -36,10 +35,10 @@ export class Runner {
     this.languages = [tsxLanguage, tsLanguage, jsxLanguage, jsLanguage];
     this.collectContexts = new Map();
 
-    for (const detector of config.detectors) {
+    for (const collector of config.collectors) {
       this.collectContexts.set(
-        detector.name,
-        this.context.createDetectorContext(detector.name),
+        collector.name,
+        this.context.createCollectorContext(collector.name),
       );
     }
   }
@@ -47,15 +46,14 @@ export class Runner {
   async run(): Promise<Report[]> {
     const startTime = Date.now();
 
-    this.log("Starting Two-Phase Analysis...");
+    this.log("Starting Analysis...");
     this.log(`Files to analyze: ${this.config.files.length}`);
     this.log(
-      `Detectors: ${this.config.detectors.map((d) => d.name).join(", ")}`,
+      `Collectors: ${this.config.collectors.map((d) => d.name).join(", ")}`,
     );
 
     await this.collectMetadata();
-    const reportContext = await this.analyzeAndReport();
-    const reports = reportContext.getReports();
+    const reports = await this.analyzeAndReport();
 
     const duration = Date.now() - startTime;
     this.log(`Analysis completed in ${duration}ms`);
@@ -93,20 +91,20 @@ export class Runner {
 
       const program = await language.parse(sourceCode, filePath);
 
-      for (const detector of this.config.detectors) {
-        this.log(`  Creating collector for ${detector.name}`);
-        const collectContext = this.collectContexts.get(detector.name)!;
-        const collector = detector.createCollector(
+      for (const collector of this.config.collectors) {
+        this.log(`  Creating visitor for ${collector.name}`);
+        const collectContext = this.collectContexts.get(collector.name)!;
+        const visitorObj = collector.createVisitor(
           collectContext,
           filePath,
           sourceCode,
         );
 
         this.log(`  Visiting AST for ${filePath}`);
-        const visitor = collector.visitor();
+        const visitor = visitorObj.visitor();
         visitor.visit(program);
         this.log(
-          `  Finished collecting from ${filePath} with ${detector.name}`,
+          `  Finished collecting from ${filePath} with ${collector.name}`,
         );
       }
     } catch (error) {
@@ -114,33 +112,34 @@ export class Runner {
     }
   }
 
-  private async analyzeAndReport(): Promise<ReportContext> {
-    this.log("\n=== Analyzing Duplicates ===");
+  private async analyzeAndReport(): Promise<Report[]> {
+    this.log("\n=== Generating Duplicate Reports ===");
     const startTime = Date.now();
 
-    const reportContext = this.context.createReportContext();
+    const globalReports: Report[] = [];
 
-    for (const detector of this.config.detectors) {
+    for (const collector of this.config.collectors) {
       try {
-        this.log(`Analyzing: ${detector.name}`);
-        const collectContext = this.collectContexts.get(detector.name)!;
+        this.log(`Reporting for: ${collector.name}`);
+        const collectContext = this.collectContexts.get(collector.name)!;
 
-        await detector.analyze(collectContext, reportContext);
-
-        const currentReports = reportContext.getReports();
+        // Using the single Collector object interface
+        const currentReports = collector.report(collectContext);
+        
+        globalReports.push(...currentReports);
         this.log(`  Found ${currentReports.length} duplicates`);
 
         collectContext.clear();
-        this.log(`  Cleared collect context for ${detector.name}`);
+        this.log(`  Cleared collect context for ${collector.name}`);
       } catch (error) {
-        console.error(`Error analyzing with ${detector.name}:`, error);
+        console.error(`Error generating report for ${collector.name}:`, error);
       }
     }
 
     const duration = Date.now() - startTime;
-    this.log(`Analysis completed in ${duration}ms`);
+    this.log(`Analysis generation completed in ${duration}ms`);
 
-    return reportContext;
+    return globalReports;
   }
 
   private log(message: string): void {

@@ -1,12 +1,10 @@
 import type {
   GlobalContext,
-  DetectorContext,
-  ReportContext,
+  CollectorContext,
   Store,
-  Report,
   Maybe,
   Location,
-  DetectorInfo,
+  CollectorInfo,
 } from "../types/index.js";
 
 export class Context implements GlobalContext {
@@ -68,7 +66,7 @@ export class Context implements GlobalContext {
     return total;
   }
 
-  createDetectorContext(namespace: string): DetectorContext {
+  createCollectorContext(namespace: string): CollectorContext {
     if (!this.store.has(namespace)) {
       this.store.set(namespace, new Map());
     }
@@ -96,25 +94,12 @@ export class Context implements GlobalContext {
         snippet: string,
         data: T,
       ): void => {
-        const existing = this.get<DetectorInfo<T>[]>(namespace, key) ?? [];
+        const existing = this.get<CollectorInfo<T>[]>(namespace, key) ?? [];
         existing.push({ id, location, snippet, data });
         this.set(namespace, key, existing);
       },
-      getAllInfos: <T>(): Map<string, DetectorInfo<T>[]> => {
-        return this.getAll<DetectorInfo<T>[]>(namespace);
-      },
-    };
-  }
-
-  createReportContext(): ReportContext {
-    const reports: Report[] = [];
-
-    return {
-      addReport: (report: Report): void => {
-        reports.push(report);
-      },
-      getReports: (): Report[] => {
-        return reports;
+      getAllInfos: <T>(): Map<string, CollectorInfo<T>[]> => {
+        return this.getAll<CollectorInfo<T>[]>(namespace);
       },
     };
   }
