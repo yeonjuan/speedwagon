@@ -39,17 +39,15 @@ src/
 │   ├── context.ts  # GlobalContext implementation
 │   └── runner.ts   # Two-Phase analysis orchestrator
 ├── detectors/      # Built-in detectors
-│   └── magic-number/  # Detects duplicate literals
+│   ├── union-type/      # Detects duplicate union types
+│   └── string-literal/  # Detects duplicate string literals
 ├── reporters/      # Output formatters
 ├── types/          # Type definitions
 ├── cli/            # Command-line interface
 │   ├── bin.ts      # CLI entry point
-│   └── helpers/    # File collection utilities
-├── languages/      # Language-specific detectors (to be implemented)
-│   ├── js/
-│   ├── ts/
-│   ├── vue/
-│   └── svelte/
+│   └── cli.ts      # CLI implementation
+├── test-utils/     # Testing utilities
+│   └── detector-tester.ts  # DetectorTester for integration tests
 └── index.ts        # Main library exports
 ```
 
@@ -83,112 +81,206 @@ This architecture is central to how the system works and affects all detector im
 
 ### Phase 1: Collection (Memory-Efficient)
 
-1. Parse files using OXC parser (`packages/core/src/core/runner.ts`)
-2. Each detector's **Collector** visits AST nodes using OXC's visitor pattern
-3. Extract only essential metadata (fingerprints) into `GlobalContext`
-4. **Immediately discard the AST** - never keep ASTs in memory
-5. Store metadata in namespaced Maps: `Map<namespace, Map<key, value>>`
+1. Create `DetectorContext` for each detector
+2. Parse files using OXC parser (`src/core/runner.ts`)
+3. Each detector's **Collector** visits AST nodes using OXC's visitor pattern
+4. Extract only essential metadata (fingerprints) into `DetectorContext`
+5. **Immediately discard the AST** - never keep ASTs in memory
 
 ### Phase 2: Analysis
 
-1. All detectors' **Analyzers** process collected metadata from `GlobalContext`
-2. Compare fingerprints across files to find duplicates
-3. Generate `Report[]` with similarity scores and locations
+1. Create `ReportContext` to collect all reports
+2. For each detector:
+   - Run analyzer with `collectContext` and `reportContext`
+   - Analyzer adds reports to `reportContext`
+   - Clear `collectContext` to free memory
+3. Pass `reportContext` to reporter for output
 
-**Key Insight**: ASTs are never kept in memory simultaneously. Only lightweight metadata survives Phase 1.
+**Key Insight**: ASTs are never kept in memory simultaneously. Only lightweight metadata survives Phase 1, and collect contexts are cleared after analysis.
 
 ## Core Architecture
 
-### GlobalContext (Namespaced Storage)
+### GlobalContext
 
 - **Location**: `src/core/context.ts`
-- **Purpose**: Centralized metadata storage using nested Maps
-- **Structure**: `Map<namespace, Map<key, value>>`
-- Each detector uses its own namespace (e.g., `"magic-number"`)
-- Provides `set()`, `get()`, `getAll()`, `has()`, `clear()` methods
+- **Purpose**: Factory for creating detector-specific and report contexts
+- **Methods**:
+  - `createDetectorContext(namespace)`: Creates isolated context for a detector
+  - `createReportContext()`: Creates context for collecting reports
+  - Internal storage using nested Maps: `Map<namespace, Map<key, value>>`
+
+### DetectorContext
+
+- **Location**: `src/types/context.ts`
+- **Purpose**: Isolated storage for each detector's collected metadata
+- **Methods**: `set()`, `get()`, `getAll()`, `has()`, `clear()`
+- Each detector gets its own context with namespace already bound
+
+### ReportContext
+
+- **Location**: `src/types/context.ts`
+- **Purpose**: Collects all reports from analyzers
+- **Methods**:
+  - `addReport(report)`: Add a report
+  - `getReports()`: Get all collected reports
 
 ### Detector Interface (Pluggable Modules)
 
 - **Location**: `src/types/detector.ts`
-- **Required Methods**:
-  1. `createCollector(context, filePath, sourceCode)`: Returns a Collector for Phase 1
-  2. `analyze(context)`: Processes collected data in Phase 2, returns `Report[]`
-- **Properties**: `name`, `description`, optional `config`
+- **Required**:
+  - `name`: Detector identifier
+  - `description`: Human-readable description
+  - `createCollector`: Factory function from `createCollector()` utility
+  - `analyze(collectContext, reportContext)`: Processes collected data, adds reports to reportContext
+- **Optional**: `config` object
 
-### Collector Interface (AST Visitors)
+### CollectorFactory
 
-- **Location**: `src/types/collector.ts`
-- **Purpose**: Traverse AST and extract metadata during Phase 1
-- **Key Method**: `visit(program: Program)` - receives OXC AST program
-- Uses OXC's `VisitorObject` pattern (ESLint-style callbacks)
-- Must NOT store AST references - only extract serializable data
+- **Location**: `src/utils/create-collector.ts`
+- **Purpose**: Creates collector functions that return VisitorObject
+- **Pattern**: `createCollector((context, filePath, sourceCode) => ({ VisitorObject }))`
+- Returns VisitorObject directly (not wrapped in visitor() method)
 
 ### Runner (Orchestrator)
 
 - **Location**: `src/core/runner.ts`
-- Coordinates both phases synchronously
+- Coordinates both phases:
+  - `collectMetadata()`: Runs all collectors on all files
+  - `analyzeAndReport()`: Runs analyzers, clears collect contexts
 - Uses OXC's `parseSync()` - note: file path is first parameter
 - Language detection: `.ts` → `"ts"`, `.tsx` → `"tsx"`, `.jsx` → `"jsx"`, `.js` → `"js"`
 - Each file is parsed, visited by all collectors, then AST is discarded
 
 ## Implementing a New Detector
 
-Follow this pattern (see `src/detectors/magic-number/` as reference):
+Follow this pattern (see `src/detectors/union-type/` or `src/detectors/string-literal/` as reference):
 
 ### 1. Create Detector Files
 
 ```
 src/detectors/your-detector/
-├── index.ts       # Main detector class
-├── collector.ts   # Phase 1: AST visitor
-├── analyzer.ts    # Phase 2: Analysis logic
-└── types.ts       # Type definitions
+├── index.ts       # Detector factory function
+├── collector.ts   # Collection logic (returns VisitorObject)
+├── analyzer.ts    # Analysis logic (adds reports to ReportContext)
+├── types.ts       # Type definitions
+└── index.spec.ts  # Integration tests using DetectorTester
 ```
 
 ### 2. Collector Implementation
 
 ```typescript
-import { Visitor, type VisitorObject, type Program } from "oxc-parser";
+import { getPosition, createCollector } from "../../utils/index.js";
+import type { YourInfo } from "./types.js";
 
-export class YourCollector implements Collector {
-  private readonly namespace = "your-namespace";
+export const yourCollector = createCollector(
+  (context, filePath, sourceCode) => {
+    let counter = 0;
 
-  visit(program: Program): void {
-    const visitorObject: VisitorObject = {
+    return {
       // OXC visitor callbacks - see node types in oxc-parser types
       FunctionDeclaration: (node) => {
         // Extract metadata (NOT the AST node itself)
-        const metadata = {
-          /* ... */
+        const existing = context.get<YourInfo[]>(key) ?? [];
+        const info: YourInfo = {
+          id: `${filePath}:${counter++}`,
+          // ... your metadata
+          location: {
+            file: filePath,
+            start: getPosition(sourceCode, node.start),
+            end: getPosition(sourceCode, node.end),
+          },
         };
-        this.context.set(this.namespace, key, metadata);
+        existing.push(info);
+        context.set(key, existing);
       },
     };
-
-    const visitor = new Visitor(visitorObject);
-    visitor.visit(program);
-  }
-}
+  },
+);
 ```
 
 ### 3. Analyzer Implementation
 
 ```typescript
-export class YourAnalyzer {
-  async analyze(context: GlobalContext): Promise<Report[]> {
-    const data = context.getAll<YourType>(this.namespace);
+import type {
+  DetectorContext,
+  ReportContext,
+  Report,
+} from "../../types/index.js";
+import type { YourInfo } from "./types.js";
+
+export function createAnalyzer(minOccurrences: number = 2) {
+  return async (
+    collectContext: DetectorContext,
+    reportContext: ReportContext,
+  ): Promise<void> => {
+    const allData = collectContext.getAll<YourInfo[]>();
+
     // Compare data, find duplicates
-    return reports;
-  }
+    const reports: Report[] = [];
+    // ... your analysis logic
+
+    reports.sort((a, b) => b.duplicates.length - a.duplicates.length);
+
+    for (const report of reports) {
+      reportContext.addReport(report);
+    }
+  };
 }
 ```
 
-### 4. Export from Core
+### 4. Detector Factory
 
-Add exports to:
+```typescript
+import type { Detector, DetectorConfig } from "../../types/index.js";
+import { yourCollector } from "./collector.js";
+import { createAnalyzer } from "./analyzer.js";
 
-- `src/detectors/index.ts`
-- `src/index.ts`
+export interface YourDetectorConfig extends DetectorConfig {
+  minOccurrences?: number;
+}
+
+export function createYourDetector(config?: YourDetectorConfig): Detector {
+  const minOccurrences = config?.minOccurrences ?? 2;
+
+  return {
+    name: "your-detector",
+    description: "Description of what this detector does",
+    createCollector: yourCollector,
+    analyze: createAnalyzer(minOccurrences),
+    config,
+  };
+}
+```
+
+### 5. Integration Tests
+
+```typescript
+import { describe, it, expect } from "vitest";
+import { createYourDetector } from "./index.js";
+import { DetectorTester } from "../../test-utils/index.js";
+
+describe("YourDetector", () => {
+  const detector = createYourDetector({ minOccurrences: 2 });
+
+  it("should detect duplicates", async () => {
+    const tester = new DetectorTester(detector);
+    const reports = await tester.testSingleFile(`
+      // your test code
+    `);
+
+    expect(reports).toHaveLength(1);
+    expect(reports[0].duplicates).toHaveLength(2);
+  });
+});
+```
+
+### 6. Export from Core
+
+Add export to `src/index.ts`:
+
+```typescript
+export { createYourDetector } from "./detectors/your-detector/index.js";
+```
 
 ## OXC Parser Specifics
 
@@ -205,28 +297,49 @@ Add exports to:
 **Visitor Pattern**:
 
 ```typescript
-const visitorObject: VisitorObject = {
-  Literal: (node) => {
-    /* called for all literals */
+// Return VisitorObject directly from createCollector factory
+export const yourCollector = createCollector(
+  (context, filePath, sourceCode) => {
+    return {
+      Literal: (node) => {
+        /* called for all literals */
+      },
+      FunctionDeclaration: (node) => {
+        /* ... */
+      },
+      "FunctionDeclaration:exit": (node) => {
+        /* called on exit */
+      },
+    };
   },
-  FunctionDeclaration: (node) => {
-    /* ... */
-  },
-  "FunctionDeclaration:exit": (node) => {
-    /* called on exit */
-  },
-};
+);
 ```
+
+**Note**: Use `node.start` and `node.end` for positions (not `node.span.start`/`node.span.end`).
 
 ## Current Detectors
 
-### MagicNumberDetector
+### UnionTypeDetector
 
-- **Location**: `src/detectors/magic-number/`
-- **Namespace**: `"magic-number"`
-- **Purpose**: Finds duplicate literal values (numbers, strings, booleans, bigints)
+- **Location**: `src/detectors/union-type/`
+- **Name**: `"union-type"`
+- **Purpose**: Finds duplicate TypeScript union types
+- **Configuration**: `minOccurrences` (default: 2)
+- **Features**:
+  - Normalizes union types by sorting members
+  - Detects duplicates regardless of member order
+  - Handles string literals, type references, keyword types, null, undefined
+
+### StringLiteralDetector
+
+- **Location**: `src/detectors/string-literal/`
+- **Name**: `"string-literal"`
+- **Purpose**: Finds duplicate string literals in code
 - **Configuration**: `minOccurrences` (default: 3)
-- **Skip Logic**: Ignores 0, 1, -1, small integers 2-10, and strings < 3 chars
+- **Features**:
+  - Detects literals in variable declarations, function calls, return statements, binary expressions
+  - Tracks context (variable vs expression)
+  - Skip Logic: Ignores strings < 3 characters
 
 ## TypeScript Configuration
 
@@ -247,17 +360,38 @@ All detectors return `Report[]` with:
 - `description`: Human-readable summary
 - `suggestion`: Optional remediation advice
 
-## Testing CLI Output
+## Testing
+
+### Unit/Integration Tests
+
+Use `DetectorTester` for testing detectors:
+
+```typescript
+import { DetectorTester } from "../../test-utils/index.js";
+
+const tester = new DetectorTester(detector);
+const reports = await tester.testSingleFile(`your code here`);
+```
+
+Run tests:
+
+```bash
+pnpm test                    # Run all tests
+pnpm test src/detectors/your-detector  # Run specific detector tests
+```
+
+### CLI Testing
 
 Test files are in `test-files/`:
 
 ```bash
-node packages/cli/dist/index.js 'test-files/**/*.ts'
+node dist/cli/bin.js 'test-files/**/*.ts'
 ```
 
 Expected output shows:
 
 - File paths with line:column positions
 - Code snippets with context
-- Similarity scores
+- Similarity scores (always 100% for exact duplicates)
 - Remediation suggestions
+- Summary of duplications found

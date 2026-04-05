@@ -9,7 +9,11 @@ export type VisitorFactory = (
 
 export function createCollector(
   visitorFactory: VisitorFactory,
-): (context: DetectorContext, filePath: string, sourceCode: string) => Collector {
+): (
+  context: DetectorContext,
+  filePath: string,
+  sourceCode: string,
+) => Collector {
   return (
     context: DetectorContext,
     filePath: string,

@@ -1,4 +1,8 @@
-import { Runner, createUnionTypeDetector } from "../index.js";
+import {
+  Runner,
+  createUnionTypeDetector,
+  createStringLiteralDetector,
+} from "../index.js";
 import { collectFiles } from "../utils/index.js";
 import { logger } from "../logger/index.js";
 
@@ -29,7 +33,10 @@ export class CLI {
 
     const runner = new Runner({
       files,
-      detectors: [createUnionTypeDetector({ minOccurrences: 2 })],
+      detectors: [
+        createUnionTypeDetector({ minOccurrences: 2 }),
+        createStringLiteralDetector({ minOccurrences: 3 }),
+      ],
       verbose: false,
     });
 
