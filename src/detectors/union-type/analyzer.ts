@@ -44,7 +44,6 @@ function createReport(group: UnionTypeGroup): Report {
 
   return {
     type: "union-type",
-    similarity: 100,
     duplicates,
     description: `Union type "${typeStr}" appears ${group.count} times across the codebase`,
     suggestion: `Consider extracting this union type into a type alias (e.g., type MyType = ${typeStr})`,

@@ -20,7 +20,6 @@ function createReport(group: StringInterpolationGroup): Report {
 
   return {
     type: "string-interpolation",
-    similarity: 100, // exact format match
     duplicates,
     description: `A structurally identical string interpolation format appears ${group.count} times across the codebase.`,
     suggestion: `Consider extracting this string interpolation pattern into a reusable format function or constant.\n  Format: \`${group.normalized}\``,

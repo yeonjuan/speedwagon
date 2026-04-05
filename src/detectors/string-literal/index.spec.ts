@@ -26,7 +26,6 @@ const msg3 = "Hello World";
 
       expect(reports).toHaveLength(1);
       expect(reports[0].type).toBe("string-literal");
-      expect(reports[0].similarity).toBe(100);
       expect(reports[0].duplicates).toHaveLength(3);
       expect(reports[0].description).toContain('"Hello World"');
       expect(reports[0].description).toContain("3 times");

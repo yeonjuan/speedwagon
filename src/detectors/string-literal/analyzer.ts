@@ -21,7 +21,6 @@ function createReport(group: StringLiteralGroup): Report {
 
   return {
     type: "string-literal",
-    similarity: 100,
     duplicates,
     description: `String literal "${group.value}" appears ${group.count} times across the codebase.`,
     suggestion: `Consider extracting "${group.value}" into a named constant.`,

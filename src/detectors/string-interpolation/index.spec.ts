@@ -16,7 +16,6 @@ describe("StringInterpolationDetector", () => {
       expect(reports).toHaveLength(1);
       expect(reports[0].duplicates).toHaveLength(2);
       expect(reports[0].type).toBe("string-interpolation");
-      expect(reports[0].similarity).toBe(100);
     });
 
     it("should ignore simple concatenations without formatting", async () => {

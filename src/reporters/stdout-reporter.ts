@@ -34,9 +34,6 @@ export class StdoutReporter implements Reporter {
       console.log(chalk.yellow(`📝 ${report.description}`));
     }
 
-    const similarityColor = this.getSimilarityColor(report.similarity);
-    console.log(similarityColor(`🔍 Similarity: ${report.similarity}%`));
-
     console.log(chalk.bold(`\n📍 Locations (${report.duplicates.length}):`));
     report.duplicates.forEach((duplicate, idx) => {
       this.printDuplicate(duplicate, idx + 1);
@@ -70,18 +67,6 @@ export class StdoutReporter implements Reporter {
         console.log(chalk.gray(`  ${String(lineNum).padStart(3)} │ `) + line);
       });
       console.log(chalk.gray("     └──────"));
-    }
-  }
-
-  private getSimilarityColor(similarity: number): typeof chalk {
-    if (similarity === 100) {
-      return chalk.red.bold;
-    } else if (similarity >= 80) {
-      return chalk.red;
-    } else if (similarity >= 60) {
-      return chalk.yellow;
-    } else {
-      return chalk.cyan;
     }
   }
 

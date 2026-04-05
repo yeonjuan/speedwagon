@@ -13,7 +13,6 @@ export interface Detector {
 }
 
 export interface DetectorConfig {
-  minSimilarity?: number;
   minSize?: number;
   options?: Record<string, unknown>;
 }

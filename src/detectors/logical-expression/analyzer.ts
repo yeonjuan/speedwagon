@@ -37,7 +37,6 @@ function createReport(group: LogicalExpressionGroup): Report {
 
   return {
     type: "logical-expression",
-    similarity: 100, // They match exactly after structural parameterization
     duplicates,
     description: `A structurally identical logical expression appears ${group.count} times across the codebase`,
     suggestion: `Consider extracting this logical expression into a separate helper function.`,

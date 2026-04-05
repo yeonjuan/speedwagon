@@ -25,7 +25,6 @@ function updateStatus(status: "active" | "inactive") {}
 
       expect(reports).toHaveLength(1);
       expect(reports[0].type).toBe("union-type");
-      expect(reports[0].similarity).toBe(100);
       expect(reports[0].duplicates).toHaveLength(2);
       expect(reports[0].description).toContain('"active" | "inactive"');
       expect(reports[0].description).toContain("2 times");
