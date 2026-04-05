@@ -5,10 +5,10 @@ import {
   isObjectNode,
   extractSnippet,
 } from "../../utils/index.js";
-import { TYPE_LOGICAL_EXPRESSION, TYPE_IDENTIFIER } from "../../constants.js";
+import { AST_TYPES } from "../../constants/index.js";
 
 function getOperandCount(node: any): number {
-  if (node.type === TYPE_LOGICAL_EXPRESSION) {
+  if (node.type === AST_TYPES.LogicalExpression) {
     return getOperandCount(node.left) + getOperandCount(node.right);
   }
   return 1;
@@ -28,7 +28,7 @@ export const logicalExpressionCollector = (
 
     function markVisited(n: any) {
       if (!isObjectNode(n)) return;
-      if (n.type === TYPE_LOGICAL_EXPRESSION) {
+      if (n.type === AST_TYPES.LogicalExpression) {
         visitedLogicalExpressions.add(`${n.start}:${n.end}`);
         markVisited(n.left);
         markVisited(n.right);
@@ -36,7 +36,7 @@ export const logicalExpressionCollector = (
     }
 
     return {
-      LogicalExpression: (node) => {
+      [AST_TYPES.LogicalExpression]: (node) => {
         const range = `${node.start}:${node.end}`;
         if (visitedLogicalExpressions.has(range)) return;
 
@@ -54,21 +54,24 @@ export const logicalExpressionCollector = (
             return;
           }
 
-          if (n.type === TYPE_LOGICAL_EXPRESSION) {
+          if (n.type === AST_TYPES.LogicalExpression) {
             findTargets(n.left);
             findTargets(n.right);
             return;
           }
-          if (n.type === "BinaryExpression") {
+          if (n.type === AST_TYPES.BinaryExpression) {
             findTargets(n.left);
             findTargets(n.right);
             return;
           }
-          if (n.type === "UnaryExpression" || n.type === "UpdateExpression") {
+          if (
+            n.type === AST_TYPES.UnaryExpression ||
+            n.type === AST_TYPES.UpdateExpression
+          ) {
             findTargets(n.argument);
             return;
           }
-          if (n.type === "CallExpression") {
+          if (n.type === AST_TYPES.CallExpression) {
             findTargets(n.callee, { isCallee: true });
             for (const arg of n.arguments || []) {
               findTargets(arg);
@@ -76,10 +79,10 @@ export const logicalExpressionCollector = (
             return;
           }
 
-          if (n.type === "MemberExpression") {
+          if (n.type === AST_TYPES.MemberExpression) {
             const obj = n.object;
             let shouldParameterize = true;
-            if (obj.type === TYPE_IDENTIFIER && /^[A-Z]/.test(obj.name)) {
+            if (obj.type === AST_TYPES.Identifier && /^[A-Z]/.test(obj.name)) {
               shouldParameterize = false;
             }
             if (shouldParameterize) {
@@ -97,7 +100,7 @@ export const logicalExpressionCollector = (
             return;
           }
 
-          if (n.type === TYPE_IDENTIFIER) {
+          if (n.type === AST_TYPES.Identifier) {
             if (ctx.isCallee) return;
             if (/^[A-Z]/.test(n.name)) return;
 

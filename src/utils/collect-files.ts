@@ -2,7 +2,7 @@ import fg from "fast-glob";
 import ignore, { type Ignore } from "ignore";
 import fs from "node:fs/promises";
 import path from "node:path";
-import { ENCODING_UTF8 } from "../constants.js";
+import { ENCODING_UTF8 } from "../constants/index.js";
 
 export async function collectFiles(
   patterns: string[],

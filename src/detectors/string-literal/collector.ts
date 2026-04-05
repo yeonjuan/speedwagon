@@ -4,8 +4,7 @@ import {
   isStringLiteralNode,
   extractSnippet,
 } from "../../utils/index.js";
-import type { StringLiteralInfo } from "./types.js";
-import { TYPE_LITERAL, TYPE_STRING } from "../../constants.js";
+import { AST_TYPES } from "../../constants/index.js";
 
 export interface StringLiteralDetectorConfig {
   minOccurrences?: number;
@@ -20,7 +19,7 @@ export const stringLiteralCollector = (config: StringLiteralDetectorConfig) =>
     };
 
     return {
-      VariableDeclarator: (node) => {
+      [AST_TYPES.VariableDeclarator]: (node) => {
         if (isStringLiteralNode(node.init)) {
           const value = node.init.value;
           if (shouldSkip(value)) return;
@@ -37,7 +36,7 @@ export const stringLiteralCollector = (config: StringLiteralDetectorConfig) =>
           });
         }
       },
-      CallExpression: (node) => {
+      [AST_TYPES.CallExpression]: (node) => {
         for (const arg of node.arguments) {
           if (isStringLiteralNode(arg)) {
             const value = arg.value;
@@ -56,7 +55,7 @@ export const stringLiteralCollector = (config: StringLiteralDetectorConfig) =>
           }
         }
       },
-      ReturnStatement: (node) => {
+      [AST_TYPES.ReturnStatement]: (node) => {
         if (isStringLiteralNode(node.argument)) {
           const value = node.argument.value;
           if (shouldSkip(value)) return;
@@ -73,7 +72,7 @@ export const stringLiteralCollector = (config: StringLiteralDetectorConfig) =>
           });
         }
       },
-      BinaryExpression: (node) => {
+      [AST_TYPES.BinaryExpression]: (node) => {
         if (isStringLiteralNode(node.left)) {
           const value = node.left.value;
           if (!shouldSkip(value)) {

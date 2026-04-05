@@ -13,7 +13,7 @@ import { jsLanguage } from "../languages/js/index.js";
 import { tsLanguage } from "../languages/ts/index.js";
 import { jsxLanguage } from "../languages/jsx/index.js";
 import { tsxLanguage } from "../languages/tsx/index.js";
-import { ENCODING_UTF8 } from "../constants.js";
+import { ENCODING_UTF8 } from "../constants/index.js";
 
 export interface RunnerConfig {
   files: string[];

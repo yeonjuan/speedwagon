@@ -1,7 +1,7 @@
 import type { Report, DuplicateEntry } from "../types/index.js";
 import type { Reporter } from "./types.js";
 import chalk from "chalk";
-import { TYPE_STRING } from "../constants.js";
+import { TYPE_STRING } from "../constants/index.js";
 
 /**
  * Reporter that outputs to stdout with colored formatting

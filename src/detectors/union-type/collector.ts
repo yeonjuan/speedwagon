@@ -5,14 +5,14 @@ import {
   createCollector,
   extractSnippet,
 } from "../../utils/index.js";
-import { TYPE_LITERAL, TYPE_STRING, TYPE_IDENTIFIER } from "../../constants.js";
+import { TYPE_STRING, AST_TYPES } from "../../constants/index.js";
 
 function extractTypeName(type: any): string | null {
   if (!type) return null;
 
   switch (type.type) {
-    case "TSLiteralType":
-      if (type.literal.type === TYPE_LITERAL) {
+    case AST_TYPES.TSLiteralType:
+      if (type.literal.type === AST_TYPES.Literal) {
         if (typeof type.literal.value === TYPE_STRING) {
           return `"${type.literal.value}"`;
         }
@@ -28,37 +28,37 @@ function extractTypeName(type: any): string | null {
       }
       return null;
 
-    case "TSTypeReference":
-      if (type.typeName?.type === TYPE_IDENTIFIER) {
+    case AST_TYPES.TSTypeReference:
+      if (type.typeName?.type === AST_TYPES.Identifier) {
         return type.typeName.name;
       }
       return null;
 
-    case "TSStringKeyword":
+    case AST_TYPES.TSStringKeyword:
       return TYPE_STRING;
 
-    case "TSNumberKeyword":
+    case AST_TYPES.TSNumberKeyword:
       return "number";
 
-    case "TSBooleanKeyword":
+    case AST_TYPES.TSBooleanKeyword:
       return "boolean";
 
-    case "TSNullKeyword":
+    case AST_TYPES.TSNullKeyword:
       return "null";
 
-    case "TSUndefinedKeyword":
+    case AST_TYPES.TSUndefinedKeyword:
       return "undefined";
 
-    case "TSVoidKeyword":
+    case AST_TYPES.TSVoidKeyword:
       return "void";
 
-    case "TSAnyKeyword":
+    case AST_TYPES.TSAnyKeyword:
       return "any";
 
-    case "TSUnknownKeyword":
+    case AST_TYPES.TSUnknownKeyword:
       return "unknown";
 
-    case "TSNeverKeyword":
+    case AST_TYPES.TSNeverKeyword:
       return "never";
 
     default:
@@ -92,7 +92,7 @@ export const unionTypeCollector = createCollector(
     }
 
     return {
-      TSUnionType: (node) => {
+      [AST_TYPES.TSUnionType]: (node) => {
         const types = node.types
           .map((type) => extractTypeName(type))
           .filter((name): name is string => name !== null)

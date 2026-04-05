@@ -4,6 +4,7 @@ import {
   createCollector,
   extractSnippet,
 } from "../../utils/index.js";
+import { AST_TYPES } from "../../constants/index.js";
 
 export interface StringInterpolationDetectorConfig {
   minOccurrences?: number;
@@ -16,7 +17,7 @@ export const stringInterpolationCollector = (
     let counter = 0;
 
     return {
-      TemplateLiteral: (node) => {
+      [AST_TYPES.TemplateLiteral]: (node) => {
         const quasis = node.quasis;
 
         // Skip if all quasis are strictly empty or whitespace
