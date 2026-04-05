@@ -1,7 +1,7 @@
 import type { VisitorObject } from "oxc-parser";
 import type { UnionTypeInfo } from "./types.js";
 import { getPosition, createCollector } from "../../utils/index.js";
-import { TYPE_LITERAL, TYPE_STRING } from "../../constants.js";
+import { TYPE_LITERAL, TYPE_STRING, TYPE_IDENTIFIER } from "../../constants.js";
 
 function extractTypeName(type: any): string | null {
   if (!type) return null;
@@ -25,7 +25,7 @@ function extractTypeName(type: any): string | null {
       return null;
 
     case "TSTypeReference":
-      if (type.typeName?.type === "Identifier") {
+      if (type.typeName?.type === TYPE_IDENTIFIER) {
         return type.typeName.name;
       }
       return null;

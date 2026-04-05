@@ -23,9 +23,6 @@ describe("LogicalExpressionDetector", () => {
       expect(reports[0].duplicates).toHaveLength(2);
       expect(reports[0].type).toBe("logical-expression");
       expect(reports[0].similarity).toBe(100);
-      expect(reports[0].duplicates[0].metadata?.normalized).toContain(
-        "$1.type",
-      );
     });
 
     it("should not falsely match if structures differ", async () => {

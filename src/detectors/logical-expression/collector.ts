@@ -1,8 +1,9 @@
 import type { LogicalExpressionInfo } from "./types.js";
-import { getPosition, createCollector } from "../../utils/index.js";
+import { getPosition, createCollector, isObjectNode } from "../../utils/index.js";
+import { TYPE_LOGICAL_EXPRESSION, TYPE_IDENTIFIER } from "../../constants.js";
 
 function getOperandCount(node: any): number {
-  if (node.type === "LogicalExpression") {
+  if (node.type === TYPE_LOGICAL_EXPRESSION) {
     return getOperandCount(node.left) + getOperandCount(node.right);
   }
   return 1;
@@ -21,8 +22,8 @@ export const logicalExpressionCollector = (
     const visitedLogicalExpressions = new Set<string>();
 
     function markVisited(n: any) {
-      if (!n || typeof n !== "object") return;
-      if (n.type === "LogicalExpression") {
+      if (!isObjectNode(n)) return;
+      if (n.type === TYPE_LOGICAL_EXPRESSION) {
         visitedLogicalExpressions.add(`${n.start}:${n.end}`);
         markVisited(n.left);
         markVisited(n.right);
@@ -42,13 +43,13 @@ export const logicalExpressionCollector = (
         const targets: { start: number; end: number; raw: string }[] = [];
 
         function findTargets(n: any, ctx: { isCallee?: boolean } = {}) {
-          if (!n || typeof n !== "object") return;
+          if (!isObjectNode(n)) return;
           if (Array.isArray(n)) {
             for (const item of n) findTargets(item, ctx);
             return;
           }
 
-          if (n.type === "LogicalExpression") {
+          if (n.type === TYPE_LOGICAL_EXPRESSION) {
             findTargets(n.left);
             findTargets(n.right);
             return;
@@ -73,7 +74,7 @@ export const logicalExpressionCollector = (
           if (n.type === "MemberExpression") {
             const obj = n.object;
             let shouldParameterize = true;
-            if (obj.type === "Identifier" && /^[A-Z]/.test(obj.name)) {
+            if (obj.type === TYPE_IDENTIFIER && /^[A-Z]/.test(obj.name)) {
               shouldParameterize = false;
             }
             if (shouldParameterize) {
@@ -91,7 +92,7 @@ export const logicalExpressionCollector = (
             return;
           }
 
-          if (n.type === "Identifier") {
+          if (n.type === TYPE_IDENTIFIER) {
             if (ctx.isCallee) return;
             if (/^[A-Z]/.test(n.name)) return;
 

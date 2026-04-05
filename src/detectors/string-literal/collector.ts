@@ -1,4 +1,8 @@
-import { getPosition, createCollector } from "../../utils/index.js";
+import {
+  getPosition,
+  createCollector,
+  isStringLiteralNode,
+} from "../../utils/index.js";
 import type { StringLiteralInfo } from "./types.js";
 import { TYPE_LITERAL, TYPE_STRING } from "../../constants.js";
 
@@ -10,16 +14,17 @@ export const stringLiteralCollector = createCollector(
       return value.length < 3;
     };
 
+    function getExistingInfo(value: string): StringLiteralInfo[] {
+      return context.get<StringLiteralInfo[]>(value) ?? [];
+    }
+
     return {
       VariableDeclarator: (node) => {
-        if (
-          node.init?.type === TYPE_LITERAL &&
-          typeof node.init.value === TYPE_STRING
-        ) {
-          const value = node.init.value as string;
+        if (isStringLiteralNode(node.init)) {
+          const value = node.init.value;
           if (shouldSkip(value)) return;
 
-          const existing = context.get<StringLiteralInfo[]>(value) ?? [];
+          const existing = getExistingInfo(value);
           const info: StringLiteralInfo = {
             id: `${filePath}:${counter++}`,
             value,
@@ -36,11 +41,11 @@ export const stringLiteralCollector = createCollector(
       },
       CallExpression: (node) => {
         for (const arg of node.arguments) {
-          if (arg.type === TYPE_LITERAL && typeof arg.value === TYPE_STRING) {
-            const value = arg.value as string;
+          if (isStringLiteralNode(arg)) {
+            const value = arg.value;
             if (shouldSkip(value)) return;
 
-            const existing = context.get<StringLiteralInfo[]>(value) ?? [];
+            const existing = getExistingInfo(value);
             const info: StringLiteralInfo = {
               id: `${filePath}:${counter++}`,
               value,
@@ -57,14 +62,11 @@ export const stringLiteralCollector = createCollector(
         }
       },
       ReturnStatement: (node) => {
-        if (
-          node.argument?.type === TYPE_LITERAL &&
-          typeof node.argument.value === TYPE_STRING
-        ) {
-          const value = node.argument.value as string;
+        if (isStringLiteralNode(node.argument)) {
+          const value = node.argument.value;
           if (shouldSkip(value)) return;
 
-          const existing = context.get<StringLiteralInfo[]>(value) ?? [];
+          const existing = getExistingInfo(value);
           const info: StringLiteralInfo = {
             id: `${filePath}:${counter++}`,
             value,
@@ -80,13 +82,10 @@ export const stringLiteralCollector = createCollector(
         }
       },
       BinaryExpression: (node) => {
-        if (
-          node.left.type === TYPE_LITERAL &&
-          typeof node.left.value === TYPE_STRING
-        ) {
-          const value = node.left.value as string;
+        if (isStringLiteralNode(node.left)) {
+          const value = node.left.value;
           if (!shouldSkip(value)) {
-            const existing = context.get<StringLiteralInfo[]>(value) ?? [];
+            const existing = getExistingInfo(value);
             const info: StringLiteralInfo = {
               id: `${filePath}:${counter++}`,
               value,
@@ -101,13 +100,10 @@ export const stringLiteralCollector = createCollector(
             context.set(value, existing);
           }
         }
-        if (
-          node.right.type === TYPE_LITERAL &&
-          typeof node.right.value === TYPE_STRING
-        ) {
-          const value = node.right.value as string;
+        if (isStringLiteralNode(node.right)) {
+          const value = node.right.value;
           if (!shouldSkip(value)) {
-            const existing = context.get<StringLiteralInfo[]>(value) ?? [];
+            const existing = getExistingInfo(value);
             const info: StringLiteralInfo = {
               id: `${filePath}:${counter++}`,
               value,
