@@ -3,6 +3,7 @@ import {
   createUnionTypeDetector,
   createStringLiteralDetector,
   createLogicalExpressionDetector,
+  createStringInterpolationDetector,
 } from "../index.js";
 import { collectFiles } from "../utils/index.js";
 import { logger } from "../logger/index.js";
@@ -49,6 +50,7 @@ export class CLI {
         createUnionTypeDetector({ minOccurrences: 2 }),
         createStringLiteralDetector({ minOccurrences: 3 }),
         createLogicalExpressionDetector({ minOccurrences: 2, minOperands: 2 }),
+        createStringInterpolationDetector({ minOccurrences: 2 }),
       ],
       verbose: false,
     });
