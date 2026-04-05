@@ -14,7 +14,7 @@ export class Context implements GlobalContext {
     this.store = new Map();
   }
 
-  set<T>(namespace: string, key: string, value: T): void {
+  private set<T>(namespace: string, key: string, value: T): void {
     if (!this.store.has(namespace)) {
       this.store.set(namespace, new Map());
     }
@@ -22,7 +22,7 @@ export class Context implements GlobalContext {
     namespaceMap.set(key, value);
   }
 
-  get<T>(namespace: string, key: string): Maybe<T> {
+  private get<T>(namespace: string, key: string): Maybe<T> {
     const namespaceMap = this.store.get(namespace);
     if (!namespaceMap) {
       return undefined;
@@ -30,24 +30,12 @@ export class Context implements GlobalContext {
     return namespaceMap.get(key) as Maybe<T>;
   }
 
-  getAll<T>(namespace: string): Map<string, T> {
+  private getAll<T>(namespace: string): Map<string, T> {
     const namespaceMap = this.store.get(namespace);
     if (!namespaceMap) {
       return new Map();
     }
     return namespaceMap as Map<string, T>;
-  }
-
-  has(namespace: string, key: string): boolean {
-    const namespaceMap = this.store.get(namespace);
-    if (!namespaceMap) {
-      return false;
-    }
-    return namespaceMap.has(key);
-  }
-
-  clear(namespace: string): void {
-    this.store.delete(namespace);
   }
 
   clearAll(): void {
@@ -72,21 +60,6 @@ export class Context implements GlobalContext {
     }
 
     return {
-      set: <T>(key: string, value: T): void => {
-        this.set(namespace, key, value);
-      },
-      get: <T>(key: string): Maybe<T> => {
-        return this.get<T>(namespace, key);
-      },
-      getAll: <T>(): Map<string, T> => {
-        return this.getAll<T>(namespace);
-      },
-      has: (key: string): boolean => {
-        return this.has(namespace, key);
-      },
-      clear: (): void => {
-        this.clear(namespace);
-      },
       addInfo: <T>(
         key: string,
         id: string,

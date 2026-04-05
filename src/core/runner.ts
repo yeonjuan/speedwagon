@@ -125,7 +125,7 @@ export class Runner {
 
         // Using the single Collector object interface
         const currentReports = collector.report(collectContext);
-        
+
         globalReports.push(...currentReports);
         this.log(`  Found ${currentReports.length} duplicates`);
 
