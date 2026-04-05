@@ -49,7 +49,7 @@ export class CLI {
       collectors: [
         createUnionTypeCollector({ minOccurrences: 2 }),
         createStringLiteralCollector({ minOccurrences: 3 }),
-        createLogicalExpressionCollector({ minOccurrences: 2, minOperands: 2 }),
+        createLogicalExpressionCollector({ minOccurrences: 2, minOperands: 3 }),
         createStringInterpolationCollector({ minOccurrences: 2 }),
       ],
       verbose: false,

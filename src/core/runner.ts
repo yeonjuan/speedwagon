@@ -128,9 +128,6 @@ export class Runner {
 
         globalReports.push(...currentReports);
         this.log(`  Found ${currentReports.length} duplicates`);
-
-        collectContext.clear();
-        this.log(`  Cleared collect context for ${collector.name}`);
       } catch (error) {
         console.error(`Error generating report for ${collector.name}:`, error);
       }
