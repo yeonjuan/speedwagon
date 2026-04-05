@@ -1,5 +1,9 @@
 import type { StringInterpolationInfo } from "./types.js";
-import { getPosition, createCollector } from "../../utils/index.js";
+import {
+  getPosition,
+  createCollector,
+  extractSnippet,
+} from "../../utils/index.js";
 
 export interface StringInterpolationDetectorConfig {
   minOccurrences?: number;
@@ -34,22 +38,20 @@ export const stringInterpolationCollector = (
         }
 
         const raw = sourceCode.substring(node.start, node.end);
-        const existing =
-          context.get<StringInterpolationInfo[]>(normalized) ?? [];
-
-        const info: StringInterpolationInfo = {
-          id: `${filePath}:${counter++}`,
-          normalized,
-          raw,
-          location: {
-            file: filePath,
-            start: getPosition(sourceCode, node.start),
-            end: getPosition(sourceCode, node.end),
-          },
+        const location = {
+          file: filePath,
+          start: getPosition(sourceCode, node.start),
+          end: getPosition(sourceCode, node.end),
         };
+        const snippet = extractSnippet(sourceCode, location, { useRaw: true });
 
-        existing.push(info);
-        context.set(normalized, existing);
+        context.addInfo(
+          normalized,
+          `${filePath}:${counter++}`,
+          location,
+          snippet,
+          {},
+        );
       },
     };
   });

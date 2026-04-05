@@ -2,21 +2,22 @@ import {
   getPosition,
   createCollector,
   isStringLiteralNode,
+  extractSnippet,
 } from "../../utils/index.js";
 import type { StringLiteralInfo } from "./types.js";
 import { TYPE_LITERAL, TYPE_STRING } from "../../constants.js";
 
-export const stringLiteralCollector = createCollector(
-  (context, filePath, sourceCode) => {
+export interface StringLiteralDetectorConfig {
+  minOccurrences?: number;
+}
+
+export const stringLiteralCollector = (config: StringLiteralDetectorConfig) =>
+  createCollector((context, filePath, sourceCode) => {
     let counter = 0;
 
     const shouldSkip = (value: string): boolean => {
       return value.length < 3;
     };
-
-    function getExistingInfo(value: string): StringLiteralInfo[] {
-      return context.get<StringLiteralInfo[]>(value) ?? [];
-    }
 
     return {
       VariableDeclarator: (node) => {
@@ -24,19 +25,16 @@ export const stringLiteralCollector = createCollector(
           const value = node.init.value;
           if (shouldSkip(value)) return;
 
-          const existing = getExistingInfo(value);
-          const info: StringLiteralInfo = {
-            id: `${filePath}:${counter++}`,
-            value,
-            location: {
-              file: filePath,
-              start: getPosition(sourceCode, node.init.start),
-              end: getPosition(sourceCode, node.init.end),
-            },
-            context: "variable",
+          const loc = {
+            file: filePath,
+            start: getPosition(sourceCode, node.init.start),
+            end: getPosition(sourceCode, node.init.end),
           };
-          existing.push(info);
-          context.set(value, existing);
+          const snippet = extractSnippet(sourceCode, loc);
+          context.addInfo(value, `${filePath}:${counter++}`, loc, snippet, {
+            value,
+            context: "variable",
+          });
         }
       },
       CallExpression: (node) => {
@@ -45,19 +43,16 @@ export const stringLiteralCollector = createCollector(
             const value = arg.value;
             if (shouldSkip(value)) return;
 
-            const existing = getExistingInfo(value);
-            const info: StringLiteralInfo = {
-              id: `${filePath}:${counter++}`,
-              value,
-              location: {
-                file: filePath,
-                start: getPosition(sourceCode, arg.start),
-                end: getPosition(sourceCode, arg.end),
-              },
-              context: "expression",
+            const loc = {
+              file: filePath,
+              start: getPosition(sourceCode, arg.start),
+              end: getPosition(sourceCode, arg.end),
             };
-            existing.push(info);
-            context.set(value, existing);
+            const snippet = extractSnippet(sourceCode, loc);
+            context.addInfo(value, `${filePath}:${counter++}`, loc, snippet, {
+              value,
+              context: "expression",
+            });
           }
         }
       },
@@ -66,59 +61,49 @@ export const stringLiteralCollector = createCollector(
           const value = node.argument.value;
           if (shouldSkip(value)) return;
 
-          const existing = getExistingInfo(value);
-          const info: StringLiteralInfo = {
-            id: `${filePath}:${counter++}`,
-            value,
-            location: {
-              file: filePath,
-              start: getPosition(sourceCode, node.argument.start),
-              end: getPosition(sourceCode, node.argument.end),
-            },
-            context: "expression",
+          const loc = {
+            file: filePath,
+            start: getPosition(sourceCode, node.argument.start),
+            end: getPosition(sourceCode, node.argument.end),
           };
-          existing.push(info);
-          context.set(value, existing);
+          const snippet = extractSnippet(sourceCode, loc);
+          context.addInfo(value, `${filePath}:${counter++}`, loc, snippet, {
+            value,
+            context: "expression",
+          });
         }
       },
       BinaryExpression: (node) => {
         if (isStringLiteralNode(node.left)) {
           const value = node.left.value;
           if (!shouldSkip(value)) {
-            const existing = getExistingInfo(value);
-            const info: StringLiteralInfo = {
-              id: `${filePath}:${counter++}`,
-              value,
-              location: {
-                file: filePath,
-                start: getPosition(sourceCode, node.left.start),
-                end: getPosition(sourceCode, node.left.end),
-              },
-              context: "expression",
+            const loc = {
+              file: filePath,
+              start: getPosition(sourceCode, node.left.start),
+              end: getPosition(sourceCode, node.left.end),
             };
-            existing.push(info);
-            context.set(value, existing);
+            const snippet = extractSnippet(sourceCode, loc);
+            context.addInfo(value, `${filePath}:${counter++}`, loc, snippet, {
+              value,
+              context: "expression",
+            });
           }
         }
         if (isStringLiteralNode(node.right)) {
           const value = node.right.value;
           if (!shouldSkip(value)) {
-            const existing = getExistingInfo(value);
-            const info: StringLiteralInfo = {
-              id: `${filePath}:${counter++}`,
-              value,
-              location: {
-                file: filePath,
-                start: getPosition(sourceCode, node.right.start),
-                end: getPosition(sourceCode, node.right.end),
-              },
-              context: "expression",
+            const loc = {
+              file: filePath,
+              start: getPosition(sourceCode, node.right.start),
+              end: getPosition(sourceCode, node.right.end),
             };
-            existing.push(info);
-            context.set(value, existing);
+            const snippet = extractSnippet(sourceCode, loc);
+            context.addInfo(value, `${filePath}:${counter++}`, loc, snippet, {
+              value,
+              context: "expression",
+            });
           }
         }
       },
     };
-  },
-);
+  });

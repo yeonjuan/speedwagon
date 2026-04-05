@@ -5,8 +5,6 @@ import type {
   DuplicateEntry,
 } from "../../types/index.js";
 import type { LogicalExpressionInfo, LogicalExpressionGroup } from "./types.js";
-import { readFileSync } from "fs";
-import { ENCODING_UTF8 } from "../../constants.js";
 
 function groupExpressions(
   allExpressions: Map<string, LogicalExpressionInfo[]>,
@@ -29,26 +27,11 @@ function groupExpressions(
   return groups;
 }
 
-function extractSnippet(info: LogicalExpressionInfo): string {
-  try {
-    const content = readFileSync(info.location.file, ENCODING_UTF8);
-    const lines = content.split("\n");
-    const lineIndex = info.location.start.line - 1;
-
-    const startLine = Math.max(0, lineIndex - 1);
-    const endLine = Math.min(lines.length, lineIndex + 5); // show a bit more context for multi-line logic
-
-    return lines.slice(startLine, endLine).join("\n").trim();
-  } catch (error) {
-    return `// Unable to extract snippet: ${error}`;
-  }
-}
-
 function createReport(group: LogicalExpressionGroup): Report {
   const duplicates: DuplicateEntry[] = group.occurrences.map((info) => {
     return {
       location: info.location,
-      snippet: extractSnippet(info),
+      snippet: info.snippet,
     };
   });
 
@@ -71,7 +54,11 @@ export function createAnalyzer(config: LogicalExpressionAnalyzerConfig) {
     collectContext: DetectorContext,
     reportContext: ReportContext,
   ): Promise<void> => {
-    const allExpressions = collectContext.getAll<LogicalExpressionInfo[]>();
+    const allExpressions = collectContext.getAllInfos<{
+      normalized: string;
+      raw: string;
+      operandsCount: number;
+    }>();
 
     const groups = groupExpressions(allExpressions, minOccurrences);
 

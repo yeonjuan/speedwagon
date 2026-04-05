@@ -10,15 +10,11 @@ import type {
 } from "./types.js";
 import type { StringInterpolationDetectorConfig } from "./collector.js";
 
-function extractSnippet(info: StringInterpolationInfo): string {
-  return info.raw;
-}
-
 function createReport(group: StringInterpolationGroup): Report {
   const duplicates: DuplicateEntry[] = group.occurrences.map((info) => {
     return {
       location: info.location,
-      snippet: extractSnippet(info),
+      snippet: info.snippet,
     };
   });
 
@@ -38,7 +34,8 @@ export const createAnalyzer = (config: StringInterpolationDetectorConfig) => {
   ): Promise<void> => {
     const minOccurrences = config.minOccurrences ?? 2;
 
-    const allExpressions = collectContext.getAll<StringInterpolationInfo[]>();
+    const allExpressions =
+      collectContext.getAllInfos<Record<string, unknown>>();
 
     const groups: StringInterpolationGroup[] = [];
 

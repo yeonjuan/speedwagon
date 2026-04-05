@@ -5,8 +5,6 @@ import type {
   DuplicateEntry,
 } from "../../types/index.js";
 import type { UnionTypeInfo, UnionTypeGroup } from "./types.js";
-import { readFileSync } from "fs";
-import { ENCODING_UTF8 } from "../../constants.js";
 
 function groupUnionTypes(
   allUnionTypes: Map<string, UnionTypeInfo[]>,
@@ -21,7 +19,7 @@ function groupUnionTypes(
 
     const first = unionTypes[0];
     groups.push({
-      types: first.types,
+      types: first.data.types,
       occurrences: unionTypes,
       count: unionTypes.length,
     });
@@ -30,31 +28,14 @@ function groupUnionTypes(
   return groups;
 }
 
-function extractSnippet(unionType: UnionTypeInfo): string {
-  try {
-    const content = readFileSync(unionType.location.file, ENCODING_UTF8);
-    const lines = content.split("\n");
-    const lineIndex = unionType.location.start.line - 1;
-
-    const startLine = Math.max(0, lineIndex - 1);
-    const endLine = Math.min(lines.length, lineIndex + 2);
-
-    return lines.slice(startLine, endLine).join("\n").trim();
-  } catch (error) {
-    return `// Unable to extract snippet: ${error}`;
-  }
-}
-
 function createReport(group: UnionTypeGroup): Report {
   const duplicates: DuplicateEntry[] = group.occurrences.map((unionType) => {
-    const snippet = extractSnippet(unionType);
-
     return {
       location: unionType.location,
-      snippet,
+      snippet: unionType.snippet,
       metadata: {
-        types: unionType.types,
-        raw: unionType.raw,
+        types: unionType.data.types,
+        raw: unionType.data.raw,
       },
     };
   });
@@ -75,7 +56,10 @@ export function createAnalyzer(minOccurrences: number = 2) {
     collectContext: DetectorContext,
     reportContext: ReportContext,
   ): Promise<void> => {
-    const allUnionTypes = collectContext.getAll<UnionTypeInfo[]>();
+    const allUnionTypes = collectContext.getAllInfos<{
+      types: string[];
+      raw: string;
+    }>();
 
     const groups = groupUnionTypes(allUnionTypes, minOccurrences);
 

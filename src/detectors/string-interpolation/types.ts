@@ -1,11 +1,6 @@
-import type { Location } from "../../types/index.js";
+import type { DetectorInfo } from "../../types/index.js";
 
-export interface StringInterpolationInfo {
-  id: string;
-  normalized: string;
-  raw: string;
-  location: Location;
-}
+export type StringInterpolationInfo = DetectorInfo<Record<string, unknown>>;
 
 export interface StringInterpolationGroup {
   normalized: string;

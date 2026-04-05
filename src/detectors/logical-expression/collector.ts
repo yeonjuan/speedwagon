@@ -3,6 +3,7 @@ import {
   getPosition,
   createCollector,
   isObjectNode,
+  extractSnippet,
 } from "../../utils/index.js";
 import { TYPE_LOGICAL_EXPRESSION, TYPE_IDENTIFIER } from "../../constants.js";
 
@@ -155,24 +156,22 @@ export const logicalExpressionCollector = (
             normalized.slice(0, relStart) + param + normalized.slice(relEnd);
         }
 
-        const id = `${filePath}:${counter++}`;
         const raw = sourceCode.slice(node.start, node.end);
-
-        const info: LogicalExpressionInfo = {
-          id,
-          normalized,
-          raw,
-          operandsCount,
-          location: {
-            file: filePath,
-            start: getPosition(sourceCode, node.start),
-            end: getPosition(sourceCode, node.end),
-          },
+        const location = {
+          file: filePath,
+          start: getPosition(sourceCode, node.start),
+          end: getPosition(sourceCode, node.end),
         };
-
-        const existing = context.get<LogicalExpressionInfo[]>(normalized) ?? [];
-        existing.push(info);
-        context.set(normalized, existing);
+        const snippet = extractSnippet(sourceCode, location, {
+          expandLines: 2,
+        });
+        context.addInfo(
+          normalized,
+          `${filePath}:${counter++}`,
+          location,
+          snippet,
+          { normalized, raw, operandsCount },
+        );
       },
     };
   });

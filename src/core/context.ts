@@ -5,6 +5,8 @@ import type {
   Store,
   Report,
   Maybe,
+  Location,
+  DetectorInfo,
 } from "../types/index.js";
 
 export class Context implements GlobalContext {
@@ -86,6 +88,20 @@ export class Context implements GlobalContext {
       },
       clear: (): void => {
         this.clear(namespace);
+      },
+      addInfo: <T>(
+        key: string,
+        id: string,
+        location: Location,
+        snippet: string,
+        data: T,
+      ): void => {
+        const existing = this.get<DetectorInfo<T>[]>(namespace, key) ?? [];
+        existing.push({ id, location, snippet, data });
+        this.set(namespace, key, existing);
+      },
+      getAllInfos: <T>(): Map<string, DetectorInfo<T>[]> => {
+        return this.getAll<DetectorInfo<T>[]>(namespace);
       },
     };
   }

@@ -1,12 +1,10 @@
-import type { Location } from "../../types/index.js";
+import type { DetectorInfo } from "../../types/index.js";
 
-export interface LogicalExpressionInfo {
-  id: string;
+export type LogicalExpressionInfo = DetectorInfo<{
   normalized: string;
   raw: string;
   operandsCount: number;
-  location: Location;
-}
+}>;
 
 export interface LogicalExpressionGroup {
   normalized: string;

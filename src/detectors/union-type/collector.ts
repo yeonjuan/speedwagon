@@ -1,6 +1,10 @@
 import type { VisitorObject } from "oxc-parser";
 import type { UnionTypeInfo } from "./types.js";
-import { getPosition, createCollector } from "../../utils/index.js";
+import {
+  getPosition,
+  createCollector,
+  extractSnippet,
+} from "../../utils/index.js";
 import { TYPE_LITERAL, TYPE_STRING, TYPE_IDENTIFIER } from "../../constants.js";
 
 function extractTypeName(type: any): string | null {
@@ -76,26 +80,15 @@ export const unionTypeCollector = createCollector(
       const startPos = getPosition(sourceCode, start);
       const endPos = getPosition(sourceCode, end);
 
-      const unionType: UnionTypeInfo = {
-        id,
-        types,
-        raw,
-        location: {
-          file: filePath,
-          start: startPos,
-          end: endPos,
-        },
+      const location = {
+        file: filePath,
+        start: startPos,
+        end: endPos,
       };
-
+      const snippet = extractSnippet(sourceCode, location, { expandLines: 1 });
       const key = types.join(" | ");
-      const existing = context.get<UnionTypeInfo[]>(key);
 
-      if (existing) {
-        existing.push(unionType);
-        context.set(key, existing);
-      } else {
-        context.set(key, [unionType]);
-      }
+      context.addInfo(key, id, location, snippet, { types, raw });
     }
 
     return {

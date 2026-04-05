@@ -1,8 +1,14 @@
-import type { Location } from "../../types/index.js";
+import type { DetectorInfo } from "../../types/index.js";
 
-export interface StringLiteralInfo {
-  id: string;
+export type StringLiteralContext = "variable" | "expression";
+
+export type StringLiteralInfo = DetectorInfo<{
   value: string;
-  location: Location;
-  context: "variable" | "expression";
+  context: StringLiteralContext;
+}>;
+
+export interface StringLiteralGroup {
+  value: string;
+  count: number;
+  occurrences: StringLiteralInfo[];
 }

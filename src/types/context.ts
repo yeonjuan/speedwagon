@@ -8,6 +8,14 @@ export interface DetectorContext {
   getAll<T>(): Map<string, T>;
   has(key: string): boolean;
   clear(): void;
+  addInfo<T>(
+    key: string,
+    id: string,
+    location: Location,
+    snippet: string,
+    data: T,
+  ): void;
+  getAllInfos<T>(): Map<string, DetectorInfo<T>[]>;
 }
 
 export interface ReportContext {
@@ -45,4 +53,11 @@ export interface Location {
   file: string;
   start: Position;
   end: Position;
+}
+
+export interface DetectorInfo<T = Record<string, unknown>> {
+  id: string;
+  location: Location;
+  snippet: string;
+  data: T;
 }
