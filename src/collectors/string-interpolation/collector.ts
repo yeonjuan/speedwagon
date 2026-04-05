@@ -1,4 +1,5 @@
 import type { StringInterpolationInfo } from "./types.js";
+import { formatId } from "../../utils/index.js";
 import {
   getPosition,
   createCollector,
@@ -48,7 +49,7 @@ export const stringInterpolationCollector = (
 
         context.addInfo(
           normalized,
-          `${filePath}:${counter++}`,
+          formatId(filePath, counter++),
           location,
           snippet,
           {},

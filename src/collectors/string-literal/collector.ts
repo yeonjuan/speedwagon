@@ -3,6 +3,7 @@ import {
   createCollector,
   isStringLiteralNode,
   extractSnippet,
+  formatId,
 } from "../../utils/index.js";
 import { AST_TYPES } from "../../constants/index.js";
 
@@ -30,7 +31,7 @@ export const stringLiteralCollector = (config: StringLiteralCollectorConfig) =>
             end: getPosition(sourceCode, node.init.end),
           };
           const snippet = extractSnippet(sourceCode, loc);
-          context.addInfo(value, `${filePath}:${counter++}`, loc, snippet, {
+          context.addInfo(value, formatId(filePath, counter++), loc, snippet, {
             value,
             context: "variable",
           });
@@ -48,7 +49,7 @@ export const stringLiteralCollector = (config: StringLiteralCollectorConfig) =>
               end: getPosition(sourceCode, arg.end),
             };
             const snippet = extractSnippet(sourceCode, loc);
-            context.addInfo(value, `${filePath}:${counter++}`, loc, snippet, {
+            context.addInfo(value, formatId(filePath, counter++), loc, snippet, {
               value,
               context: "expression",
             });
@@ -66,7 +67,7 @@ export const stringLiteralCollector = (config: StringLiteralCollectorConfig) =>
             end: getPosition(sourceCode, node.argument.end),
           };
           const snippet = extractSnippet(sourceCode, loc);
-          context.addInfo(value, `${filePath}:${counter++}`, loc, snippet, {
+          context.addInfo(value, formatId(filePath, counter++), loc, snippet, {
             value,
             context: "expression",
           });
@@ -82,7 +83,7 @@ export const stringLiteralCollector = (config: StringLiteralCollectorConfig) =>
               end: getPosition(sourceCode, node.left.end),
             };
             const snippet = extractSnippet(sourceCode, loc);
-            context.addInfo(value, `${filePath}:${counter++}`, loc, snippet, {
+            context.addInfo(value, formatId(filePath, counter++), loc, snippet, {
               value,
               context: "expression",
             });
@@ -97,7 +98,7 @@ export const stringLiteralCollector = (config: StringLiteralCollectorConfig) =>
               end: getPosition(sourceCode, node.right.end),
             };
             const snippet = extractSnippet(sourceCode, loc);
-            context.addInfo(value, `${filePath}:${counter++}`, loc, snippet, {
+            context.addInfo(value, formatId(filePath, counter++), loc, snippet, {
               value,
               context: "expression",
             });

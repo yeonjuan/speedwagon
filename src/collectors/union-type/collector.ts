@@ -1,4 +1,5 @@
 import type { VisitorObject } from "oxc-parser";
+import { formatId, formatStringLiteral } from "../../utils/index.js";
 import type { UnionTypeInfo } from "./types.js";
 import {
   getPosition,
@@ -14,7 +15,7 @@ function extractTypeName(type: any): string | null {
     case AST_TYPES.TSLiteralType:
       if (type.literal.type === AST_TYPES.Literal) {
         if (typeof type.literal.value === TYPE_STRING) {
-          return `"${type.literal.value}"`;
+          return formatStringLiteral(type.literal.value);
         }
         if (typeof type.literal.value === "number") {
           return String(type.literal.value);
@@ -76,7 +77,7 @@ export const unionTypeCollector = createCollector(
       start: number,
       end: number,
     ): void {
-      const id = `${filePath}:${counter++}`;
+      const id = formatId(filePath, counter++);
       const startPos = getPosition(sourceCode, start);
       const endPos = getPosition(sourceCode, end);
 

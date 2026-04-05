@@ -1,4 +1,5 @@
 import type { LogicalExpressionInfo } from "./types.js";
+import { formatId } from "../../utils/index.js";
 import {
   getPosition,
   createCollector,
@@ -29,7 +30,7 @@ export const logicalExpressionCollector = (
     function markVisited(n: any) {
       if (!isObjectNode(n)) return;
       if (n.type === AST_TYPES.LogicalExpression) {
-        visitedLogicalExpressions.add(`${n.start}:${n.end}`);
+        visitedLogicalExpressions.add(formatId(n.start, n.end));
         markVisited(n.left);
         markVisited(n.right);
       }
@@ -37,7 +38,7 @@ export const logicalExpressionCollector = (
 
     return {
       [AST_TYPES.LogicalExpression]: (node) => {
-        const range = `${node.start}:${node.end}`;
+        const range = formatId(node.start, node.end);
         if (visitedLogicalExpressions.has(range)) return;
 
         markVisited(node);
@@ -136,7 +137,7 @@ export const logicalExpressionCollector = (
         // Deduplicate targets that have exact same start and end
         const uniqueTargetsMap = new Map<string, (typeof targets)[0]>();
         for (const t of validTargets) {
-          uniqueTargetsMap.set(`${t.start}:${t.end}`, t);
+          uniqueTargetsMap.set(formatId(t.start, t.end), t);
         }
         const flatTargets = Array.from(uniqueTargetsMap.values());
 
@@ -170,7 +171,7 @@ export const logicalExpressionCollector = (
         });
         context.addInfo(
           normalized,
-          `${filePath}:${counter++}`,
+          formatId(filePath, counter++),
           location,
           snippet,
           { normalized, raw, operandsCount },

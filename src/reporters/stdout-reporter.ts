@@ -1,4 +1,5 @@
 import type { Report, DuplicateEntry } from "../types/index.js";
+import { formatStringLiteral } from "../utils/index.js";
 import type { Reporter } from "./types.js";
 import chalk from "chalk";
 import { TYPE_STRING } from "../constants/index.js";
@@ -72,7 +73,7 @@ export class StdoutReporter implements Reporter {
 
   private formatMetadataValue(value: unknown): string {
     if (typeof value === TYPE_STRING) {
-      return `"${value}"`;
+      return formatStringLiteral(value as string);
     }
     return String(value);
   }
