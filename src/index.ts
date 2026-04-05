@@ -20,3 +20,4 @@ export type { Reporter } from "./reporters/types.js";
 
 export { createUnionTypeDetector } from "./detectors/union-type/index.js";
 export { createStringLiteralDetector } from "./detectors/string-literal/index.js";
+export { createLogicalExpressionDetector } from "./detectors/logical-expression/index.js";
