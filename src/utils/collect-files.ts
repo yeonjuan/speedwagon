@@ -3,28 +3,29 @@ import ignore, { type Ignore } from "ignore";
 import fs from "node:fs/promises";
 import path from "node:path";
 
-/**
- * Collect files matching the given glob patterns, respecting gitignore rules.
- * @param patterns - Glob patterns to match files
- * @param options - Collection options
- * @param options.cwd - Working directory (defaults to process.cwd())
- * @param options.useGitignore - Whether to respect .gitignore rules (defaults to true)
- * @returns Array of absolute file paths
- */
 export async function collectFiles(
   patterns: string[],
   options: {
     cwd?: string;
     useGitignore?: boolean;
+    ignorePatterns?: string[];
   } = {},
 ): Promise<string[]> {
-  const { cwd = process.cwd(), useGitignore = true } = options;
+  const {
+    cwd = process.cwd(),
+    useGitignore = true,
+    ignorePatterns = [],
+  } = options;
 
   const ig = ignore();
 
   if (useGitignore) {
     const gitIg = await buildIgnoreFilter(cwd);
     ig.add(gitIg);
+  }
+
+  if (ignorePatterns.length > 0) {
+    ig.add(ignorePatterns);
   }
 
   const files = await fg(patterns, { cwd, absolute: true });

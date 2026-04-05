@@ -41,7 +41,9 @@ type C = "pending" | "rejected" | "approved";
 
       expect(reports).toHaveLength(1);
       expect(reports[0].duplicates).toHaveLength(3);
-      expect(reports[0].description).toContain('"approved" | "pending" | "rejected"');
+      expect(reports[0].description).toContain(
+        '"approved" | "pending" | "rejected"',
+      );
     });
 
     it("should detect duplicates with keyword types in different order", async () => {

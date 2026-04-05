@@ -91,4 +91,47 @@ describe("collectFiles", () => {
     expect(files).toHaveLength(2);
     expect(files.some((f) => f.includes("ignored.ts"))).toBe(false);
   });
+
+  it("should respect custom ignore patterns", async () => {
+    await fs.writeFile(path.join(testDir, "file1.ts"), "");
+    await fs.writeFile(path.join(testDir, "file2.spec.ts"), "");
+    await fs.writeFile(path.join(testDir, "file3.test.ts"), "");
+
+    const files = await collectFiles(["**/*.ts"], {
+      cwd: testDir,
+      useGitignore: false,
+      ignorePatterns: ["**/*.spec.ts", "**/*.test.ts"],
+    });
+
+    expect(files).toHaveLength(1);
+    expect(files[0]).toBe(path.join(testDir, "file1.ts"));
+  });
+
+  it("should combine gitignore and custom ignore patterns", async () => {
+    await fs.writeFile(path.join(testDir, "file1.ts"), "");
+    await fs.writeFile(path.join(testDir, "file2.spec.ts"), "");
+    await fs.writeFile(path.join(testDir, "ignored.ts"), "");
+    await fs.writeFile(path.join(testDir, ".gitignore"), "ignored.ts");
+
+    const files = await collectFiles(["**/*.ts"], {
+      cwd: testDir,
+      ignorePatterns: ["**/*.spec.ts"],
+    });
+
+    expect(files).toHaveLength(1);
+    expect(files[0]).toBe(path.join(testDir, "file1.ts"));
+  });
+
+  it("should handle empty ignore patterns array", async () => {
+    await fs.writeFile(path.join(testDir, "file1.ts"), "");
+    await fs.writeFile(path.join(testDir, "file2.ts"), "");
+
+    const files = await collectFiles(["**/*.ts"], {
+      cwd: testDir,
+      useGitignore: false,
+      ignorePatterns: [],
+    });
+
+    expect(files).toHaveLength(2);
+  });
 });
