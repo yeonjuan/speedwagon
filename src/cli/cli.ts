@@ -1,5 +1,6 @@
 import {
   Runner,
+  createFunctionDefinitionCollector,
   createUnionTypeCollector,
   createStringLiteralCollector,
   createLogicalExpressionCollector,
@@ -48,6 +49,7 @@ export class CLI {
     const runner = new Runner({
       files,
       collectors: [
+        createFunctionDefinitionCollector({ minOccurrences: 2 }),
         createUnionTypeCollector({ minOccurrences: 2 }),
         createStringLiteralCollector({ minOccurrences: 3 }),
         createLogicalExpressionCollector({ minOccurrences: 2, minOperands: 3 }),
