@@ -49,10 +49,16 @@ export const stringLiteralCollector = (config: StringLiteralCollectorConfig) =>
               end: getPosition(sourceCode, arg.end),
             };
             const snippet = extractSnippet(sourceCode, loc);
-            context.addInfo(value, formatId(filePath, counter++), loc, snippet, {
+            context.addInfo(
               value,
-              context: "expression",
-            });
+              formatId(filePath, counter++),
+              loc,
+              snippet,
+              {
+                value,
+                context: "expression",
+              },
+            );
           }
         }
       },
@@ -83,10 +89,16 @@ export const stringLiteralCollector = (config: StringLiteralCollectorConfig) =>
               end: getPosition(sourceCode, node.left.end),
             };
             const snippet = extractSnippet(sourceCode, loc);
-            context.addInfo(value, formatId(filePath, counter++), loc, snippet, {
+            context.addInfo(
               value,
-              context: "expression",
-            });
+              formatId(filePath, counter++),
+              loc,
+              snippet,
+              {
+                value,
+                context: "expression",
+              },
+            );
           }
         }
         if (isStringLiteralNode(node.right)) {
@@ -98,10 +110,16 @@ export const stringLiteralCollector = (config: StringLiteralCollectorConfig) =>
               end: getPosition(sourceCode, node.right.end),
             };
             const snippet = extractSnippet(sourceCode, loc);
-            context.addInfo(value, formatId(filePath, counter++), loc, snippet, {
+            context.addInfo(
               value,
-              context: "expression",
-            });
+              formatId(filePath, counter++),
+              loc,
+              snippet,
+              {
+                value,
+                context: "expression",
+              },
+            );
           }
         }
       },

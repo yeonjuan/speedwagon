@@ -93,7 +93,9 @@ const d = "a";
     });
 
     it("should respect minOccurrences configuration", async () => {
-      const collectorWith2 = createStringLiteralCollector({ minOccurrences: 2 });
+      const collectorWith2 = createStringLiteralCollector({
+        minOccurrences: 2,
+      });
       const tester = new CollectorTester(collectorWith2);
       const reports = await tester.testSingleFile(`
 const msg1 = "Hello";
