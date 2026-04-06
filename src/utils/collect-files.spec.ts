@@ -81,15 +81,30 @@ describe("collectFiles", () => {
     const subDir = path.join(testDir, "sub");
     await fs.mkdir(subDir, { recursive: true });
 
+    await fs.writeFile(path.join(testDir, "ignored.ts"), "");
     await fs.writeFile(path.join(testDir, "file1.ts"), "");
-    await fs.writeFile(path.join(subDir, "file2.ts"), "");
     await fs.writeFile(path.join(subDir, "ignored.ts"), "");
+    await fs.writeFile(path.join(subDir, "file2.ts"), "");
     await fs.writeFile(path.join(subDir, ".gitignore"), "ignored.ts");
 
     const files = await collectFiles(["**/*.ts"], { cwd: testDir });
 
-    expect(files).toHaveLength(2);
-    expect(files.some((f) => f.includes("ignored.ts"))).toBe(false);
+    expect(files).toHaveLength(3);
+    expect(files).toContain(path.join(testDir, "ignored.ts"));
+    expect(files).not.toContain(path.join(subDir, "ignored.ts"));
+  });
+
+  it("should ignore nested gitignore files inside ignored directories", async () => {
+    const subDir = path.join(testDir, "sub");
+    await fs.mkdir(subDir, { recursive: true });
+
+    await fs.writeFile(path.join(testDir, ".gitignore"), "sub/");
+    await fs.writeFile(path.join(subDir, ".gitignore"), "!file.ts");
+    await fs.writeFile(path.join(subDir, "file.ts"), "");
+
+    const files = await collectFiles(["**/*.ts"], { cwd: testDir });
+
+    expect(files).toHaveLength(0);
   });
 
   it("should respect custom ignore patterns", async () => {
