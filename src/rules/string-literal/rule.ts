@@ -1,18 +1,18 @@
 import {
   getPosition,
-  createCollector,
+  createRule,
   isStringLiteralNode,
   extractSnippet,
   formatId,
 } from "../../utils/index.js";
 import { AST_TYPES } from "../../constants/index.js";
 
-export interface StringLiteralCollectorConfig {
+export interface StringLiteralRuleConfig {
   minOccurrences?: number;
 }
 
-export const stringLiteralCollector = (config: StringLiteralCollectorConfig) =>
-  createCollector((context, filePath, sourceCode) => {
+export const stringLiteralRule = (config: StringLiteralRuleConfig) =>
+  createRule((context, filePath, sourceCode) => {
     let counter = 0;
 
     const shouldSkip = (value: string): boolean => {

@@ -1,6 +1,6 @@
-import type { CollectorInfo } from "../../types/index.js";
+import type { RuleInfo } from "../../types/index.js";
 
-export type LogicalExpressionInfo = CollectorInfo<{
+export type LogicalExpressionInfo = RuleInfo<{
   normalized: string;
   raw: string;
   operandsCount: number;

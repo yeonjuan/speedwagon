@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { createStringInterpolationCollector } from "./index.js";
-import { CollectorTester } from "../../test-utils/index.js";
+import { createStringInterpolationRule } from "./index.js";
+import { RuleTester } from "../../test-utils/index.js";
 
-describe("StringInterpolationCollector", () => {
-  const collector = createStringInterpolationCollector({ minOccurrences: 2 });
+describe("StringInterpolationRule", () => {
+  const collector = createStringInterpolationRule({ minOccurrences: 2 });
 
   describe("Collection and Analysis", () => {
     it("should detect identical format strings", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
         const a = \`\${name}:\${age}\`;
         const b = \`\${user.name}:\${user.age}\`;
@@ -19,7 +19,7 @@ describe("StringInterpolationCollector", () => {
     });
 
     it("should ignore simple concatenations without formatting", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
         const a = \`\${name}\${postfix}\`;
         const b = \`\${foo}\${bar}\`;
@@ -29,7 +29,7 @@ describe("StringInterpolationCollector", () => {
     });
 
     it("should ignore concatenations with simple spaces", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
         const a = \`\${name} \${postfix}\`;
         const b = \`\${foo} \${bar}\`;
@@ -39,7 +39,7 @@ describe("StringInterpolationCollector", () => {
     });
 
     it("should ignore single expressions without any literals", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
         const a = \`\${num}\`;
         const b = \`\${otherNum}\`;

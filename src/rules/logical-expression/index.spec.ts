@@ -1,19 +1,19 @@
 import { describe, it, expect } from "vitest";
-import { createLogicalExpressionCollector } from "./index.js";
-import { CollectorTester } from "../../test-utils/index.js";
+import { createLogicalExpressionRule } from "./index.js";
+import { RuleTester } from "../../test-utils/index.js";
 
 const TYPE_LITERAL = "Literal";
 const TYPE_STRING = "string";
 
-describe("LogicalExpressionCollector", () => {
-  const collector = createLogicalExpressionCollector({
+describe("LogicalExpressionRule", () => {
+  const collector = createLogicalExpressionRule({
     minOccurrences: 2,
     minOperands: 2,
   });
 
   describe("Collection and Analysis", () => {
     it("should detect identical structure with different variable names", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
         if (node.left.type === "Literal" && typeof node.left.value === "string") {}
         if (node.right.type === "Literal" && typeof node.right.value === "string") {}
@@ -25,7 +25,7 @@ describe("LogicalExpressionCollector", () => {
     });
 
     it("should not falsely match if structures differ", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
         if (node.left.type === "Literal" && typeof node.left.value === "string") {}
         if (node.type === "Literal" && typeof node.right.value === "string") {}
@@ -35,7 +35,7 @@ describe("LogicalExpressionCollector", () => {
     });
 
     it("should not match if literals differ", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
         if (node.left.type === "Literal" && typeof node.left.value === "string") {}
         if (node.right.type === "Literal" && typeof node.right.value === "number") {}
@@ -46,7 +46,7 @@ describe("LogicalExpressionCollector", () => {
     });
 
     it("should handle extracted constants natively when checking for structure", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
         const TYPE_LITERAL = "Literal";
         const TYPE_STRING = "string";
@@ -59,7 +59,7 @@ describe("LogicalExpressionCollector", () => {
     });
 
     it("should extract correctly if arguments are standalone identifiers", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
         function test(a, b, c, d) {
           if (a === 1 && b === 2) {}
@@ -72,11 +72,11 @@ describe("LogicalExpressionCollector", () => {
     });
 
     it("should respect minOperands configuration", async () => {
-      const minOpCollector = createLogicalExpressionCollector({
+      const minOpRule = createLogicalExpressionRule({
         minOccurrences: 2,
         minOperands: 3,
       });
-      const tester = new CollectorTester(minOpCollector);
+      const tester = new RuleTester(minOpRule);
       const reports = await tester.testSingleFile(`
         if (node.left.type === "Literal" && typeof node.left.value === "string") {}
         if (node.right.type === "Literal" && typeof node.right.value === "string") {}

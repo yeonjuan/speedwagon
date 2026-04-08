@@ -1,6 +1,6 @@
 import { readFile } from "fs/promises";
 import type {
-  Collector,
+  Rule,
   GlobalContext,
   Report,
   Language,
@@ -16,7 +16,7 @@ import { ENCODING_UTF8 } from "../constants/index.js";
 
 export interface RunnerConfig {
   files: string[];
-  collectors: Collector[];
+  collectors: Rule[];
   reporter?: Reporter;
   verbose?: boolean;
 }
@@ -38,7 +38,7 @@ export class Runner {
     for (const collector of config.collectors) {
       this.collectContexts.set(
         collector.name,
-        this.context.createCollectorContext(collector.name),
+        this.context.createRuleContext(collector.name),
       );
     }
   }
@@ -123,7 +123,7 @@ export class Runner {
         this.log(`Reporting for: ${collector.name}`);
         const collectContext = this.collectContexts.get(collector.name)!;
 
-        // Using the single Collector object interface
+        // Using the single Rule object interface
         const currentReports = collector.report(collectContext);
 
         globalReports.push(...currentReports);

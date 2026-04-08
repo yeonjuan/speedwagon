@@ -1,26 +1,26 @@
 import type {
-  Collector,
-  CollectorConfig,
+  Rule,
+  RuleConfig,
   Report,
-  CollectorContext,
+  RuleContext,
 } from "../../types/index.js";
-import { stringLiteralCollector } from "./collector.js";
+import { stringLiteralRule } from "./rule.js";
 import type { StringLiteralInfo } from "./types.js";
 
-export interface StringLiteralCollectorConfig extends CollectorConfig {
+export interface StringLiteralRuleConfig extends RuleConfig {
   minOccurrences?: number;
 }
 
-export function createStringLiteralCollector(
-  config: StringLiteralCollectorConfig = {},
-): Collector {
+export function createStringLiteralRule(
+  config: StringLiteralRuleConfig = {},
+): Rule {
   const minOccurrences = config.minOccurrences ?? 3;
   return {
     name: "string-literal",
     description:
       "Finds duplicated hardcoded string literals to extract as constants",
-    createVisitor: stringLiteralCollector(config),
-    report: (context: CollectorContext): Report[] => {
+    createVisitor: stringLiteralRule(config),
+    report: (context: RuleContext): Report[] => {
       const reports: Report[] = [];
       const infos = context.getAllInfos<StringLiteralInfo>();
       for (const [normalized, duplicates] of infos.entries()) {

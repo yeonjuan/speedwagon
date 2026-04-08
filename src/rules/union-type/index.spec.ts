@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { createUnionTypeCollector } from "./index.js";
-import { CollectorTester } from "../../test-utils/index.js";
+import { createUnionTypeRule } from "./index.js";
+import { RuleTester } from "../../test-utils/index.js";
 
-describe("UnionTypeCollector", () => {
-  const collector = createUnionTypeCollector({ minOccurrences: 2 });
+describe("UnionTypeRule", () => {
+  const collector = createUnionTypeRule({ minOccurrences: 2 });
 
   describe("Collection and Analysis", () => {
     it("should detect no duplicates when union types are unique", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
 type Status = "active" | "inactive";
 type Role = "admin" | "user";
@@ -17,7 +17,7 @@ type Role = "admin" | "user";
     });
 
     it("should detect duplicates with same union types", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
 type Status = "active" | "inactive";
 function updateStatus(status: "active" | "inactive") {}
@@ -31,7 +31,7 @@ function updateStatus(status: "active" | "inactive") {}
     });
 
     it("should detect duplicates regardless of union order", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
 type A = "approved" | "pending" | "rejected";
 type B = "rejected" | "approved" | "pending";
@@ -46,7 +46,7 @@ type C = "pending" | "rejected" | "approved";
     });
 
     it("should detect duplicates with keyword types in different order", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
 type A = string | number | boolean;
 type B = boolean | string | number;
@@ -58,8 +58,8 @@ type C = number | boolean | string;
     });
 
     it("should respect minOccurrences configuration", async () => {
-      const collectorWith3 = createUnionTypeCollector({ minOccurrences: 3 });
-      const tester = new CollectorTester(collectorWith3);
+      const collectorWith3 = createUnionTypeRule({ minOccurrences: 3 });
+      const tester = new RuleTester(collectorWith3);
       const reports = await tester.testSingleFile(`
 type A = "active" | "inactive";
 type B = "active" | "inactive";
@@ -69,7 +69,7 @@ type B = "active" | "inactive";
     });
 
     it("should detect multiple different union type duplicates", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
 type Status1 = "active" | "inactive";
 type Status2 = "active" | "inactive";
@@ -81,7 +81,7 @@ type Role2 = "admin" | "user";
     });
 
     it("should sort reports by duplicate count descending", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
 type S1 = "active" | "inactive";
 type S2 = "active" | "inactive";
@@ -99,7 +99,7 @@ type R2 = "admin" | "user";
     });
 
     it("should handle union types in function parameters", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
 function foo(status: "active" | "inactive") {}
 function bar(status: "active" | "inactive") {}
@@ -111,7 +111,7 @@ function baz(status: "active" | "inactive") {}
     });
 
     it("should handle union types in variable declarations", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
 const status: "active" | "inactive" = "active";
 let role: "active" | "inactive" = "active";
@@ -122,7 +122,7 @@ let role: "active" | "inactive" = "active";
     });
 
     it("should handle type reference unions", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
 type Result1 = Success | Error;
 type Result2 = Error | Success;
@@ -133,7 +133,7 @@ type Result2 = Error | Success;
     });
 
     it("should handle null and undefined unions", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
 type Optional1 = string | null | undefined;
 type Optional2 = undefined | string | null;
@@ -144,7 +144,7 @@ type Optional2 = undefined | string | null;
     });
 
     it("should skip single type (not a union)", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
 type Single = string;
       `);
@@ -153,7 +153,7 @@ type Single = string;
     });
 
     it("should handle multiple files", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.test([
         {
           path: "/test/file1.ts",
@@ -172,7 +172,7 @@ type Single = string;
     });
 
     it("should include metadata in duplicate entries", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
 type Status1 = "active" | "inactive";
 type Status2 = "active" | "inactive";
@@ -185,7 +185,7 @@ type Status2 = "active" | "inactive";
     });
 
     it("should generate appropriate suggestion", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
 type Status1 = "active" | "inactive";
 type Status2 = "active" | "inactive";
@@ -197,7 +197,7 @@ type Status2 = "active" | "inactive";
     });
 
     it("should store location information correctly", async () => {
-      const tester = new CollectorTester(collector);
+      const tester = new RuleTester(collector);
       const reports = await tester.testSingleFile(`
 type Status = "active" | "inactive";
 function foo(s: "active" | "inactive") {}
@@ -209,8 +209,8 @@ function foo(s: "active" | "inactive") {}
     });
 
     it("should use default minOccurrences of 2", async () => {
-      const defaultCollector = createUnionTypeCollector();
-      const tester = new CollectorTester(defaultCollector);
+      const defaultRule = createUnionTypeRule();
+      const tester = new RuleTester(defaultRule);
       const reports = await tester.testSingleFile(`
 type A = "active" | "inactive";
 type B = "active" | "inactive";

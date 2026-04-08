@@ -1,6 +1,6 @@
 import { parseSync } from "oxc-parser";
 import { Context } from "../core/context.js";
-import type { Collector, CollectorContext, Report } from "../types/index.js";
+import type { Rule, RuleContext, Report } from "../types/index.js";
 
 export interface TestFile {
   path: string;
@@ -8,14 +8,14 @@ export interface TestFile {
   lang?: "ts" | "tsx" | "js" | "jsx";
 }
 
-export class CollectorTester {
-  private collector: Collector;
-  private collectContext: CollectorContext;
+export class RuleTester {
+  private collector: Rule;
+  private collectContext: RuleContext;
 
-  constructor(collector: Collector) {
+  constructor(collector: Rule) {
     this.collector = collector;
     const globalContext = new Context();
-    this.collectContext = globalContext.createCollectorContext(collector.name);
+    this.collectContext = globalContext.createRuleContext(collector.name);
   }
 
   async test(files: TestFile[]): Promise<Report[]> {
@@ -42,7 +42,7 @@ export class CollectorTester {
     return this.test([{ path: filePath, code }]);
   }
 
-  getCollectContext(): CollectorContext {
+  getCollectContext(): RuleContext {
     return this.collectContext;
   }
 }

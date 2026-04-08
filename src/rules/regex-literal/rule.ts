@@ -2,17 +2,17 @@ import type { RegexLiteralInfo } from "./types.js";
 import { formatId } from "../../utils/index.js";
 import {
   getPosition,
-  createCollector,
+  createRule,
   extractSnippet,
 } from "../../utils/index.js";
 import { AST_TYPES } from "../../constants/index.js";
 
-export interface RegexLiteralCollectorConfig {
+export interface RegexLiteralRuleConfig {
   minOccurrences?: number;
 }
 
-export const regexLiteralCollector = (config: RegexLiteralCollectorConfig) =>
-  createCollector((context, filePath, sourceCode) => {
+export const regexLiteralRule = (config: RegexLiteralRuleConfig) =>
+  createRule((context, filePath, sourceCode) => {
     let counter = 0;
 
     return {

@@ -1,25 +1,25 @@
 import type {
-  Collector,
-  CollectorConfig,
+  Rule,
+  RuleConfig,
   Report,
-  CollectorContext,
+  RuleContext,
 } from "../../types/index.js";
-import { unionTypeCollector } from "./collector.js";
+import { unionTypeRule } from "./rule.js";
 import type { UnionTypeInfo } from "./types.js";
 
-export interface UnionTypeCollectorConfig extends CollectorConfig {
+export interface UnionTypeRuleConfig extends RuleConfig {
   minOccurrences?: number;
 }
 
-export function createUnionTypeCollector(
-  config: UnionTypeCollectorConfig = {},
-): Collector {
+export function createUnionTypeRule(
+  config: UnionTypeRuleConfig = {},
+): Rule {
   const minOccurrences = config.minOccurrences ?? 2;
   return {
     name: "union-type",
     description: "Detects identical union types to encourage type extraction",
-    createVisitor: unionTypeCollector,
-    report: (context: CollectorContext): Report[] => {
+    createVisitor: unionTypeRule,
+    report: (context: RuleContext): Report[] => {
       const reports: Report[] = [];
       const infos = context.getAllInfos<UnionTypeInfo>();
       for (const [normalized, duplicates] of infos.entries()) {

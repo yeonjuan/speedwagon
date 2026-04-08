@@ -1,21 +1,21 @@
 import { Visitor, type VisitorObject } from "oxc-parser";
-import type { CollectorContext, VisitorInstance } from "../types/index.js";
+import type { RuleContext, VisitorInstance } from "../types/index.js";
 
 type RawVisitorFactory = (
-  context: CollectorContext,
+  context: RuleContext,
   filePath: string,
   sourceCode: string,
 ) => VisitorObject;
 
-export function createCollector(
+export function createRule(
   factory: RawVisitorFactory,
 ): (
-  context: CollectorContext,
+  context: RuleContext,
   filePath: string,
   sourceCode: string,
 ) => VisitorInstance {
   return (
-    context: CollectorContext,
+    context: RuleContext,
     filePath: string,
     sourceCode: string,
   ): VisitorInstance => {

@@ -1,27 +1,27 @@
 import type {
-  Collector,
-  CollectorConfig,
+  Rule,
+  RuleConfig,
   Report,
-  CollectorContext,
+  RuleContext,
 } from "../../types/index.js";
-import { logicalExpressionCollector } from "./collector.js";
+import { logicalExpressionRule } from "./rule.js";
 import type { LogicalExpressionInfo } from "./types.js";
 
-export interface LogicalExpressionCollectorConfig extends CollectorConfig {
+export interface LogicalExpressionRuleConfig extends RuleConfig {
   minOccurrences?: number;
   minOperands?: number;
 }
 
-export function createLogicalExpressionCollector(
-  config: LogicalExpressionCollectorConfig = {},
-): Collector {
+export function createLogicalExpressionRule(
+  config: LogicalExpressionRuleConfig = {},
+): Rule {
   const minOccurrences = config.minOccurrences ?? 2;
   return {
     name: "logical-expression",
     description:
       "Detects structurally identical logical expressions to encourage extraction",
-    createVisitor: logicalExpressionCollector(config),
-    report: (context: CollectorContext): Report[] => {
+    createVisitor: logicalExpressionRule(config),
+    report: (context: RuleContext): Report[] => {
       const reports: Report[] = [];
       const infos = context.getAllInfos<LogicalExpressionInfo>();
       for (const [normalized, duplicates] of infos.entries()) {

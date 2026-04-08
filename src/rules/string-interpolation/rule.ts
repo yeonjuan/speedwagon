@@ -2,19 +2,19 @@ import type { StringInterpolationInfo } from "./types.js";
 import { formatId } from "../../utils/index.js";
 import {
   getPosition,
-  createCollector,
+  createRule,
   extractSnippet,
 } from "../../utils/index.js";
 import { AST_TYPES } from "../../constants/index.js";
 
-export interface StringInterpolationCollectorConfig {
+export interface StringInterpolationRuleConfig {
   minOccurrences?: number;
 }
 
-export const stringInterpolationCollector = (
-  config: StringInterpolationCollectorConfig,
+export const stringInterpolationRule = (
+  config: StringInterpolationRuleConfig,
 ) =>
-  createCollector((context, filePath, sourceCode) => {
+  createRule((context, filePath, sourceCode) => {
     let counter = 0;
 
     return {

@@ -2,7 +2,7 @@ import type { Report } from "./report.js";
 
 export type Maybe<T> = T | undefined;
 
-export interface CollectorContext {
+export interface RuleContext {
   addInfo<T>(
     key: string,
     id: string,
@@ -10,13 +10,13 @@ export interface CollectorContext {
     snippet: string,
     data: T,
   ): void;
-  getAllInfos<T>(): Map<string, CollectorInfo<T>[]>;
+  getAllInfos<T>(): Map<string, RuleInfo<T>[]>;
 }
 
 export interface GlobalContext {
   store: Store;
   size(): number;
-  createCollectorContext(namespace: string): CollectorContext;
+  createRuleContext(namespace: string): RuleContext;
 }
 
 export type Store = Map<string, Map<string, unknown>>;
@@ -32,7 +32,7 @@ export interface Location {
   end: Position;
 }
 
-export interface CollectorInfo<T = Record<string, unknown>> {
+export interface RuleInfo<T = Record<string, unknown>> {
   id: string;
   location: Location;
   snippet: string;

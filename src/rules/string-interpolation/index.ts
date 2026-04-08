@@ -1,26 +1,26 @@
 import type {
-  Collector,
-  CollectorConfig,
+  Rule,
+  RuleConfig,
   Report,
-  CollectorContext,
+  RuleContext,
 } from "../../types/index.js";
-import { stringInterpolationCollector } from "./collector.js";
+import { stringInterpolationRule } from "./rule.js";
 import type { StringInterpolationInfo } from "./types.js";
 
-export interface StringInterpolationCollectorConfig extends CollectorConfig {
+export interface StringInterpolationRuleConfig extends RuleConfig {
   minOccurrences?: number;
 }
 
-export function createStringInterpolationCollector(
-  config: StringInterpolationCollectorConfig = {},
-): Collector {
+export function createStringInterpolationRule(
+  config: StringInterpolationRuleConfig = {},
+): Rule {
   const minOccurrences = config.minOccurrences ?? 2;
   return {
     name: "string-interpolation",
     description:
       "Detects structurally identical template literals to encourage deduplication",
-    createVisitor: stringInterpolationCollector(config),
-    report: (context: CollectorContext): Report[] => {
+    createVisitor: stringInterpolationRule(config),
+    report: (context: RuleContext): Report[] => {
       const reports: Report[] = [];
       const infos = context.getAllInfos<StringInterpolationInfo>();
       for (const [normalized, duplicates] of infos.entries()) {

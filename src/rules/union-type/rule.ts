@@ -3,7 +3,7 @@ import { formatId, formatStringLiteral } from "../../utils/index.js";
 import type { UnionTypeInfo } from "./types.js";
 import {
   getPosition,
-  createCollector,
+  createRule,
   extractSnippet,
 } from "../../utils/index.js";
 import { TYPE_STRING, AST_TYPES } from "../../constants/index.js";
@@ -67,7 +67,7 @@ function extractTypeName(type: any): string | null {
   }
 }
 
-export const unionTypeCollector = createCollector(
+export const unionTypeRule = createRule(
   (context, filePath, sourceCode) => {
     let counter = 0;
 

@@ -1,11 +1,11 @@
 import { describe, it, expect } from "vitest";
-import { CollectorTester } from "../../test-utils/index.js";
-import { createRegexLiteralCollector } from "./index.js";
+import { RuleTester } from "../../test-utils/index.js";
+import { createRegexLiteralRule } from "./index.js";
 
-describe("Regex Literal Collector", () => {
+describe("Regex Literal Rule", () => {
   it("should detect duplicated regex literals", async () => {
-    const collector = createRegexLiteralCollector({ minOccurrences: 2 });
-    const tester = new CollectorTester(collector);
+    const collector = createRegexLiteralRule({ minOccurrences: 2 });
+    const tester = new RuleTester(collector);
 
     const report = await tester.testSingleFile(`
       const emailRegex1 = /^[a-z]+@[a-z]+\\.[a-z]+$/ig;
@@ -24,8 +24,8 @@ describe("Regex Literal Collector", () => {
   });
 
   it("should not report unique regex literals", async () => {
-    const collector = createRegexLiteralCollector({ minOccurrences: 2 });
-    const tester = new CollectorTester(collector);
+    const collector = createRegexLiteralRule({ minOccurrences: 2 });
+    const tester = new RuleTester(collector);
 
     const report = await tester.testSingleFile(`
       const r1 = /a/;

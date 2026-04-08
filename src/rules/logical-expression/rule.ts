@@ -2,7 +2,7 @@ import type { LogicalExpressionInfo } from "./types.js";
 import { formatId } from "../../utils/index.js";
 import {
   getPosition,
-  createCollector,
+  createRule,
   isObjectNode,
   extractSnippet,
 } from "../../utils/index.js";
@@ -15,14 +15,14 @@ function getOperandCount(node: any): number {
   return 1;
 }
 
-export interface LogicalExpressionCollectorConfig {
+export interface LogicalExpressionRuleConfig {
   minOperands?: number;
 }
 
-export const logicalExpressionCollector = (
-  config: LogicalExpressionCollectorConfig,
+export const logicalExpressionRule = (
+  config: LogicalExpressionRuleConfig,
 ) =>
-  createCollector((context, filePath, sourceCode) => {
+  createRule((context, filePath, sourceCode) => {
     let counter = 0;
     const minOperands = config.minOperands ?? 2;
     const visitedLogicalExpressions = new Set<string>();
