@@ -1,10 +1,10 @@
 import type {
   GlobalContext,
-  CollectorContext,
+  RuleContext,
   Store,
   Maybe,
   Location,
-  CollectorInfo,
+  RuleInfo,
 } from "../types/index.js";
 
 export class Context implements GlobalContext {
@@ -54,7 +54,7 @@ export class Context implements GlobalContext {
     return total;
   }
 
-  createCollectorContext(namespace: string): CollectorContext {
+  createRuleContext(namespace: string): RuleContext {
     if (!this.store.has(namespace)) {
       this.store.set(namespace, new Map());
     }
@@ -67,12 +67,12 @@ export class Context implements GlobalContext {
         snippet: string,
         data: T,
       ): void => {
-        const existing = this.get<CollectorInfo<T>[]>(namespace, key) ?? [];
+        const existing = this.get<RuleInfo<T>[]>(namespace, key) ?? [];
         existing.push({ id, location, snippet, data });
         this.set(namespace, key, existing);
       },
-      getAllInfos: <T>(): Map<string, CollectorInfo<T>[]> => {
-        return this.getAll<CollectorInfo<T>[]>(namespace);
+      getAllInfos: <T>(): Map<string, RuleInfo<T>[]> => {
+        return this.getAll<RuleInfo<T>[]>(namespace);
       },
     };
   }

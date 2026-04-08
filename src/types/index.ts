@@ -1,17 +1,17 @@
 export type {
-  Collector,
+  Rule,
   VisitorFactory,
   VisitorInstance,
-  CollectorConfig,
-} from "./collector.js";
+  RuleConfig,
+} from "./rule.js";
 export type {
   GlobalContext,
-  CollectorContext,
+  RuleContext,
   Store,
   Position,
   Location,
   Maybe,
-  CollectorInfo,
+  RuleInfo,
 } from "./context.js";
 export type { Report, DuplicateEntry } from "./report.js";
 export type { Language } from "./language.js";

@@ -1,11 +1,11 @@
 import {
   Runner,
-  createFunctionDefinitionCollector,
-  createUnionTypeCollector,
-  createStringLiteralCollector,
-  createLogicalExpressionCollector,
-  createStringInterpolationCollector,
-  createRegexLiteralCollector,
+  createFunctionDefinitionRule,
+  createUnionTypeRule,
+  createStringLiteralRule,
+  createLogicalExpressionRule,
+  createStringInterpolationRule,
+  createRegexLiteralRule,
 } from "../index.js";
 import { collectFiles } from "../utils/index.js";
 import { logger } from "../logger/index.js";
@@ -49,12 +49,12 @@ export class CLI {
     const runner = new Runner({
       files,
       collectors: [
-        createFunctionDefinitionCollector({ minOccurrences: 2 }),
-        createUnionTypeCollector({ minOccurrences: 2 }),
-        createStringLiteralCollector({ minOccurrences: 3 }),
-        createLogicalExpressionCollector({ minOccurrences: 2, minOperands: 3 }),
-        createStringInterpolationCollector({ minOccurrences: 2 }),
-        createRegexLiteralCollector({ minOccurrences: 2 }),
+        createFunctionDefinitionRule({ minOccurrences: 2 }),
+        createUnionTypeRule({ minOccurrences: 2 }),
+        createStringLiteralRule({ minOccurrences: 3 }),
+        createLogicalExpressionRule({ minOccurrences: 2, minOperands: 3 }),
+        createStringInterpolationRule({ minOccurrences: 2 }),
+        createRegexLiteralRule({ minOccurrences: 2 }),
       ],
       verbose: false,
     });
