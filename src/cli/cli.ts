@@ -2,7 +2,6 @@ import {
   Runner,
   createUnionTypeRule,
   createStringLiteralRule,
-  createLogicalExpressionRule,
   createStringInterpolationRule,
   createRegexLiteralRule,
 } from "../index.js";
@@ -50,7 +49,6 @@ export class CLI {
       collectors: [
         createUnionTypeRule({ minOccurrences: 2 }),
         createStringLiteralRule({ minOccurrences: 3 }),
-        createLogicalExpressionRule({ minOccurrences: 2, minOperands: 3 }),
         createStringInterpolationRule({ minOccurrences: 2 }),
         createRegexLiteralRule({ minOccurrences: 2 }),
       ],
