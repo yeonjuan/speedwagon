@@ -1,11 +1,7 @@
 import type { VisitorObject } from "oxc-parser";
 import { formatId, formatStringLiteral } from "../../utils/index.js";
 import type { UnionTypeInfo } from "./types.js";
-import {
-  getPosition,
-  createRule,
-  extractSnippet,
-} from "../../utils/index.js";
+import { getPosition, createRule, extractSnippet } from "../../utils/index.js";
 import { TYPE_STRING, AST_TYPES } from "../../constants/index.js";
 
 function extractTypeName(type: any): string | null {
@@ -67,43 +63,41 @@ function extractTypeName(type: any): string | null {
   }
 }
 
-export const unionTypeRule = createRule(
-  (context, filePath, sourceCode) => {
-    let counter = 0;
+export const unionTypeRule = createRule((context, filePath, sourceCode) => {
+  let counter = 0;
 
-    function collectUnionType(
-      types: string[],
-      raw: string,
-      start: number,
-      end: number,
-    ): void {
-      const id = formatId(filePath, counter++);
-      const startPos = getPosition(sourceCode, start);
-      const endPos = getPosition(sourceCode, end);
+  function collectUnionType(
+    types: string[],
+    raw: string,
+    start: number,
+    end: number,
+  ): void {
+    const id = formatId(filePath, counter++);
+    const startPos = getPosition(sourceCode, start);
+    const endPos = getPosition(sourceCode, end);
 
-      const location = {
-        file: filePath,
-        start: startPos,
-        end: endPos,
-      };
-      const snippet = extractSnippet(sourceCode, location, { expandLines: 1 });
-      const key = types.join(" | ");
-
-      context.addInfo(key, id, location, snippet, { types, raw });
-    }
-
-    return {
-      [AST_TYPES.TSUnionType]: (node) => {
-        const types = node.types
-          .map((type) => extractTypeName(type))
-          .filter((name): name is string => name !== null)
-          .sort();
-
-        if (types.length < 2) return;
-
-        const raw = sourceCode.slice(node.start, node.end);
-        collectUnionType(types, raw, node.start, node.end);
-      },
+    const location = {
+      file: filePath,
+      start: startPos,
+      end: endPos,
     };
-  },
-);
+    const snippet = extractSnippet(sourceCode, location, { expandLines: 1 });
+    const key = types.join(" | ");
+
+    context.addInfo(key, id, location, snippet, { types, raw });
+  }
+
+  return {
+    [AST_TYPES.TSUnionType]: (node) => {
+      const types = node.types
+        .map((type) => extractTypeName(type))
+        .filter((name): name is string => name !== null)
+        .sort();
+
+      if (types.length < 2) return;
+
+      const raw = sourceCode.slice(node.start, node.end);
+      collectUnionType(types, raw, node.start, node.end);
+    },
+  };
+});

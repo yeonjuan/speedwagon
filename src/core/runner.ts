@@ -1,10 +1,5 @@
 import { readFile } from "fs/promises";
-import type {
-  Rule,
-  GlobalContext,
-  Report,
-  Language,
-} from "../types/index.js";
+import type { Rule, GlobalContext, Report, Language } from "../types/index.js";
 import type { Reporter } from "../reporters/types.js";
 import { Context } from "./context.js";
 import { StdoutReporter } from "../reporters/stdout-reporter.js";

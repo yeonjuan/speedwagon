@@ -66,12 +66,14 @@ node dist/cli/bin.js 'src/**/*.ts'  # Run CLI
 ## Two-Phase Architecture (Critical Concept)
 
 ### Phase 1: Collection
+
 1. `Runner` creates a `RuleContext` per rule
 2. Files are read and parsed via language-specific parsers (`src/languages/`)
 3. Each rule's `createVisitor` visits AST nodes, calling `context.addInfo()` to store metadata
 4. AST is discarded after visiting
 
 ### Phase 2: Analysis & Report
+
 1. `Runner` calls `rule.report(context)` for each rule
 2. Rule compares stored infos, returns `Report[]`
 3. Reports are passed to the reporter for output
@@ -81,40 +83,45 @@ node dist/cli/bin.js 'src/**/*.ts'  # Run CLI
 ## Core Architecture
 
 ### GlobalContext (`src/core/context.ts`)
+
 - Factory for `RuleContext` instances
 - `createRuleContext(namespace)`: Creates isolated context per rule
 - Internal storage: `Map<namespace, Map<key, RuleInfo[]>>`
 
 ### RuleContext (`src/types/context.ts`)
+
 - `addInfo(key, id, location, snippet, data)`: Store metadata entry
 - `getAllInfos<T>()`: Returns `Map<key, RuleInfo<T>[]>` for analysis
 
 ### Rule Interface (`src/types/rule.ts`)
+
 - `name`: Identifier
 - `description`: Human-readable description
 - `createVisitor`: `VisitorFactory` — created via `createRule()` utility
 - `report(context)`: Analyze collected data, return `Report[]`
 
 ### Runner (`src/core/runner.ts`)
+
 - Accepts `rules`, `files`, optional `reporter` and `verbose`
 - Detects language from file extension, delegates to `src/languages/`
 - Calls `rule.createVisitor(context, filePath, sourceCode)` → `visitorObj.visitor().visit(program)`
 
 ### createRule utility (`src/utils/create-rule.ts`)
+
 Wraps a raw `VisitorObject` factory into a `VisitorFactory`:
+
 ```typescript
-export const myRule = createRule(
-  (context, filePath, sourceCode) => ({
-    SomeAstNode: (node) => {
-      context.addInfo(key, id, location, snippet, data);
-    },
-  }),
-);
+export const myRule = createRule((context, filePath, sourceCode) => ({
+  SomeAstNode: (node) => {
+    context.addInfo(key, id, location, snippet, data);
+  },
+}));
 ```
 
 ## Implementing a New Rule
 
 ### File Structure
+
 ```
 src/rules/your-rule/
 ├── index.ts       # Rule factory
@@ -124,34 +131,41 @@ src/rules/your-rule/
 ```
 
 ### Rule Implementation
+
 ```typescript
 // rule.ts
 import { createRule, getPosition, extractSnippet } from "../../utils/index.js";
 import type { YourInfo } from "./types.js";
 
-export const yourRule = createRule(
-  (context, filePath, sourceCode) => {
-    let counter = 0;
-    return {
-      SomeNode: (node) => {
-        const id = `${filePath}:${counter++}`;
-        const location = {
-          file: filePath,
-          start: getPosition(sourceCode, node.start),
-          end: getPosition(sourceCode, node.end),
-        };
-        const snippet = extractSnippet(sourceCode, location, { expandLines: 1 });
-        context.addInfo(key, id, location, snippet, { /* data */ });
-      },
-    };
-  },
-);
+export const yourRule = createRule((context, filePath, sourceCode) => {
+  let counter = 0;
+  return {
+    SomeNode: (node) => {
+      const id = `${filePath}:${counter++}`;
+      const location = {
+        file: filePath,
+        start: getPosition(sourceCode, node.start),
+        end: getPosition(sourceCode, node.end),
+      };
+      const snippet = extractSnippet(sourceCode, location, { expandLines: 1 });
+      context.addInfo(key, id, location, snippet, {
+        /* data */
+      });
+    },
+  };
+});
 ```
 
 ### Rule Factory
+
 ```typescript
 // index.ts
-import type { Rule, RuleConfig, RuleContext, Report } from "../../types/index.js";
+import type {
+  Rule,
+  RuleConfig,
+  RuleContext,
+  Report,
+} from "../../types/index.js";
 import { yourRule } from "./rule.js";
 
 export function createYourRule(config: RuleConfig = {}): Rule {
@@ -164,7 +178,11 @@ export function createYourRule(config: RuleConfig = {}): Rule {
       const reports: Report[] = [];
       for (const [key, duplicates] of context.getAllInfos().entries()) {
         if (duplicates.length >= minOccurrences) {
-          reports.push({ type: "your-rule", description: "...", duplicates: [] });
+          reports.push({
+            type: "your-rule",
+            description: "...",
+            duplicates: [],
+          });
         }
       }
       return reports;
@@ -174,6 +192,7 @@ export function createYourRule(config: RuleConfig = {}): Rule {
 ```
 
 ### Integration Tests
+
 ```typescript
 import { describe, it, expect } from "vitest";
 import { RuleTester } from "../../test-utils/index.js";
@@ -189,7 +208,9 @@ describe("YourRule", () => {
 ```
 
 ### Export from Core
+
 Add to `src/index.ts`:
+
 ```typescript
 export * from "./rules/your-rule/index.js";
 ```
@@ -204,14 +225,14 @@ export * from "./rules/your-rule/index.js";
 
 ## Current Rules
 
-| Name | Description | Default minOccurrences |
-|------|-------------|----------------------|
-| `union-type` | Duplicate TypeScript union types | 2 |
-| `string-literal` | Duplicate string literals (≥3 chars) | 3 |
-| `string-interpolation` | Duplicate template literal structures | 2 |
-| `regex-literal` | Duplicate regular expressions | 2 |
-| `logical-expression` | Duplicate logical expressions | 2 |
-| `function-definition` | Structurally duplicate function bodies | 2 |
+| Name                   | Description                            | Default minOccurrences |
+| ---------------------- | -------------------------------------- | ---------------------- |
+| `union-type`           | Duplicate TypeScript union types       | 2                      |
+| `string-literal`       | Duplicate string literals (≥3 chars)   | 3                      |
+| `string-interpolation` | Duplicate template literal structures  | 2                      |
+| `regex-literal`        | Duplicate regular expressions          | 2                      |
+| `logical-expression`   | Duplicate logical expressions          | 2                      |
+| `function-definition`  | Structurally duplicate function bodies | 2                      |
 
 ## TypeScript Configuration
 
@@ -222,10 +243,10 @@ export * from "./rules/your-rule/index.js";
 
 ```typescript
 interface Report {
-  type: string;           // rule name
+  type: string; // rule name
   description: string;
   suggestion?: string;
-  duplicates: DuplicateEntry[];  // each with location, snippet, metadata
+  duplicates: DuplicateEntry[]; // each with location, snippet, metadata
 }
 ```
 

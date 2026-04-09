@@ -1,10 +1,6 @@
 import type { StringInterpolationInfo } from "./types.js";
 import { formatId } from "../../utils/index.js";
-import {
-  getPosition,
-  createRule,
-  extractSnippet,
-} from "../../utils/index.js";
+import { getPosition, createRule, extractSnippet } from "../../utils/index.js";
 import { AST_TYPES } from "../../constants/index.js";
 
 export interface StringInterpolationRuleConfig {

@@ -11,9 +11,7 @@ export interface UnionTypeRuleConfig extends RuleConfig {
   minOccurrences?: number;
 }
 
-export function createUnionTypeRule(
-  config: UnionTypeRuleConfig = {},
-): Rule {
+export function createUnionTypeRule(config: UnionTypeRuleConfig = {}): Rule {
   const minOccurrences = config.minOccurrences ?? 2;
   return {
     name: "union-type",

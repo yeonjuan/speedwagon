@@ -19,9 +19,7 @@ export interface LogicalExpressionRuleConfig {
   minOperands?: number;
 }
 
-export const logicalExpressionRule = (
-  config: LogicalExpressionRuleConfig,
-) =>
+export const logicalExpressionRule = (config: LogicalExpressionRuleConfig) =>
   createRule((context, filePath, sourceCode) => {
     let counter = 0;
     const minOperands = config.minOperands ?? 2;
