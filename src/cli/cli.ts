@@ -1,26 +1,18 @@
+import { parseArgs, generateHelp } from "./optionator.js";
 import { collectFiles } from "./collect-files.js";
 import { logger } from "../logger/index.js";
 
 export class CLI {
   async run(argv: string[]) {
-    const args = argv.slice(2);
-    const ignorePatterns: string[] = [];
-    const patterns: string[] = [];
+    const { patterns, help, ignorePatterns } = parseArgs(argv);
 
-    for (let i = 0; i < args.length; i++) {
-      if (args[i] === "--ignore" && i + 1 < args.length) {
-        ignorePatterns.push(args[i + 1]);
-        i++;
-      } else if (!args[i].startsWith("--")) {
-        patterns.push(args[i]);
-      }
+    if (help) {
+      logger.info(generateHelp());
+      return;
     }
 
     if (patterns.length === 0) {
-      logger.warn(
-        "No patterns provided. Usage: dedupe <pattern> [<pattern>...] [--ignore <pattern>]",
-      );
-      logger.info("Example: dedupe 'src/**/*.ts' --ignore '**/*.spec.ts'");
+      logger.warn(generateHelp());
       return;
     }
 
@@ -36,8 +28,6 @@ export class CLI {
     logger.divider();
 
     logger.info("Starting duplicate detection...\n");
-
-    // TODO runn
 
     try {
       //   await runner.run();
