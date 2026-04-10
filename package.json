@@ -4,16 +4,8 @@
   "description": "Code duplicate detection tool",
   "type": "module",
   "packageManager": "pnpm@9.0.0",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "bin": {
-    "dedupe": "dist/cli/bin.js"
-  },
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
+    "dedupe": "dist/main.js"
   },
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
@@ -31,7 +23,7 @@
     "url": "git+https://github.com/yeonjuan/untitled.git"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/yeonjuan/untitled/issues"
   },
