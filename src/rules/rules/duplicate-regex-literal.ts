@@ -1,5 +1,5 @@
-import { collectors } from "../collectors/index.js";
-import type { Rule } from "./types.js";
+import { collectors } from "../../collectors/index.js";
+import type { Rule } from "../types.js";
 
 export const duplicateRegexLiteral: Rule = {
   id: "duplicate-regex-literal",
