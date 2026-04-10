@@ -1,5 +1,5 @@
 import type { Visitor, VisitorObject } from "oxc-parser";
-import type { Location } from "../types";
+import type { Location } from "../types/index.js";
 
 export interface CollectAddData {
   key: string;

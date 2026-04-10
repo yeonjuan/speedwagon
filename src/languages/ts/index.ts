@@ -1,1 +1,1 @@
-export { tsLanguage } from "./language";
+export { tsLanguage } from "./language.js";

@@ -1,1 +1,1 @@
-export type { Location, Position } from "./location";
+export type { Location, Position } from "./location.js";

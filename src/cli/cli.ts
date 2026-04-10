@@ -1,6 +1,9 @@
 import { parseArgs, generateHelp } from "./optionator.js";
 import { collectFiles } from "./collect-files.js";
 import { logger } from "../logger/index.js";
+import { Runner } from "../runner/runner.js";
+import { duplicateRegexLiteral } from "../rules/index.js";
+import { StdoutReporter } from "../reporters/stdout-reporter.js";
 
 export class CLI {
   async run(argv: string[]) {
@@ -36,11 +39,16 @@ export class CLI {
     return files;
   }
 
-  private async analyze(_files: string[]) {
+  private async analyze(files: string[]) {
     logger.info("Starting duplicate detection...\n");
 
     try {
-      //   await runner.run();
+      const runner = new Runner({
+        paths: files,
+        rules: [duplicateRegexLiteral],
+        reporter: new StdoutReporter(),
+      });
+      await runner.run();
     } catch (error) {
       logger.error("Analysis failed:");
       console.error(error);

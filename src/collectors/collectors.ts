@@ -1,4 +1,4 @@
-import { regexLiteral } from "./regex-literal";
+import { regexLiteral } from "./regex-literal.js";
 
 export const collectors = {
   regexLiteral,
