@@ -5,6 +5,7 @@ import { Runner } from "../runner/runner.js";
 import {
   duplicateRegexLiteral,
   duplicateStringInterpolation,
+  duplicateThrow,
 } from "../rules/index.js";
 import { StdoutReporter } from "../reporters/stdout-reporter.js";
 
@@ -48,7 +49,11 @@ export class CLI {
     try {
       const runner = new Runner({
         paths: files,
-        rules: [duplicateRegexLiteral, duplicateStringInterpolation],
+        rules: [
+          duplicateRegexLiteral,
+          duplicateStringInterpolation,
+          duplicateThrow,
+        ],
         reporter: new StdoutReporter(),
       });
       await runner.run();
