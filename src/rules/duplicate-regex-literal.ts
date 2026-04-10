@@ -5,10 +5,10 @@ export const duplicateRegexLiteral: Rule = {
   id: "duplicate-regex-literal",
   collectors: [collectors.regexLiteral],
   descriptions: {
-    "": "",
+    duplicated: "{{key}} is duplicated {{count}} times",
   },
   suggestions: {
-    "": "",
+    duplicated: "Remove duplicate regex literals and reuse a single variable",
   },
   check(context, [regexLiteral]) {
     for (const key of regexLiteral.keys()) {
@@ -17,8 +17,9 @@ export const duplicateRegexLiteral: Rule = {
         continue;
       }
       context.report({
-        descriptionId: "",
-        data: {},
+        descriptionId: "duplicated",
+        suggestionId: "duplicated",
+        data: { key, count: collections.length },
       });
     }
   },
