@@ -1,61 +1,53 @@
-import {
-  Runner,
-  createUnionTypeRule,
-  createStringLiteralRule,
-  createStringInterpolationRule,
-  createRegexLiteralRule,
-} from "../index.js";
-import { collectFiles } from "../utils/index.js";
+import { parseArgs, generateHelp } from "./optionator.js";
+import { collectFiles } from "./collect-files.js";
 import { logger } from "../logger/index.js";
+import { Runner } from "../runner/runner.js";
+import { duplicateRegexLiteral } from "../rules/index.js";
+import { StdoutReporter } from "../reporters/stdout-reporter.js";
 
 export class CLI {
   async run(argv: string[]) {
-    const args = argv.slice(2);
-    const ignorePatterns: string[] = [];
-    const patterns: string[] = [];
+    const { patterns, help, ignorePatterns } = parseArgs(argv);
 
-    for (let i = 0; i < args.length; i++) {
-      if (args[i] === "--ignore" && i + 1 < args.length) {
-        ignorePatterns.push(args[i + 1]);
-        i++;
-      } else if (!args[i].startsWith("--")) {
-        patterns.push(args[i]);
-      }
-    }
-
-    if (patterns.length === 0) {
-      logger.warn(
-        "No patterns provided. Usage: dedupe <pattern> [<pattern>...] [--ignore <pattern>]",
-      );
-      logger.info("Example: dedupe 'src/**/*.ts' --ignore '**/*.spec.ts'");
+    if (help || patterns.length === 0) {
+      logger.info(generateHelp());
       return;
     }
 
+    const files = await this.collect(patterns, ignorePatterns);
+    if (files.length === 0) {
+      return;
+    }
+
+    await this.analyze(files);
+  }
+
+  private async collect(
+    patterns: string[],
+    ignorePatterns: string[],
+  ): Promise<string[]> {
     logger.info("🔍 Collecting files...");
     const files = await collectFiles(patterns, { ignorePatterns });
 
     if (files.length === 0) {
       logger.info("No files found");
-      return;
+      return [];
     }
 
     logger.success(`Found ${files.length} file(s)`);
     logger.divider();
+    return files;
+  }
 
+  private async analyze(files: string[]) {
     logger.info("Starting duplicate detection...\n");
 
-    const runner = new Runner({
-      files,
-      collectors: [
-        createUnionTypeRule({ minOccurrences: 2 }),
-        createStringLiteralRule({ minOccurrences: 3 }),
-        createStringInterpolationRule({ minOccurrences: 2 }),
-        createRegexLiteralRule({ minOccurrences: 2 }),
-      ],
-      verbose: false,
-    });
-
     try {
+      const runner = new Runner({
+        paths: files,
+        rules: [duplicateRegexLiteral],
+        reporter: new StdoutReporter(),
+      });
       await runner.run();
     } catch (error) {
       logger.error("Analysis failed:");

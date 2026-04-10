@@ -1,12 +1,10 @@
-export type StringOrNumber = string | number;
-
-export function formatId(
-  prefix: StringOrNumber,
-  suffix: StringOrNumber,
-): string {
-  return `${prefix}:${suffix}`;
-}
-
-export function formatStringLiteral(value: StringOrNumber): string {
-  return `"${value}"`;
-}
+export const format = {
+  stringLiteral: (value: string | number) => {
+    return `"${value}"`;
+  },
+  template: (template: string, data: Record<string, unknown> = {}) => {
+    return template.replace(/\{\{(\w+)\}\}/g, (_, key) =>
+      String(data[key] ?? ""),
+    );
+  },
+};

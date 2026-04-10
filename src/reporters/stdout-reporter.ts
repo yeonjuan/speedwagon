@@ -1,80 +1,33 @@
-import type { Report, DuplicateEntry } from "../types/index.js";
-import { formatStringLiteral } from "../utils/index.js";
-import type { Reporter } from "./types.js";
+import type { Reporter, ResolvedReport } from "./types.js";
 import chalk from "chalk";
-import { TYPE_STRING } from "../constants/index.js";
 
-/**
- * Reporter that outputs to stdout with colored formatting
- */
 export class StdoutReporter implements Reporter {
   readonly name = "stdout";
 
-  report(reports: Report[]): void {
+  report(reports: ResolvedReport[]): void {
     if (reports.length === 0) {
-      console.log(chalk.green("\n✓ No duplications found!\n"));
+      console.log(chalk.green("No duplicates found."));
       return;
     }
+    reports.forEach((report, index) => this.printReport(report, index));
+    console.log(chalk.yellow(`\n${reports.length} problem(s) found.`));
+  }
 
-    console.log(chalk.bold(`\n📊 Found ${reports.length} duplication(s)\n`));
-
-    reports.forEach((report, index) => {
-      this.printReport(report, index + 1);
-    });
-
+  private printReport(report: ResolvedReport, index: number): void {
     console.log(
-      chalk.bold(`\n📈 Summary: ${reports.length} duplication(s) found\n`),
+      chalk.bold(`${index + 1}. [${report.ruleId}] ${report.description}`),
     );
-  }
-
-  private printReport(report: Report, index: number): void {
-    console.log(chalk.bold.cyan(`\n${index}. ${report.type}`));
-    console.log(chalk.gray("─".repeat(80)));
-
-    if (report.description) {
-      console.log(chalk.yellow(`📝 ${report.description}`));
-    }
-
-    console.log(chalk.bold(`\n📍 Locations (${report.duplicates.length}):`));
-    report.duplicates.forEach((duplicate, idx) => {
-      this.printDuplicate(duplicate, idx + 1);
-    });
-
     if (report.suggestion) {
-      console.log(chalk.green(`\n💡 Suggestion: ${report.suggestion}`));
+      console.log(chalk.gray(`   Suggestion: ${report.suggestion}`));
     }
-
-    console.log("");
-  }
-
-  private printDuplicate(duplicate: DuplicateEntry, index: number): void {
-    const { location, snippet } = duplicate;
-
-    const locationStr = `${location.file}:${location.start.line}:${location.start.column}`;
-    console.log(chalk.blue(`\n  ${index}. ${locationStr}`));
-
-    if (duplicate.metadata) {
-      const metaStr = Object.entries(duplicate.metadata)
-        .map(([key, value]) => `${key}: ${this.formatMetadataValue(value)}`)
-        .join(", ");
-      console.log(chalk.gray(`     ${metaStr}`));
+    if (report.occurrences) {
+      for (const { path, location } of report.occurrences) {
+        console.log(
+          chalk.cyan(
+            `   ${path}:${location.start.line}:${location.start.column}`,
+          ),
+        );
+      }
     }
-
-    if (snippet) {
-      console.log(chalk.gray("     ┌──────"));
-      const snippetLines = snippet.split("\n");
-      snippetLines.forEach((line, idx) => {
-        const lineNum = location.start.line + idx;
-        console.log(chalk.gray(`  ${String(lineNum).padStart(3)} │ `) + line);
-      });
-      console.log(chalk.gray("     └──────"));
-    }
-  }
-
-  private formatMetadataValue(value: unknown): string {
-    if (typeof value === TYPE_STRING) {
-      return formatStringLiteral(value as string);
-    }
-    return String(value);
   }
 }
