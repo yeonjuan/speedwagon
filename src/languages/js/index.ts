@@ -1,6 +1,6 @@
 import { parse as oxcParse, type Program } from "oxc-parser";
-import type { Language } from "../../types/index.js";
-import { createParseError } from "../../utils/index.js";
+import type { Language } from "../types.ts";
+import { createParseError } from "../helpers.js";
 
 function match(filePath: string): boolean {
   return (
