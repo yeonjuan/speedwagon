@@ -2,7 +2,10 @@ import { parseArgs, generateHelp } from "./optionator.js";
 import { collectFiles } from "./collect-files.js";
 import { logger } from "../logger/index.js";
 import { Runner } from "../runner/runner.js";
-import { duplicateRegexLiteral } from "../rules/index.js";
+import {
+  duplicateRegexLiteral,
+  duplicateStringInterpolation,
+} from "../rules/index.js";
 import { StdoutReporter } from "../reporters/stdout-reporter.js";
 
 export class CLI {
@@ -45,7 +48,7 @@ export class CLI {
     try {
       const runner = new Runner({
         paths: files,
-        rules: [duplicateRegexLiteral],
+        rules: [duplicateRegexLiteral, duplicateStringInterpolation],
         reporter: new StdoutReporter(),
       });
       await runner.run();

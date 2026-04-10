@@ -1,1 +1,1 @@
-export { RuleTester } from "./rule-tester";
+export { RuleTester } from "./rule-tester.js";
