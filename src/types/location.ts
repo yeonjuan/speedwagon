@@ -4,7 +4,6 @@ export interface Position {
 }
 
 export interface Location {
-  path: string;
   start: Position;
   end: Position;
 }
