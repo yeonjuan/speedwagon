@@ -20,6 +20,10 @@ export const duplicateRegexLiteral: Rule = {
         descriptionId: "duplicated",
         suggestionId: "duplicated",
         data: { key, count: collections.length },
+        occurrences: collections.map(({ path, location }) => ({
+          path,
+          location,
+        })),
       });
     }
   },

@@ -20,5 +20,14 @@ export class StdoutReporter implements Reporter {
     if (report.suggestion) {
       console.log(chalk.gray(`   Suggestion: ${report.suggestion}`));
     }
+    if (report.occurrences) {
+      for (const { path, location } of report.occurrences) {
+        console.log(
+          chalk.cyan(
+            `   ${path}:${location.start.line}:${location.start.column}`,
+          ),
+        );
+      }
+    }
   }
 }

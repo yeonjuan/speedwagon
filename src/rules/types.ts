@@ -24,8 +24,14 @@ export interface RuleContextMutationAPI {
   report(report: Report): void;
 }
 
+export interface ReportOccurrence {
+  path: string;
+  location: import("../types/index.js").Location;
+}
+
 export interface Report {
   descriptionId: string;
   suggestionId?: string;
   data?: Record<string, unknown>;
+  occurrences?: ReportOccurrence[];
 }

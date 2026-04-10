@@ -50,7 +50,7 @@ export function getPosition(input: string, offset: number): Position {
     if (nextBreak < 0) {
       return {
         line,
-        column: offset - currentPos,
+        column: offset - currentPos + 1,
       };
     }
 
