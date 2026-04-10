@@ -1,15 +1,24 @@
-import { format } from "../utils/index.js";
-import type { Reporter } from "./types.js";
-import { type Report } from "../rules/index.js";
+import type { Reporter, ResolvedReport } from "./types.js";
 import chalk from "chalk";
 
-/**
- * Reporter that outputs to stdout with colored formatting
- */
 export class StdoutReporter implements Reporter {
   readonly name = "stdout";
 
-  report(reports: Report[]): void {}
+  report(reports: ResolvedReport[]): void {
+    if (reports.length === 0) {
+      console.log(chalk.green("No duplicates found."));
+      return;
+    }
+    reports.forEach((report, index) => this.printReport(report, index));
+    console.log(chalk.yellow(`\n${reports.length} problem(s) found.`));
+  }
 
-  private printReport(report: Report, index: number): void {}
+  private printReport(report: ResolvedReport, index: number): void {
+    console.log(
+      chalk.bold(`${index + 1}. [${report.ruleId}] ${report.description}`),
+    );
+    if (report.suggestion) {
+      console.log(chalk.gray(`   Suggestion: ${report.suggestion}`));
+    }
+  }
 }

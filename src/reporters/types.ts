@@ -1,6 +1,10 @@
-import type { Report } from "../rules/index.js";
+export interface ResolvedReport {
+  ruleId: string;
+  description: string;
+  suggestion?: string;
+}
 
 export interface Reporter {
-  report(reports: Report[]): Promise<void> | void;
+  report(reports: ResolvedReport[]): Promise<void> | void;
   readonly name: string;
 }

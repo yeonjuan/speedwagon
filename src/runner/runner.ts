@@ -10,11 +10,13 @@ import {
 } from "../languages/index.js";
 import { CollectorContext, type Collector } from "../collectors/index.js";
 import { RuleContext } from "../rules/index.js";
+import type { Reporter } from "../reporters/types.js";
 import { nullishThrows } from "../utils/index.js";
 
 export interface RunnerConfig {
   paths: string[];
   rules: Rule[];
+  reporter: Reporter;
 }
 
 export class Runner {
@@ -33,7 +35,7 @@ export class Runner {
       ...new Set(this.config.rules.flatMap((rule) => rule.collectors)).values(),
     ];
     this.ruleContexts = new Map(
-      this.config.rules.map((rule) => [rule.id, new RuleContext()]),
+      this.config.rules.map((rule) => [rule.id, new RuleContext(rule)]),
     );
     this.collectContexts = new Map(
       this.collectors.map((collector) => [
@@ -48,8 +50,15 @@ export class Runner {
       await this.collectFromFile(path);
     }
     for (const rule of this.config.rules) {
-      await this.checkRule(rule);
+      this.checkRule(rule);
     }
+    const reports = this.config.rules.flatMap((rule) =>
+      nullishThrows(
+        this.ruleContexts.get(rule.id),
+        `ruleContext id:${rule.id}`,
+      ).getReports(),
+    );
+    await this.config.reporter.report(reports);
   }
 
   private async collectFromFile(path: string) {
@@ -69,10 +78,10 @@ export class Runner {
     }
   }
 
-  private async checkRule(rule: Rule) {
+  private checkRule(rule: Rule) {
     const context = nullishThrows(
       this.ruleContexts.get(rule.id),
-      "rule context id:" + rule.id,
+      `ruleContext id:${rule.id}`,
     );
     rule.check(
       context,

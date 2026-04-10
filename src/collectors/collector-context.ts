@@ -1,6 +1,6 @@
 import { nullishThrows } from "../utils/nullish-throws.js";
 import type {
-  CollectorMutationAPI,
+  CollectorContextMutationAPI,
   CollectAddData,
   CollectRecord,
   Collection,
@@ -12,7 +12,7 @@ export class CollectorContext implements CollectorQueryAPI {
 
   constructor() {}
 
-  mutationApi(path: string, code: string): CollectorMutationAPI {
+  mutationApi(path: string, code: string): CollectorContextMutationAPI {
     return {
       path,
       code,
