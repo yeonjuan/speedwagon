@@ -1,14 +1,16 @@
-import type { Rule } from "../rules/index.js";
-import { jsLanguage } from "../languages/js/index.js";
-import { tsLanguage } from "../languages/ts/index.js";
-import { jsxLanguage } from "../languages/jsx/index.js";
-import { tsxLanguage } from "../languages/tsx/index.js";
-import type { Language } from "../languages/types.js";
 import { readFile } from "fs/promises";
-import { CollectorContext, type Collector } from "../collectors/index.js";
 import { Visitor } from "oxc-parser";
+import type { Rule } from "../rules/index.js";
+import {
+  jsLanguage,
+  tsLanguage,
+  jsxLanguage,
+  tsxLanguage,
+  type Language,
+} from "../languages/index.js";
+import { CollectorContext, type Collector } from "../collectors/index.js";
 import { RuleContext } from "../rules/index.js";
-import { nullishThrows } from "../utils/nullish-throws.js";
+import { nullishThrows } from "../utils/index.js";
 
 export interface RunnerConfig {
   paths: string[];

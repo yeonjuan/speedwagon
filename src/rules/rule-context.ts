@@ -1,5 +1,5 @@
-import type { RuleContextMutationAPI } from "./types";
+import type { Report, RuleContextMutationAPI } from "./types";
 
 export class RuleContext implements RuleContextMutationAPI {
-  report() {}
+  report(report: Report) {}
 }

@@ -7,8 +7,13 @@ type CollectorContexts<TCollectors extends Collector[]> = {
 
 export interface Rule<TCollectors extends Collector[] = Collector[]> {
   id: string;
-  description: string;
   collectors: TCollectors;
+  descriptions: {
+    [id: string]: string;
+  };
+  suggestions: {
+    [id: string]: string;
+  };
   check(
     context: RuleContext,
     collectorContexts: CollectorContexts<TCollectors>,
@@ -16,7 +21,11 @@ export interface Rule<TCollectors extends Collector[] = Collector[]> {
 }
 
 export interface RuleContextMutationAPI {
-  report(): void;
+  report(report: Report): void;
 }
 
-export interface Report {}
+export interface Report {
+  descriptionId: string;
+  suggestionId?: string;
+  data?: Record<string, unknown>;
+}
