@@ -1,4 +1,5 @@
 import { collectors } from "../../collectors/index.js";
+import { KEY_SEP } from "../../collectors/ast-utils/index.js";
 import type { Rule } from "../types.js";
 
 export const useDeclaredType: Rule = {
@@ -19,7 +20,7 @@ export const useDeclaredType: Rule = {
     >();
 
     for (const key of typeAlias.keys()) {
-      const [normalizedType, typeName, exportedFlag] = key.split("\x00");
+      const [normalizedType, typeName, exportedFlag] = key.split(KEY_SEP);
       if (!definitionMap.has(normalizedType)) {
         definitionMap.set(normalizedType, {
           typeName,

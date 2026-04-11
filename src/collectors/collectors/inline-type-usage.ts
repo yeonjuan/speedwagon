@@ -1,29 +1,18 @@
 import type { Collector } from "../types.js";
-import { getPosition, normalizeType } from "../ast-utils/index.js";
+import { getPosition, normalizeAst } from "../ast-utils/index.js";
 
 export const inlineTypeUsage: Collector = {
   id: "inline-type-usage",
   createJSVisitor(context) {
     return {
       TSTypeAnnotation(node) {
-        const { typeAnnotation } = node;
-        if (
-          typeAnnotation.type !== "TSUnionType" &&
-          typeAnnotation.type !== "TSIntersectionType"
-        ) {
-          return;
-        }
-
-        const normalized = normalizeType(typeAnnotation);
-        if (normalized.includes("?")) {
-          return;
-        }
-
+        const key = normalizeAst(node);
+        if (key === null) return;
         context.add({
-          key: normalized,
+          key,
           location: {
-            start: getPosition(context.code, typeAnnotation.start),
-            end: getPosition(context.code, typeAnnotation.end),
+            start: getPosition(context.code, node.typeAnnotation.start),
+            end: getPosition(context.code, node.typeAnnotation.end),
           },
         });
       },

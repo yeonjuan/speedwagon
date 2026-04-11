@@ -1,36 +1,22 @@
 import type { Collector } from "../types.js";
-import { getPosition, normalizeType } from "../ast-utils/index.js";
+import { getPosition, normalizeAst } from "../ast-utils/index.js";
 
-// key format: `${normalizedType}\x00${typeName}\x00${isExported ? "1" : "0"}`
 export const typeAlias: Collector = {
   id: "type-alias",
   createJSVisitor(context) {
-    let nextIsExported = false;
+    const exportedStarts = new Set<number>();
     return {
       ExportNamedDeclaration(node) {
         if (node.declaration?.type === "TSTypeAliasDeclaration") {
-          nextIsExported = true;
+          exportedStarts.add(node.declaration.start);
         }
       },
       TSTypeAliasDeclaration(node) {
-        const isExported = nextIsExported;
-        nextIsExported = false;
-
-        const { typeAnnotation } = node;
-        if (
-          typeAnnotation.type !== "TSUnionType" &&
-          typeAnnotation.type !== "TSIntersectionType"
-        ) {
-          return;
-        }
-
-        const normalized = normalizeType(typeAnnotation);
-        if (normalized.includes("?")) {
-          return;
-        }
-
+        const isExported = exportedStarts.has(node.start);
+        const key = normalizeAst(node, { isExported });
+        if (key === null) return;
         context.add({
-          key: `${normalized}\x00${node.id.name}\x00${isExported ? "1" : "0"}`,
+          key,
           location: {
             start: getPosition(context.code, node.start),
             end: getPosition(context.code, node.end),

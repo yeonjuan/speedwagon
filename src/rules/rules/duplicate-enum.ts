@@ -1,4 +1,5 @@
 import { collectors } from "../../collectors/index.js";
+import { KEY_SEP } from "../../collectors/ast-utils/index.js";
 import type { Rule } from "../types.js";
 
 export const duplicateEnum: Rule = {
@@ -16,7 +17,7 @@ export const duplicateEnum: Rule = {
     const seen = new Map<string, { enumName: string; isExported: boolean }>();
 
     for (const key of enumDeclaration.keys()) {
-      const [membersKey, enumName, exportedFlag] = key.split("\x00");
+      const [membersKey, enumName, exportedFlag] = key.split(KEY_SEP);
       const isExported = exportedFlag === "1";
 
       if (!seen.has(membersKey)) {

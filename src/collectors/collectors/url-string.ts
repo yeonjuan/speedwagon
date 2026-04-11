@@ -1,7 +1,9 @@
 import type { Collector } from "../types.js";
-import { getPosition, isStringLiteral } from "../ast-utils/index.js";
-
-const URL_PATTERN = /^https?:\/\/.+/;
+import {
+  getPosition,
+  isStringLiteral,
+  normalizeAst,
+} from "../ast-utils/index.js";
 
 export const urlString: Collector = {
   id: "url-string",
@@ -9,9 +11,10 @@ export const urlString: Collector = {
     return {
       Literal(node) {
         if (!isStringLiteral(node)) return;
-        if (!URL_PATTERN.test(node.value)) return;
+        const key = normalizeAst(node);
+        if (key === null) return;
         context.add({
-          key: node.value,
+          key,
           location: {
             start: getPosition(context.code, node.start),
             end: getPosition(context.code, node.end),
