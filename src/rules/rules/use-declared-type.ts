@@ -1,8 +1,8 @@
 import { collectors } from "../../collectors/index.js";
 import type { Rule } from "../types.js";
 
-export const definedType: Rule = {
-  id: "defined-type",
+export const useDeclaredType: Rule = {
+  id: "use-declared-type",
   collectors: [collectors.typeAlias, collectors.inlineTypeUsage],
   descriptions: {
     duplicated: "{{normalizedType}} is already defined as {{typeName}}",

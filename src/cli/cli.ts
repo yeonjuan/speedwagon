@@ -6,7 +6,8 @@ import {
   duplicateRegexLiteral,
   duplicateStringInterpolation,
   duplicateThrow,
-  definedType,
+  useDeclaredType,
+  duplicateEnum,
 } from "../rules/index.js";
 import { StdoutReporter } from "../reporters/stdout-reporter.js";
 
@@ -54,7 +55,8 @@ export class CLI {
           duplicateRegexLiteral,
           duplicateStringInterpolation,
           duplicateThrow,
-          definedType,
+          useDeclaredType,
+          duplicateEnum,
         ],
         reporter: new StdoutReporter(),
       });

@@ -1,7 +1,7 @@
 import { RuleTester } from "../../test-utils/index.js";
-import { definedType } from "./defined-type.js";
+import { useDeclaredType } from "./use-declared-type.js";
 
-const tester = new RuleTester(definedType);
+const tester = new RuleTester(useDeclaredType);
 
 tester.run({
   valid: [
