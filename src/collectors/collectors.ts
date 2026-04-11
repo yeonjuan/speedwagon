@@ -4,6 +4,7 @@ import { throwWithString } from "./throw-with-string.js";
 import { typeAlias } from "./type-alias.js";
 import { inlineTypeUsage } from "./inline-type-usage.js";
 import { enumDeclaration } from "./enum-declaration.js";
+import { arrayLiteral } from "./array-literal.js";
 
 export const collectors = {
   regexLiteral,
@@ -12,4 +13,5 @@ export const collectors = {
   typeAlias,
   inlineTypeUsage,
   enumDeclaration,
+  arrayLiteral,
 };
