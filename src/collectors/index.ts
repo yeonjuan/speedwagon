@@ -6,6 +6,7 @@ import { inlineTypeUsage } from "./collectors/inline-type-usage.js";
 import { enumDeclaration } from "./collectors/enum-declaration.js";
 import { arrayLiteral } from "./collectors/array-literal.js";
 import { urlString } from "./collectors/url-string.js";
+import { functionBody } from "./collectors/function-body.js";
 
 export const collectors = {
   regexLiteral,
@@ -16,6 +17,7 @@ export const collectors = {
   enumDeclaration,
   arrayLiteral,
   urlString,
+  functionBody,
 };
 
 export type { Collector } from "./types.js";

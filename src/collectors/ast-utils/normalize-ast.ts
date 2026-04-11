@@ -1,3 +1,4 @@
+import { createHash } from "crypto";
 import type {
   Node,
   RegExpLiteral,
@@ -10,7 +11,9 @@ import type {
   TSTypeAliasDeclaration,
   TSTypeAnnotation,
   TSType,
+  ArrowFunctionExpression,
 } from "oxc-parser";
+import { visitorKeys } from "oxc-parser";
 import {
   isRegExpLiteral,
   isStringLiteral,
@@ -208,6 +211,92 @@ function normalizeArrayExpression(node: ArrayExpression): string | null {
   return `[${serialized.join(",")}]`;
 }
 
+const IDENTIFIER_TYPES = new Set([
+  "Identifier",
+  "BindingIdentifier",
+  "IdentifierReference",
+  "IdentifierName",
+]);
+
+const LITERAL_TYPES = new Set([
+  "Literal",
+  "StringLiteral",
+  "NumericLiteral",
+  "BooleanLiteral",
+  "BigIntLiteral",
+  "NullLiteral",
+  "RegExpLiteral",
+]);
+
+function serializeLiteral(node: Record<string, unknown>): string {
+  if (typeof node.regex === "object" && node.regex !== null) {
+    const r = node.regex as { pattern: string; flags: string };
+    return `LIT:/${r.pattern}/${r.flags}`;
+  }
+  return `LIT:${JSON.stringify(node.value)}`;
+}
+
+function serializeAst(value: unknown, tokens: string[]): void {
+  if (value === null || value === undefined) return;
+  if (Array.isArray(value)) {
+    for (const item of value) serializeAst(item, tokens);
+    return;
+  }
+  if (typeof value !== "object") return;
+
+  const node = value as Record<string, unknown>;
+  const type = node.type;
+  if (typeof type !== "string") return;
+
+  if (IDENTIFIER_TYPES.has(type)) {
+    tokens.push("ID");
+    return;
+  }
+  if (LITERAL_TYPES.has(type)) {
+    tokens.push(serializeLiteral(node));
+    return;
+  }
+  if (type === "TemplateElement") {
+    const val = node.value as { raw?: string } | undefined;
+    tokens.push(`TMPL:${val?.raw ?? ""}`);
+    return;
+  }
+
+  tokens.push(type);
+
+  if (typeof node.operator === "string") tokens.push(node.operator);
+  if (typeof node.kind === "string") tokens.push(node.kind);
+
+  for (const key of visitorKeys[type] ?? []) {
+    serializeAst(node[key], tokens);
+  }
+}
+
+function hashAst(node: unknown): string {
+  const tokens: string[] = [];
+  serializeAst(node, tokens);
+  return createHash("sha256")
+    .update(tokens.join(KEY_SEP))
+    .digest("hex")
+    .slice(0, 16);
+}
+
+type FunctionNode =
+  | ArrowFunctionExpression
+  | (Node & {
+      type: "FunctionDeclaration" | "FunctionExpression";
+      async: boolean;
+      params: unknown[];
+      body: unknown;
+    });
+
+function normalizeFunctionNode(node: FunctionNode): string | null {
+  if (!node.body) return null;
+  const paramCount = node.params.length;
+  const bodyHash = hashAst(node.body);
+  return `${node.async ? "1" : "0"}${KEY_SEP}${paramCount}${KEY_SEP}${bodyHash}`;
+}
+
 export type NormalizeAstOptions = { isExported?: boolean };
 
 export function normalizeAst(
@@ -235,6 +324,10 @@ export function normalizeAst(
       );
     case "TSTypeAnnotation":
       return normalizeTSTypeAnnotation(node);
+    case "FunctionDeclaration":
+    case "FunctionExpression":
+    case "ArrowFunctionExpression":
+      return normalizeFunctionNode(node as FunctionNode);
     default:
       return null;
   }

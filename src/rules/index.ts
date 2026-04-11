@@ -7,3 +7,4 @@ export { useDeclaredType } from "./rules/use-declared-type.js";
 export { duplicateEnum } from "./rules/duplicate-enum.js";
 export { duplicateArrayLiteral } from "./rules/duplicate-array-literal.js";
 export { duplicateUrlString } from "./rules/duplicate-url-string.js";
+export { similarFunctionDefinition } from "./rules/similar-function-definition.js";

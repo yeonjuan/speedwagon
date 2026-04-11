@@ -21,7 +21,7 @@ export function formatError(code: number, message: string) {
 }
 
 export function formatWarning(code: number, detail: string) {
-  return `Error [${code}]: ${detail}`;
+  return `Eddrror [${code}]: ${detail}`;
 }
 
 // valid: simple string conversion (excluded)

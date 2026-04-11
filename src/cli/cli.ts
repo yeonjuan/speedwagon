@@ -9,6 +9,7 @@ import {
   duplicateThrow,
   useDeclaredType,
   duplicateEnum,
+  similarFunctionDefinition,
 } from "../rules/index.js";
 import { StdoutReporter } from "../reporters/stdout-reporter.js";
 import { JsonReporter } from "../reporters/json-reporter.js";
@@ -82,6 +83,7 @@ export class CLI {
           duplicateThrow,
           useDeclaredType,
           duplicateEnum,
+          similarFunctionDefinition,
         ],
         reporter,
       });
