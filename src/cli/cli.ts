@@ -1,4 +1,5 @@
-import { parseArgs, generateHelp } from "./optionator.js";
+import { writeFile } from "fs/promises";
+import { parseArgs, generateHelp, type ReportFormat } from "./optionator.js";
 import { collectFiles } from "./collect-files.js";
 import { logger } from "../logger/index.js";
 import { Runner } from "../runner/runner.js";
@@ -10,10 +11,29 @@ import {
   duplicateEnum,
 } from "../rules/index.js";
 import { StdoutReporter } from "../reporters/stdout-reporter.js";
+import { JsonReporter } from "../reporters/json-reporter.js";
+import { HtmlReporter } from "../reporters/html-reporter.js";
+import type { Reporter } from "../reporters/types.js";
+
+const DEFAULT_OUT: Record<Exclude<ReportFormat, "stdout">, string> = {
+  json: "report.json",
+  html: "report.html",
+};
+
+function createReporter(format: ReportFormat): Reporter {
+  switch (format) {
+    case "json":
+      return new JsonReporter();
+    case "html":
+      return new HtmlReporter();
+    default:
+      return new StdoutReporter();
+  }
+}
 
 export class CLI {
   async run(argv: string[]) {
-    const { patterns, help, ignorePatterns } = parseArgs(argv);
+    const { patterns, help, ignorePatterns, report, out } = parseArgs(argv);
 
     if (help || patterns.length === 0) {
       logger.info(generateHelp());
@@ -25,7 +45,7 @@ export class CLI {
       return;
     }
 
-    await this.analyze(files);
+    await this.analyze(files, report, out);
   }
 
   private async collect(
@@ -45,10 +65,15 @@ export class CLI {
     return files;
   }
 
-  private async analyze(files: string[]) {
+  private async analyze(
+    files: string[],
+    format: ReportFormat,
+    out: string | undefined,
+  ) {
     logger.info("Starting duplicate detection...\n");
 
     try {
+      const reporter = createReporter(format);
       const runner = new Runner({
         paths: files,
         rules: [
@@ -58,9 +83,16 @@ export class CLI {
           useDeclaredType,
           duplicateEnum,
         ],
-        reporter: new StdoutReporter(),
+        reporter,
       });
-      await runner.run();
+      const output = await runner.run();
+
+      if (typeof output === "string") {
+        const outPath =
+          out ?? DEFAULT_OUT[format as Exclude<ReportFormat, "stdout">];
+        await writeFile(outPath, output, "utf-8");
+        logger.success(`Report written to ${outPath}`);
+      }
     } catch (error) {
       logger.error("Analysis failed:");
       console.error(error);

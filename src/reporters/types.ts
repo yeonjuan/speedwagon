@@ -8,6 +8,6 @@ export interface ResolvedReport {
 }
 
 export interface Reporter {
-  report(reports: ResolvedReport[]): Promise<void> | void;
+  report(reports: ResolvedReport[]): Promise<string | void> | string | void;
   readonly name: string;
 }

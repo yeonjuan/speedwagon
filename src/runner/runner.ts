@@ -58,7 +58,7 @@ export class Runner {
         `ruleContext id:${rule.id}`,
       ).getReports(),
     );
-    await this.config.reporter.report(reports);
+    return this.config.reporter.report(reports);
   }
 
   private async collectFromFile(path: string) {
