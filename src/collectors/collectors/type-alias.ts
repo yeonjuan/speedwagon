@@ -1,5 +1,5 @@
-import type { Collector } from "./types.js";
-import { getPosition, normalizeType } from "./ast-utils/index.js";
+import type { Collector } from "../types.js";
+import { getPosition, normalizeType } from "../ast-utils/index.js";
 
 // key format: `${normalizedType}\x00${typeName}\x00${isExported ? "1" : "0"}`
 export const typeAlias: Collector = {

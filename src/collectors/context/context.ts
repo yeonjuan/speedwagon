@@ -1,11 +1,11 @@
-import { nullishThrows } from "../utils/nullish-throws.js";
+import { nullishThrows } from "../../utils/nullish-throws.js";
 import type {
   CollectorContextMutationAPI,
   CollectAddData,
   CollectRecord,
   Collection,
   CollectorQueryAPI,
-} from "./types.js";
+} from "../types.js";
 
 export class CollectorContext implements CollectorQueryAPI {
   private readonly map = new Map<string, Map<string, CollectRecord[]>>();

@@ -1,6 +1,6 @@
 import type { TemplateLiteral } from "oxc-parser";
-import type { Collector } from "./types.js";
-import { getPosition } from "./ast-utils/index.js";
+import type { Collector } from "../types.js";
+import { getPosition } from "../ast-utils/index.js";
 
 function isSimpleStringConversion(node: TemplateLiteral): boolean {
   return (

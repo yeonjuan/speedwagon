@@ -1,5 +1,5 @@
-import type { Collector } from "./types.js";
-import { getPosition } from "./ast-utils/index.js";
+import type { Collector } from "../types.js";
+import { getPosition } from "../ast-utils/index.js";
 
 function extractPrimitiveLiteral(node: {
   type: string;

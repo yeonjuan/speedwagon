@@ -1,5 +1,5 @@
-import type { Collector } from "./types.js";
-import { getPosition, normalizeType } from "./ast-utils/index.js";
+import type { Collector } from "../types.js";
+import { getPosition, normalizeType } from "../ast-utils/index.js";
 
 export const inlineTypeUsage: Collector = {
   id: "inline-type-usage",

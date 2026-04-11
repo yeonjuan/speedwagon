@@ -1,6 +1,6 @@
 import type { TSEnumMember } from "oxc-parser";
-import type { Collector } from "./types.js";
-import { getPosition } from "./ast-utils/index.js";
+import type { Collector } from "../types.js";
+import { getPosition } from "../ast-utils/index.js";
 
 function extractMemberKey(member: TSEnumMember): string | null {
   if (!member.initializer) {
