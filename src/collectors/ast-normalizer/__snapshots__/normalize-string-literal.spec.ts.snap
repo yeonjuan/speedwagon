@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`normalizeStringLiteral > "" 1`] = `""`;
+
+exports[`normalizeStringLiteral > "hello" 1`] = `"hello"`;
+
+exports[`normalizeStringLiteral > "http://example.com/path?query=1" 1`] = `"http://example.com/path?query=1"`;
+
+exports[`normalizeStringLiteral > "https://example.com" 1`] = `"https://example.com"`;
+
+exports[`normalizeStringLiteral > "not-a-url" 1`] = `"not-a-url"`;
