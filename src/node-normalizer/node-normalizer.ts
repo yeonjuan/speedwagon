@@ -1166,4 +1166,5 @@ export const nodeNormalizer = {
   functionNode,
   tsEnumDeclaration,
   arrayExpression,
+  templateLiteral,
 };

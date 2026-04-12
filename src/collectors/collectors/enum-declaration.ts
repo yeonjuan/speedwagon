@@ -1,6 +1,6 @@
 import type { Collector } from "../types.js";
 import { getPosition } from "../ast-utils/index.js";
-import { normalizeTSEnumDeclaration } from "../../node-normalizer/index.js";
+import { nodeNormalizer } from "../../node-normalizer/index.js";
 
 export const enumDeclaration: Collector = {
   id: "enum-declaration",
@@ -14,11 +14,10 @@ export const enumDeclaration: Collector = {
       },
       TSEnumDeclaration(node) {
         const isExported = exportedStarts.has(node.start);
-        const key = normalizeTSEnumDeclaration(node, isExported);
+        const key = nodeNormalizer.tsEnumDeclaration(node);
         if (key === null) return;
         context.add({
           key,
-          name: node.id.name,
           location: {
             start: getPosition(context.code, node.start),
             end: getPosition(context.code, node.end),

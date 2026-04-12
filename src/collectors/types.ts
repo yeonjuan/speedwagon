@@ -3,7 +3,6 @@ import type { Location } from "../types/index.js";
 
 export interface CollectAddData {
   key: string;
-  name: string;
   location: Location;
 }
 
