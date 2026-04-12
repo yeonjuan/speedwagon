@@ -1,9 +1,6 @@
 import type { Collector } from "../types.js";
-import {
-  getPosition,
-  isRegExpLiteral,
-  normalizer,
-} from "../ast-utils/index.js";
+import { getPosition, isRegExpLiteral } from "../ast-utils/index.js";
+import { normalizer } from "../ast-normalizer/index.js";
 
 export const regexLiteral: Collector = {
   id: "regex-literal",

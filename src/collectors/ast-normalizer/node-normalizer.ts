@@ -19,7 +19,7 @@ import {
   isStringLiteral,
   isIdentifierName,
   isIdentifierReference,
-} from "./predicates.js";
+} from "../ast-utils/predicates.js";
 
 // A separator that cannot appear in JS/TS source text, used to build
 // collision-free composite keys.

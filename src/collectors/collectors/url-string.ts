@@ -1,9 +1,6 @@
 import type { Collector } from "../types.js";
-import {
-  getPosition,
-  isStringLiteral,
-  normalizer,
-} from "../ast-utils/index.js";
+import { getPosition, isStringLiteral } from "../ast-utils/index.js";
+import { normalizer } from "../ast-normalizer/index.js";
 
 export const urlString: Collector = {
   id: "url-string",

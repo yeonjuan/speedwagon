@@ -1,5 +1,6 @@
 import type { Collector } from "../types.js";
-import { getPosition, normalizer } from "../ast-utils/index.js";
+import { getPosition } from "../ast-utils/index.js";
+import { normalizer } from "../ast-normalizer/index.js";
 
 function addFunction(
   context: Parameters<Collector["createJSVisitor"]>[0],
