@@ -20,6 +20,7 @@ import {
   isIdentifierName,
   isIdentifierReference,
 } from "../ast-utils/predicates.js";
+import { stringifier } from "../ast-stringifier/index.js";
 
 // A separator that cannot appear in JS/TS source text, used to build
 // collision-free composite keys.
@@ -302,8 +303,8 @@ function normalizeNode(
   const { isExported = false } = opts;
   switch (node.type) {
     case "Literal":
-      if (isRegExpLiteral(node)) return normalizeRegexLiteral(node);
-      if (isStringLiteral(node)) return normalizeStringLiteral(node);
+      if (isRegExpLiteral(node)) return stringifier.regExpLiteral(node);
+      if (isStringLiteral(node)) return stringifier.stringLiteral(node);
       return null;
     case "TemplateLiteral":
       return normalizeTemplateLiteral(node as TemplateLiteral);
@@ -331,8 +332,6 @@ function normalizeNode(
 
 export const normalizer = {
   normalizeNode,
-  normalizeRegexLiteral,
-  normalizeStringLiteral,
   normalizeTemplateLiteral,
   normalizeThrowStatement,
   normalizeArrayExpression,
