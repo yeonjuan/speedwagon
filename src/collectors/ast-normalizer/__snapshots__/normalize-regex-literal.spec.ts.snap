@@ -1,0 +1,11 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`normalizeRegexLiteral > /\\d+/g 1`] = `"\\d+/g"`;
+
+exports[`normalizeRegexLiteral > /^hello$/m 1`] = `"^hello$/m"`;
+
+exports[`normalizeRegexLiteral > /abc/gi 1`] = `"abc/gi"`;
+
+exports[`normalizeRegexLiteral > /foo/ 1`] = `"foo/"`;
+
+exports[`normalizeRegexLiteral > /foo/i 1`] = `"foo/i"`;

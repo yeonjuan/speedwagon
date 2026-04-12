@@ -191,8 +191,6 @@ function normalizeTSTypeAnnotation(node: TSTypeAnnotation): string | null {
 
 function normalizeArrayExpression(node: ArrayExpression): string | null {
   const { elements } = node;
-  if (elements.length < 2) return null;
-
   const serialized = elements.map((el) => {
     if (el === null || el.type !== "Literal") return null;
     const { value } = el as { type: string; value?: unknown };
