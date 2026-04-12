@@ -89,14 +89,12 @@ function normalizeType(node: TSType): string {
   }
 }
 
-const URL_PATTERN = /^https?:\/\/.+/;
-
 function normalizeRegexLiteral(node: RegExpLiteral): string {
   return `${node.regex.pattern}/${node.regex.flags}`;
 }
 
-function normalizeUrlLiteral(node: StringLiteral): string | null {
-  return URL_PATTERN.test(node.value) ? node.value : null;
+function normalizeStringLiteral(node: StringLiteral): string {
+  return `${node.value}`;
 }
 
 function isSimpleStringConversion(node: TemplateLiteral): boolean {
@@ -305,7 +303,7 @@ function normalizeNode(
   switch (node.type) {
     case "Literal":
       if (isRegExpLiteral(node)) return normalizeRegexLiteral(node);
-      if (isStringLiteral(node)) return normalizeUrlLiteral(node);
+      if (isStringLiteral(node)) return normalizeStringLiteral(node);
       return null;
     case "TemplateLiteral":
       return normalizeTemplateLiteral(node as TemplateLiteral);
@@ -334,7 +332,7 @@ function normalizeNode(
 export const normalizer = {
   normalizeNode,
   normalizeRegexLiteral,
-  normalizeUrlLiteral,
+  normalizeStringLiteral,
   normalizeTemplateLiteral,
   normalizeThrowStatement,
   normalizeArrayExpression,
