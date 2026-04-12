@@ -9,6 +9,7 @@ import type {
 
 export class CollectorContext implements CollectorQueryAPI {
   private readonly map = new Map<string, Map<string, CollectRecord[]>>();
+  private readonly nameMap = new Map<string, string>();
 
   constructor() {}
 
@@ -16,9 +17,10 @@ export class CollectorContext implements CollectorQueryAPI {
     return {
       path,
       code,
-      add: ({ key, location }: CollectAddData) => {
+      add: ({ key, name, location }: CollectAddData) => {
         if (!this.map.has(key)) {
           this.map.set(key, new Map());
+          this.nameMap.set(key, name);
         }
         const pathMap = nullishThrows(this.map.get(key), `map.get(${key})`);
         if (!pathMap.has(path)) {
@@ -40,10 +42,11 @@ export class CollectorContext implements CollectorQueryAPI {
     if (!pathMap) {
       return [];
     }
+    const name = this.nameMap.get(key) ?? key;
     const results: Collection[] = [];
     for (const [path, items] of pathMap) {
       for (const { location } of items) {
-        results.push({ key, path, location });
+        results.push({ key, name, path, location });
       }
     }
     return results;

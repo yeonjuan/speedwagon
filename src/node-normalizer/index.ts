@@ -1,3 +1,1 @@
-export { nodeNormalizer, stringify } from "./node-normalizer";
-
-export const KEY_SEP = "\x01";
+export { nodeNormalizer, stringify } from "./node-normalizer.js";

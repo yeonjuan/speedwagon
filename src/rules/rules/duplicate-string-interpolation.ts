@@ -1,5 +1,4 @@
 import { collectors } from "../../collectors/index.js";
-import { KEY_SEP } from "../../collectors/ast-utils/index.js";
 import type { Rule } from "../types.js";
 
 export const duplicateStringInterpolation: Rule = {
@@ -18,11 +17,10 @@ export const duplicateStringInterpolation: Rule = {
       if (collections.length <= 1) {
         continue;
       }
-      const displayKey = `\`${key.split(KEY_SEP).join("${...}")}\``;
       context.report({
         descriptionId: "duplicated",
         suggestionId: "duplicated",
-        data: { key: displayKey, count: collections.length },
+        data: { key: collections[0].name, count: collections.length },
         occurrences: collections.map(({ path, location }) => ({
           path,
           location,

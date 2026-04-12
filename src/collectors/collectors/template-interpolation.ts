@@ -18,8 +18,10 @@ export const templateInterpolation: Collector = {
       TemplateLiteral(node) {
         const key = normalize(node);
         if (key === null) return;
+        const name = `\`${key.split(KEY_SEP).join("${...}")}\``;
         context.add({
           key,
+          name,
           location: {
             start: getPosition(context.code, node.start),
             end: getPosition(context.code, node.end),

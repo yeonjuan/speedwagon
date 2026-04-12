@@ -14,6 +14,7 @@ export const urlString: Collector = {
         const key = nodeNormalizer.stringLiteral(node);
         context.add({
           key,
+          name: node.value,
           location: {
             start: getPosition(context.code, node.start),
             end: getPosition(context.code, node.end),

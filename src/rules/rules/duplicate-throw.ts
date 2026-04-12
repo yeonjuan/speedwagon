@@ -16,15 +16,10 @@ export const duplicateThrow: Rule = {
       if (collections.length <= 1) {
         continue;
       }
-      const [errorType, ...messageParts] = key.split(":");
-      const message = messageParts.join(":");
       context.report({
         descriptionId: "duplicated",
         suggestionId: "duplicated",
-        data: {
-          key: `new ${errorType}("${message}")`,
-          count: collections.length,
-        },
+        data: { key: collections[0].name, count: collections.length },
         occurrences: collections.map(({ path, location }) => ({
           path,
           location,

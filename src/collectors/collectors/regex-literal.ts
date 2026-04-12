@@ -11,6 +11,7 @@ export const regexLiteral: Collector = {
         const key = nodeNormalizer.regExpLiteral(node);
         context.add({
           key,
+          name: `${node.regex.pattern}/${node.regex.flags}`,
           location: {
             start: getPosition(context.code, node.start),
             end: getPosition(context.code, node.end),
