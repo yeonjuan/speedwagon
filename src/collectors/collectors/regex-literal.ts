@@ -1,6 +1,6 @@
 import type { Collector } from "../types.js";
 import { getPosition, isRegExpLiteral } from "../ast-utils/index.js";
-import { normalizer } from "../ast-normalizer/index.js";
+import { nodeNormalizer } from "../../node-normalizer/index.js";
 
 export const regexLiteral: Collector = {
   id: "regex-literal",
@@ -8,8 +8,7 @@ export const regexLiteral: Collector = {
     return {
       Literal(node) {
         if (!isRegExpLiteral(node)) return;
-        const key = normalizer.normalizeNode(node);
-        if (key === null) return;
+        const key = nodeNormalizer.regExpLiteral(node);
         context.add({
           key,
           location: {

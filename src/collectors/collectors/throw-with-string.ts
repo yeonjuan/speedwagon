@@ -1,14 +1,13 @@
 import type { Collector } from "../types.js";
 import { getPosition } from "../ast-utils/index.js";
-import { normalizer } from "../ast-normalizer/index.js";
+import { nodeNormalizer } from "../../node-normalizer/index.js";
 
 export const throwWithString: Collector = {
   id: "throw-with-string",
   createJSVisitor(context) {
     return {
       ThrowStatement(node) {
-        const key = normalizer.normalizeNode(node);
-        if (key === null) return;
+        const key = nodeNormalizer.throwStatement(node);
         context.add({
           key,
           location: {

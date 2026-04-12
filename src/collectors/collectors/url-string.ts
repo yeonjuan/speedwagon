@@ -1,6 +1,6 @@
 import type { Collector } from "../types.js";
 import { getPosition, isStringLiteral } from "../ast-utils/index.js";
-import { stringifier } from "../ast-stringifier/ast-stringifier.js";
+import { nodeNormalizer } from "../../node-normalizer/index.js";
 
 const URL_PATTERN = /^https?:\/\/.+/;
 
@@ -11,7 +11,7 @@ export const urlString: Collector = {
       Literal(node) {
         if (!isStringLiteral(node)) return;
         if (!URL_PATTERN.test(node.value)) return;
-        const key = stringifier.stringLiteral(node);
+        const key = nodeNormalizer.stringLiteral(node);
         context.add({
           key,
           location: {

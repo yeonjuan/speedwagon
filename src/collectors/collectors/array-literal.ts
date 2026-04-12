@@ -1,6 +1,6 @@
 import type { Collector } from "../types.js";
 import { getPosition } from "../ast-utils/index.js";
-import { normalizer } from "../ast-normalizer/index.js";
+import { nodeNormalizer } from "../../node-normalizer/index.js";
 
 export const arrayLiteral: Collector = {
   id: "array-literal",
@@ -15,7 +15,7 @@ export const arrayLiteral: Collector = {
             init.elements.length < 2
           )
             continue;
-          const key = normalizer.normalizeArrayExpression(init);
+          const key = nodeNormalizer.arrayExpression(init);
           if (key === null) continue;
           context.add({
             key,

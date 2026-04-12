@@ -143,6 +143,7 @@ import type {
   TSTypeParameter,
   TSTypeParameterDeclaration,
   TSTypeParameterInstantiation,
+  TSGlobalDeclaration,
 } from "oxc-parser";
 
 function s(node: Node | null | undefined): string {
@@ -766,7 +767,7 @@ function tsInterfaceHeritage(node: TSInterfaceHeritage) {
   return s(node.expression);
 }
 
-function tsModuleDeclaration(node: TSModuleDeclaration) {
+function tsModuleDeclaration(node: TSModuleDeclaration | TSGlobalDeclaration) {
   return `module(${s(node.id)},${s(node.body)})`;
 }
 
@@ -946,20 +947,20 @@ export function stringify(node: Node): string {
       return variableDeclarator(node);
     case "ClassDeclaration":
     case "ClassExpression":
-      return classNode(node as unknown as Class);
+      return classNode(node);
     case "ClassBody":
       return classBody(node);
     case "MethodDefinition":
     case "TSAbstractMethodDefinition":
-      return methodDefinition(node as MethodDefinition);
+      return methodDefinition(node);
     case "PropertyDefinition":
     case "TSAbstractPropertyDefinition":
-      return propertyDefinition(node as PropertyDefinition);
+      return propertyDefinition(node);
     case "StaticBlock":
       return staticBlock(node);
     case "AccessorProperty":
     case "TSAbstractAccessorProperty":
-      return accessorProperty(node as AccessorProperty);
+      return accessorProperty(node);
     case "Decorator":
       return decorator(node);
     case "ImportDeclaration":
@@ -1099,7 +1100,7 @@ export function stringify(node: Node): string {
     case "TSInterfaceHeritage":
       return tsInterfaceHeritage(node);
     case "TSModuleDeclaration":
-      return tsModuleDeclaration(node as unknown as TSModuleDeclaration);
+      return tsModuleDeclaration(node);
     case "TSModuleBlock":
       return tsModuleBlock(node);
     case "TSExportAssignment":
@@ -1159,4 +1160,10 @@ export const nodeNormalizer = {
   bigintLiteral,
   identifierReference,
   identifierName,
+  tsTypeAliasDeclaration,
+  throwStatement,
+  tsTypeAnnotation,
+  functionNode,
+  tsEnumDeclaration,
+  arrayExpression,
 };
