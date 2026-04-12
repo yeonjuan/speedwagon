@@ -16,7 +16,7 @@ export class CollectorContext implements CollectorQueryAPI {
     return {
       path,
       code,
-      add: ({ key, location }: CollectAddData) => {
+      add: ({ key, location, displayName }: CollectAddData) => {
         if (!this.map.has(key)) {
           this.map.set(key, new Map());
         }
@@ -25,6 +25,7 @@ export class CollectorContext implements CollectorQueryAPI {
           pathMap.set(path, []);
         }
         pathMap.get(path)?.push({
+          displayName,
           location,
         });
       },
@@ -42,8 +43,8 @@ export class CollectorContext implements CollectorQueryAPI {
     }
     const results: Collection[] = [];
     for (const [path, items] of pathMap) {
-      for (const { location } of items) {
-        results.push({ key, path, location });
+      for (const { location, displayName } of items) {
+        results.push({ key, path, location, displayName });
       }
     }
     return results;

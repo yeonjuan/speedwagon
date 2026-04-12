@@ -2,35 +2,13 @@ import { writeFile } from "fs/promises";
 import { parseArgs, generateHelp, type ReportFormat } from "./optionator.js";
 import { collectFiles } from "./collect-files.js";
 import { logger } from "../logger/index.js";
-import { Runner } from "../runner/runner.js";
-import {
-  duplicateRegexLiteral,
-  duplicateStringInterpolation,
-  duplicateThrow,
-  useDeclaredType,
-  duplicateEnum,
-  similarFunctionDefinition,
-} from "../rules/index.js";
-import { StdoutReporter } from "../reporters/stdout-reporter.js";
-import { JsonReporter } from "../reporters/json-reporter.js";
-import { HtmlReporter } from "../reporters/html-reporter.js";
-import type { Reporter } from "../reporters/types.js";
+import { Runner } from "./runner.js";
+import { duplicateRegexLiteral } from "../rules/index.js";
 
 const DEFAULT_OUT: Record<Exclude<ReportFormat, "stdout">, string> = {
   json: "report.json",
   html: "report.html",
 };
-
-function createReporter(format: ReportFormat): Reporter {
-  switch (format) {
-    case "json":
-      return new JsonReporter();
-    case "html":
-      return new HtmlReporter();
-    default:
-      return new StdoutReporter();
-  }
-}
 
 export class CLI {
   async run(argv: string[]) {
@@ -74,18 +52,9 @@ export class CLI {
     logger.info("Starting duplicate detection...\n");
 
     try {
-      const reporter = createReporter(format);
       const runner = new Runner({
         paths: files,
-        rules: [
-          duplicateRegexLiteral,
-          duplicateStringInterpolation,
-          duplicateThrow,
-          useDeclaredType,
-          duplicateEnum,
-          similarFunctionDefinition,
-        ],
-        reporter,
+        rules: [duplicateRegexLiteral],
       });
       const output = await runner.run();
 

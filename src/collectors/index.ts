@@ -1,23 +1,7 @@
-import { regexLiteral } from "./collectors/regex-literal.js";
-import { templateInterpolation } from "./collectors/template-interpolation.js";
-import { throwWithString } from "./collectors/throw-with-string.js";
-import { typeAlias } from "./collectors/type-alias.js";
-import { inlineTypeUsage } from "./collectors/inline-type-usage.js";
-import { enumDeclaration } from "./collectors/enum-declaration.js";
-import { arrayLiteral } from "./collectors/array-literal.js";
-import { urlString } from "./collectors/url-string.js";
-import { functionBody } from "./collectors/function-body.js";
+import { regexLiteral } from "./regex-literal.js";
 
 export const collectors = {
   regexLiteral,
-  templateInterpolation,
-  throwWithString,
-  typeAlias,
-  inlineTypeUsage,
-  enumDeclaration,
-  arrayLiteral,
-  urlString,
-  functionBody,
 };
 
 export type { Collector } from "./types.js";

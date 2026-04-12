@@ -1,4 +1,4 @@
-import { RuleTester } from "../../test-utils/index.js";
+import { RuleTester } from "../test-utils/index.js";
 import { duplicateRegexLiteral } from "./duplicate-regex-literal.js";
 
 const tester = new RuleTester(duplicateRegexLiteral);
@@ -14,7 +14,7 @@ tester.run({
       code: "const a = /foo/; const b = /foo/;",
       reports: [
         {
-          description: "foo/ is duplicated 2 times",
+          description: "RegExp `/foo/` is duplicated 2 times",
           suggestion:
             "Remove duplicate regex literals and reuse a single variable",
           occurrences: [
@@ -32,7 +32,7 @@ const c = /\\d+/g;
       `.trim(),
       reports: [
         {
-          description: "\\d+/g is duplicated 3 times",
+          description: "RegExp `/\\d+/g` is duplicated 3 times",
           occurrences: [
             { line: 1, column: 11 },
             { line: 2, column: 11 },
@@ -50,14 +50,14 @@ const d = /bar/;
       `.trim(),
       reports: [
         {
-          description: "foo/ is duplicated 2 times",
+          description: "RegExp `/foo/` is duplicated 2 times",
           occurrences: [
             { line: 1, column: 11 },
             { line: 3, column: 11 },
           ],
         },
         {
-          description: "bar/ is duplicated 2 times",
+          description: "RegExp `/bar/` is duplicated 2 times",
           occurrences: [
             { line: 2, column: 11 },
             { line: 4, column: 11 },

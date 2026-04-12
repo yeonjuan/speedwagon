@@ -10,13 +10,11 @@ import {
 } from "../languages/index.js";
 import { CollectorContext, type Collector } from "../collectors/index.js";
 import { RuleContext } from "../rules/index.js";
-import type { Reporter } from "../reporters/types.js";
 import { nullishThrows } from "../utils/index.js";
 
 export interface RunnerConfig {
   paths: string[];
   rules: Rule[];
-  reporter: Reporter;
 }
 
 export class Runner {
@@ -52,13 +50,6 @@ export class Runner {
     for (const rule of this.config.rules) {
       this.checkRule(rule);
     }
-    const reports = this.config.rules.flatMap((rule) =>
-      nullishThrows(
-        this.ruleContexts.get(rule.id),
-        `ruleContext id:${rule.id}`,
-      ).getReports(),
-    );
-    return this.config.reporter.report(reports);
   }
 
   private async collectFromFile(path: string) {
