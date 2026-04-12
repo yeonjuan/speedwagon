@@ -16,8 +16,8 @@ function addFunction(
   });
 }
 
-export const functionBody: Collector = {
-  id: "function-body",
+export const functionDeclaration: Collector = {
+  id: "function-declaration",
   createJSVisitor(context) {
     return {
       FunctionDeclaration(node) {

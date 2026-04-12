@@ -3,16 +3,16 @@ import type { Rule } from "../types.js";
 
 export const similarFunctionDefinition: Rule = {
   id: "similar-function-definition",
-  collectors: [collectors.functionBody],
+  collectors: [collectors.functionDeclaration],
   descriptions: {
     similar: "Similar function bodies found ({{count}} occurrences)",
   },
   suggestions: {
     similar: "Extract the duplicated logic into a shared function",
   },
-  check(context, [functionBody]) {
-    for (const key of functionBody.keys()) {
-      const collections = functionBody.getByKey(key);
+  check(context, [functionDeclaration]) {
+    for (const key of functionDeclaration.keys()) {
+      const collections = functionDeclaration.getByKey(key);
       if (collections.length <= 1) continue;
 
       context.report({
