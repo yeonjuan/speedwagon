@@ -2,7 +2,7 @@ import type { Collector } from "../types.js";
 import {
   getPosition,
   isStringLiteral,
-  normalizeAst,
+  normalizer,
 } from "../ast-utils/index.js";
 
 export const urlString: Collector = {
@@ -11,7 +11,7 @@ export const urlString: Collector = {
     return {
       Literal(node) {
         if (!isStringLiteral(node)) return;
-        const key = normalizeAst(node);
+        const key = normalizer.normalizeNode(node);
         if (key === null) return;
         context.add({
           key,

@@ -1,11 +1,13 @@
 import type { Collector } from "../types.js";
-import { getPosition, normalizeAst } from "../ast-utils/index.js";
+import { getPosition, normalizer } from "../ast-utils/index.js";
 
 function addFunction(
   context: Parameters<Collector["createJSVisitor"]>[0],
   node: { type: string; start: number; end: number },
 ) {
-  const key = normalizeAst(node as Parameters<typeof normalizeAst>[0]);
+  const key = normalizer.normalizeNode(
+    node as Parameters<typeof normalizer.normalizeNode>[0],
+  );
   if (key === null) return;
   context.add({
     key,

@@ -1,12 +1,12 @@
 import type { Collector } from "../types.js";
-import { getPosition, normalizeAst } from "../ast-utils/index.js";
+import { getPosition, normalizer } from "../ast-utils/index.js";
 
 export const throwWithString: Collector = {
   id: "throw-with-string",
   createJSVisitor(context) {
     return {
       ThrowStatement(node) {
-        const key = normalizeAst(node);
+        const key = normalizer.normalizeNode(node);
         if (key === null) return;
         context.add({
           key,

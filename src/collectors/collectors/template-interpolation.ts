@@ -1,12 +1,12 @@
 import type { Collector } from "../types.js";
-import { getPosition, normalizeAst } from "../ast-utils/index.js";
+import { getPosition, normalizer } from "../ast-utils/index.js";
 
 export const templateInterpolation: Collector = {
   id: "template-interpolation",
   createJSVisitor(context) {
     return {
       TemplateLiteral(node) {
-        const key = normalizeAst(node);
+        const key = normalizer.normalizeNode(node);
         if (key === null) return;
         context.add({
           key,

@@ -2,7 +2,7 @@ import type { Collector } from "../types.js";
 import {
   getPosition,
   isRegExpLiteral,
-  normalizeAst,
+  normalizer,
 } from "../ast-utils/index.js";
 
 export const regexLiteral: Collector = {
@@ -11,7 +11,7 @@ export const regexLiteral: Collector = {
     return {
       Literal(node) {
         if (!isRegExpLiteral(node)) return;
-        const key = normalizeAst(node);
+        const key = normalizer.normalizeNode(node);
         if (key === null) return;
         context.add({
           key,

@@ -1,12 +1,12 @@
 import type { Collector } from "../types.js";
-import { getPosition, normalizeAst } from "../ast-utils/index.js";
+import { getPosition, normalizer } from "../ast-utils/index.js";
 
 export const inlineTypeUsage: Collector = {
   id: "inline-type-usage",
   createJSVisitor(context) {
     return {
       TSTypeAnnotation(node) {
-        const key = normalizeAst(node);
+        const key = normalizer.normalizeNode(node);
         if (key === null) return;
         context.add({
           key,
