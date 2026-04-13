@@ -1,11 +1,11 @@
 import type { Collector, CollectorContext } from "../collectors/index.js";
 import type { RuleContext } from "./rule-context.js";
 
-type CollectorContexts<TCollectors extends Collector[]> = {
+type CollectorContexts<TCollectors extends Collector<any>[]> = {
   [K in keyof TCollectors]: CollectorContext;
 };
 
-export interface Rule<TCollectors extends Collector[] = Collector[]> {
+export interface Rule<TCollectors extends Collector<any>[] = Collector<any>[]> {
   id: string;
   collectors: TCollectors;
   descriptions: {

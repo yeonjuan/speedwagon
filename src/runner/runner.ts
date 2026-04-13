@@ -26,7 +26,7 @@ export class Runner {
     jsxLanguage,
     tsxLanguage,
   ];
-  private collectors: Collector[];
+  private collectors: Collector<any>[];
   private collectContexts: Map<string, CollectorContext>;
   private ruleContexts: Map<string, RuleContext>;
 

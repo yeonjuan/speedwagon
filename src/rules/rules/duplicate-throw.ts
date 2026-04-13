@@ -19,7 +19,7 @@ export const duplicateThrow: Rule = {
       context.report({
         descriptionId: "duplicated",
         suggestionId: "duplicated",
-        data: { key: collections[0].name, count: collections.length },
+        data: { key: collections[0].data.throwing, count: collections.length },
         occurrences: collections.map(({ path, location }) => ({
           path,
           location,

@@ -4,7 +4,7 @@ import { nodeNormalizer } from "../../node-normalizer/index.js";
 
 const URL_PATTERN = /^https?:\/\/.+/;
 
-export const urlString: Collector = {
+export const urlString: Collector<{ url: string }> = {
   id: "url-string",
   createJSVisitor(context) {
     return {
@@ -14,7 +14,7 @@ export const urlString: Collector = {
         const key = nodeNormalizer.stringLiteral(node);
         context.add({
           key,
-          name: node.value,
+          data: { url: node.value },
           location: {
             start: getPosition(context.code, node.start),
             end: getPosition(context.code, node.end),
