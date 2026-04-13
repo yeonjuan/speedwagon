@@ -301,4 +301,5 @@ export const nodePrinter = {
   tsTypeAnnotation: printTSTypeAnnotation,
   tsTypeAliasDeclaration: printTSTypeAliasDeclaration,
   functionNode: printFunctionNode,
+  stringLiteal: (node: StringLiteral) => node.value,
 };
