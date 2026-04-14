@@ -1,4 +1,5 @@
 import type { Collector, CollectorContext } from "../collectors/index.js";
+import type { Location } from "../types/location.js";
 import type { RuleContext } from "./rule-context.js";
 
 type CollectorContexts<TCollectors extends Collector<any>[]> = {
@@ -33,5 +34,6 @@ export interface Report {
   descriptionId: string;
   suggestionId?: string;
   data?: Record<string, unknown>;
-  occurrences?: ReportOccurrence[];
+  path: string;
+  location: Location;
 }

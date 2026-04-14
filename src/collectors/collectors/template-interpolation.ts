@@ -10,7 +10,11 @@ export const templateInterpolation: Collector<{ value: string }> = {
       TemplateLiteral(node) {
         const value = nodePrinter.templateLiteral(node);
         if (value === null) return;
-        const key = nodeNormalizer.templateLiteral(node);
+        const key = nodeNormalizer.templateLiteral(node, {
+          Identifier() {
+            return "id";
+          },
+        });
         context.add({
           key,
           data: { value },

@@ -2,14 +2,14 @@ import type { Visitor, VisitorObject } from "oxc-parser";
 import type { Location } from "../types/index.js";
 
 export type CollectAddData<
-  Additional extends Record<string, unknown> | undefined = undefined,
-> = Additional extends undefined
+  Data extends Record<string, unknown> | undefined = undefined,
+> = Data extends undefined
   ? { key: string; location: Location; data?: undefined }
-  : { key: string; location: Location; data: Additional };
+  : { key: string; location: Location; data: Data };
 
-export type CollectRecord = Pick<CollectAddData, "location">;
+export type CollectRecord = Pick<CollectAddData, "location" | "data">;
 
-export interface Collection extends CollectAddData<Record<string, unknown>> {
+export interface Collection extends CollectAddData {
   path: string;
 }
 
@@ -39,10 +39,10 @@ export type VisitorFactory = (
 ) => VisitorInstance;
 
 export interface Collector<
-  Additional extends Record<string, unknown> | undefined = undefined,
+  Data extends Record<string, unknown> | undefined = undefined,
 > {
   id: string;
   createJSVisitor: (
-    context: CollectorContextMutationAPI<Additional>,
+    context: CollectorContextMutationAPI<Data>,
   ) => VisitorObject;
 }

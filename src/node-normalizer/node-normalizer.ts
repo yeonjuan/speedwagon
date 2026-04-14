@@ -358,8 +358,7 @@ function arrowFunctionExpression(node: ArrowFunctionExpression) {
 }
 
 function functionNode(node: Function) {
-  const id = node.id ? node.id.name : "";
-  return `fn(${node.async ? "async," : ""}${node.generator ? "gen," : ""}${id},${ss(node.params)})${s(node.body)}`;
+  return `fn(${node.async ? "async," : ""}${node.generator ? "gen," : ""},${ss(node.params)})${s(node.body)}`;
 }
 
 function v8IntrinsicExpression(node: V8IntrinsicExpression) {
@@ -637,11 +636,11 @@ function tsQualifiedName(node: TSQualifiedName) {
 }
 
 function tsUnionType(node: TSUnionType) {
-  return `union(${ss(node.types)})`;
+  return `union(${node.types.map(s).sort().join(",")})`;
 }
 
 function tsIntersectionType(node: TSIntersectionType) {
-  return `intersection(${ss(node.types)})`;
+  return `intersection(${node.types.map(s).sort().join(",")})`;
 }
 
 function tsArrayType(node: TSArrayType) {
@@ -764,7 +763,8 @@ function tsTypeParameterDeclaration(node: TSTypeParameterDeclaration) {
 // TypeScript declarations
 
 function tsEnumDeclaration(node: TSEnumDeclaration) {
-  return `enum(${node.id.name},${ss(node.body.members)})`;
+  const members = node.body.members.map(s).sort().join(",");
+  return `enum(${members})`;
 }
 
 function tsEnumMember(node: TSEnumMember) {
