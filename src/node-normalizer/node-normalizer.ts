@@ -146,6 +146,22 @@ import type {
   TSGlobalDeclaration,
 } from "oxc-parser";
 
+export type NormalizerOverrides = {
+  [K in Node["type"]]?: (node: Extract<Node, { type: K }>) => string;
+};
+
+let currentOverrides: NormalizerOverrides = {};
+
+function withOverrides<T>(overrides: NormalizerOverrides, fn: () => T): T {
+  const prev = currentOverrides;
+  currentOverrides = overrides;
+  try {
+    return fn();
+  } finally {
+    currentOverrides = prev;
+  }
+}
+
 function s(node: Node | null | undefined): string {
   if (node == null) return "";
   return stringify(node);
@@ -792,6 +808,8 @@ function tsExternalModuleReference(node: TSExternalModuleReference) {
 }
 
 export function stringify(node: Node): string {
+  const override = currentOverrides[node.type as Node["type"]];
+  if (override) return (override as (node: Node) => string)(node);
   switch (node.type) {
     case "Literal":
       return literal(
@@ -1151,20 +1169,48 @@ export function stringify(node: Node): string {
 }
 
 export const nodeNormalizer = {
-  stringify,
-  stringLiteral,
-  regExpLiteral,
-  numericLiteral,
-  booleanLiteral,
-  nullLiteral,
-  bigintLiteral,
-  identifierReference,
-  identifierName,
-  tsTypeAliasDeclaration,
-  throwStatement,
-  tsTypeAnnotation,
-  functionNode,
-  tsEnumDeclaration,
-  arrayExpression,
-  templateLiteral,
+  stringify: (node: Node, overrides: NormalizerOverrides = {}) =>
+    withOverrides(overrides, () => stringify(node)),
+  stringLiteral: (node: StringLiteral, overrides: NormalizerOverrides = {}) =>
+    withOverrides(overrides, () => stringLiteral(node)),
+  regExpLiteral: (node: RegExpLiteral, overrides: NormalizerOverrides = {}) =>
+    withOverrides(overrides, () => regExpLiteral(node)),
+  numericLiteral: (node: NumericLiteral, overrides: NormalizerOverrides = {}) =>
+    withOverrides(overrides, () => numericLiteral(node)),
+  booleanLiteral: (node: BooleanLiteral, overrides: NormalizerOverrides = {}) =>
+    withOverrides(overrides, () => booleanLiteral(node)),
+  nullLiteral: (node: NullLiteral, overrides: NormalizerOverrides = {}) =>
+    withOverrides(overrides, () => nullLiteral(node)),
+  bigintLiteral: (node: BigIntLiteral, overrides: NormalizerOverrides = {}) =>
+    withOverrides(overrides, () => bigintLiteral(node)),
+  identifierReference: (
+    node: IdentifierReference,
+    overrides: NormalizerOverrides = {},
+  ) => withOverrides(overrides, () => identifierReference(node)),
+  identifierName: (node: IdentifierName, overrides: NormalizerOverrides = {}) =>
+    withOverrides(overrides, () => identifierName(node)),
+  tsTypeAliasDeclaration: (
+    node: TSTypeAliasDeclaration,
+    overrides: NormalizerOverrides = {},
+  ) => withOverrides(overrides, () => tsTypeAliasDeclaration(node)),
+  throwStatement: (node: ThrowStatement, overrides: NormalizerOverrides = {}) =>
+    withOverrides(overrides, () => throwStatement(node)),
+  tsTypeAnnotation: (
+    node: TSTypeAnnotation,
+    overrides: NormalizerOverrides = {},
+  ) => withOverrides(overrides, () => tsTypeAnnotation(node)),
+  functionNode: (node: Function, overrides: NormalizerOverrides = {}) =>
+    withOverrides(overrides, () => functionNode(node)),
+  tsEnumDeclaration: (
+    node: TSEnumDeclaration,
+    overrides: NormalizerOverrides = {},
+  ) => withOverrides(overrides, () => tsEnumDeclaration(node)),
+  arrayExpression: (
+    node: ArrayExpression,
+    overrides: NormalizerOverrides = {},
+  ) => withOverrides(overrides, () => arrayExpression(node)),
+  templateLiteral: (
+    node: TemplateLiteral,
+    overrides: NormalizerOverrides = {},
+  ) => withOverrides(overrides, () => templateLiteral(node)),
 };

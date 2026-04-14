@@ -1,5 +1,6 @@
 import type { Collector } from "../types.js";
 import { getPosition } from "../ast-utils/index.js";
+import { nodeNormalizer } from "../../node-normalizer/index.js";
 import { nodePrinter } from "../../node-printer/index.js";
 
 export const enumDeclaration: Collector<{ name: string }> = {
@@ -14,8 +15,9 @@ export const enumDeclaration: Collector<{ name: string }> = {
       },
       TSEnumDeclaration(node) {
         const isExported = exportedStarts.has(node.start);
-        const key = nodePrinter.tsEnumDeclaration(node, isExported);
-        if (key === null) return;
+        const printed = nodePrinter.tsEnumDeclaration(node, isExported);
+        if (printed === null) return;
+        const key = nodeNormalizer.tsEnumDeclaration(node);
         context.add({
           key,
           data: { name: node.id.name },

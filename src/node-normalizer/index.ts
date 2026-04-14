@@ -1,1 +1,5 @@
-export { nodeNormalizer, stringify } from "./node-normalizer.js";
+export {
+  nodeNormalizer,
+  stringify,
+  type NormalizerOverrides,
+} from "./node-normalizer.js";

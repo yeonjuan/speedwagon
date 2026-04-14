@@ -1,6 +1,8 @@
 import type { Collector } from "../types.js";
 import { getPosition } from "../ast-utils/index.js";
+import { nodeNormalizer } from "../../node-normalizer/index.js";
 import { nodePrinter } from "../../node-printer/index.js";
+import type { ArrayExpression } from "oxc-parser";
 
 export const arrayLiteral: Collector<{ value: string }> = {
   id: "array-literal",
@@ -15,11 +17,12 @@ export const arrayLiteral: Collector<{ value: string }> = {
             init.elements.length < 2
           )
             continue;
-          const key = nodePrinter.arrayExpression(init);
-          if (key === null) continue;
+          const value = nodePrinter.arrayExpression(init);
+          if (value === null) continue;
+          const key = nodeNormalizer.arrayExpression(init);
           context.add({
             key,
-            data: { value: key },
+            data: { value },
             location: {
               start: getPosition(context.code, node.start),
               end: getPosition(context.code, node.end),

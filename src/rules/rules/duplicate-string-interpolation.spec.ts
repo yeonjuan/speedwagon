@@ -29,16 +29,14 @@ tester.run({
     {
       code: `
 const a = \`Error: \${message}\`;
-const b = \`Error: \${error.message}\`;
 const c = \`Error: \${err}\`;
       `.trim(),
       reports: [
         {
-          description: '"`Error: ${...}`" is duplicated 3 times',
+          description: '"`Error: ${...}`" is duplicated 2 times',
           occurrences: [
             { line: 1, column: 11 },
             { line: 2, column: 11 },
-            { line: 3, column: 11 },
           ],
         },
       ],

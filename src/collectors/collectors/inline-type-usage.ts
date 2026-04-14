@@ -1,5 +1,6 @@
 import type { Collector } from "../types.js";
 import { getPosition } from "../ast-utils/index.js";
+import { nodeNormalizer } from "../../node-normalizer/index.js";
 import { nodePrinter } from "../../node-printer/index.js";
 
 export const inlineTypeUsage: Collector = {
@@ -7,8 +8,9 @@ export const inlineTypeUsage: Collector = {
   createJSVisitor(context) {
     return {
       TSTypeAnnotation(node) {
-        const key = nodePrinter.tsTypeAnnotation(node);
-        if (key === null) return;
+        const printed = nodePrinter.tsTypeAnnotation(node);
+        if (printed === null) return;
+        const key = nodeNormalizer.tsTypeAnnotation(node);
         context.add({
           key,
           location: {
