@@ -7,7 +7,7 @@ export class RuleContext implements RuleContextMutationAPI {
 
   constructor(private readonly rule: Rule) {}
 
-  report({ descriptionId, suggestionId, data, occurrences }: Report) {
+  report({ descriptionId, suggestionId, data }: Report) {
     const descriptionTemplate =
       this.rule.descriptions[descriptionId] ?? descriptionId;
     const suggestionTemplate =
@@ -22,7 +22,6 @@ export class RuleContext implements RuleContextMutationAPI {
         suggestionTemplate != null
           ? format.template(suggestionTemplate, data)
           : undefined,
-      occurrences,
     });
   }
 

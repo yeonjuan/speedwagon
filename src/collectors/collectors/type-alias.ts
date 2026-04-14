@@ -1,7 +1,7 @@
 import type { Collector } from "../types.js";
 import { getPosition } from "../ast-utils/index.js";
-import { nodeNormalizer } from "../../node-normalizer/index.js";
 import { nodePrinter } from "../../node-printer/index.js";
+import { normalizeTsType } from "../../normalizer/normalizer.js";
 
 export const typeAlias: Collector = {
   id: "type-alias",
@@ -17,7 +17,7 @@ export const typeAlias: Collector = {
         const isExported = exportedStarts.has(node.start);
         const printed = nodePrinter.tsTypeAliasDeclaration(node, isExported);
         if (printed === null) return;
-        const key = nodeNormalizer.tsTypeAliasDeclaration(node);
+        const key = normalizeTsType(node.typeAnnotation, context.code);
         context.add({
           key,
           location: {
