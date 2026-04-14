@@ -1,4 +1,4 @@
-import type { TSEnumDeclaration, TSType, TSTypeAnnotation } from "oxc-parser";
+import type { TSEnumDeclaration, TSType } from "oxc-parser";
 import { extractCode } from "../utils";
 
 export function normalizeTsEnumDeclaration(
