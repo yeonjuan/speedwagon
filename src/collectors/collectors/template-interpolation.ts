@@ -1,23 +1,15 @@
 import type { Collector } from "../types.js";
 import { getPosition } from "../ast-utils/index.js";
 import { nodeNormalizer } from "../../node-normalizer/index.js";
-import { nodePrinter } from "../../node-printer/index.js";
+import { normalizeTemplateLiteral } from "../../normalizer/normalizer.js";
 
-export const templateInterpolation: Collector<{ value: string }> = {
+export const templateInterpolation: Collector = {
   id: "template-interpolation",
   createJSVisitor(context) {
     return {
       TemplateLiteral(node) {
-        const value = nodePrinter.templateLiteral(node);
-        if (value === null) return;
-        const key = nodeNormalizer.templateLiteral(node, {
-          Identifier() {
-            return "id";
-          },
-        });
         context.add({
-          key,
-          data: { value },
+          key: normalizeTemplateLiteral(node),
           location: {
             start: getPosition(context.code, node.start),
             end: getPosition(context.code, node.end),

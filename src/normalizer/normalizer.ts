@@ -1,5 +1,14 @@
-import type { TSEnumDeclaration, TSType } from "oxc-parser";
+import type {
+  RegExpLiteral,
+  TemplateLiteral,
+  TSEnumDeclaration,
+  TSType,
+} from "oxc-parser";
 import { extractCode } from "../utils";
+
+export function normalizeRegExpLiteral(node: RegExpLiteral) {
+  return `${node.regex.pattern}/${node.regex.flags}`;
+}
 
 export function normalizeTsEnumDeclaration(
   node: TSEnumDeclaration,
@@ -35,4 +44,15 @@ export function normalizeTsType(node: TSType, code: string): string {
       return extractCode(node, code);
     }
   }
+}
+
+export function normalizeTemplateLiteral(node: TemplateLiteral) {
+  const parts: string[] = [];
+  for (let i = 0; i < node.quasis.length; i++) {
+    parts.push(node.quasis[i].value.raw);
+    if (i < node.expressions.length) {
+      parts.push("${exp}");
+    }
+  }
+  return `"${parts.join()}"`;
 }

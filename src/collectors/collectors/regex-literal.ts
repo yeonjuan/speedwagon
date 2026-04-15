@@ -1,7 +1,8 @@
 import type { Collector } from "../types.js";
 import { getPosition, isRegExpLiteral } from "../ast-utils/index.js";
-import { nodeNormalizer } from "../../node-normalizer/index.js";
 import type { RegExpLiteral } from "oxc-parser";
+import { normalizeRegExpLiteral } from "../../normalizer/normalizer.js";
+import { printRegExpLiteral } from "../../node-printer/index.js";
 
 export const regexLiteral: Collector<{ value: string }> = {
   id: "regex-literal",
@@ -9,12 +10,10 @@ export const regexLiteral: Collector<{ value: string }> = {
     return {
       Literal(node) {
         if (!isRegExpLiteral(node)) return;
-        const regexNode = node as RegExpLiteral;
-        const { pattern, flags } = regexNode.regex;
-        const key = nodeNormalizer.regExpLiteral(regexNode);
+        const key = normalizeRegExpLiteral(node);
         context.add({
           key,
-          data: { value: `${pattern}/${flags}` },
+          data: { value: printRegExpLiteral(node) },
           location: {
             start: getPosition(context.code, node.start),
             end: getPosition(context.code, node.end),
