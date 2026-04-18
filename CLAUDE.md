@@ -1,47 +1,68 @@
-# CLAUDE.md
+# project-dedupe
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+A CLI tool that detects code duplication in JS/TS files. Uses the OXC parser to analyze ASTs, discarding them immediately after traversal to keep only metadata in memory.
 
-## Commands
-
-```bash
-pnpm build          # compile TypeScript (tsconfig.build.json)
-pnpm dev            # watch mode
-pnpm ts             # type-check only (tsc --noEmit)
-pnpm test           # run all tests with vitest
-pnpm format         # format with prettier (run after every code change)
-pnpm knip           # find unused exports/files
-```
-
-Run a single test file:
+## Build & Run
 
 ```bash
-pnpm test src/cli/collect-files.spec.ts
+pnpm build                            # build to dist/
+node dist/main.js 'src/**/*.ts'       # run CLI
+pnpm test                             # run tests
+pnpm format                           # format code
 ```
 
 ## Architecture
 
-This tool detects duplicate code patterns in JS/TS files using a **two-phase approach** to avoid OOM on large codebases: ASTs are parsed and immediately discarded after metadata extraction.
+Operates in two phases.
 
-### Two-Phase Flow
+**Phase 1 – Collection**: Parse each file; Collectors traverse the AST and store only metadata into CollectorContext. The AST is discarded immediately.
 
-**Phase 1 — Collection**: `Runner` iterates over files, parses each with `oxc-parser` via a `Language`, and runs each `Collector`'s AST visitor. Visitors call `CollectorMutationAPI.add()` to store extracted metadata into the `CollectorContext` map. AST is never retained.
+**Phase 2 – Check**: Rules read CollectorContext to find duplicates and report to RuleContext.
 
-**Phase 2 — Analysis**: `Runner` calls `rule.check(ruleContext, collectorContexts)` for each rule. Rules query `CollectorContext` (via `keys()` / `getByKey()`) to find duplicates and call `ruleContext.report()`.
+```
+Runner.run()
+  ├── collectFromFile(path) × N  →  CollectorContext (key → Collection[])
+  └── checkRule(rule)    × M  →  RuleContext (reports[])
+       └── StdoutReporter.report()
+```
 
-### Key Abstractions
+## Directory Structure
 
-- **`Collector`** (`src/collectors/types.ts`): Defines an AST visitor factory (`createJSVisitor`). All built-in collectors live in `src/collectors/`.
-- **`CollectorContext`** (`src/collectors/collector-context.ts`): Stores collected metadata in a nested `Map<key, Map<path, CollectRecord[]>>`. Exposes `mutationApi()` for writing (used during Phase 1) and `keys()` / `getByKey()` / `entries()` for reading (used during Phase 2).
-- **`Rule`** (`src/rules/types.ts`): Generic over its `collectors` tuple — `check()` receives a typed array of `CollectorContext` matching the rule's collectors. Reports use string IDs mapped to template strings in `descriptions` / `suggestions` (supports `{{variable}}` interpolation from `data`).
-- **`RuleContext`** (`src/rules/rule-context.ts`): Passed to `rule.check()` so rules can call `report()`.
-- **`Runner`** (`src/runner/runner.ts`): Deduplicates collectors across rules, creates one `CollectorContext` per collector and one `RuleContext` per rule.
-- **`Language`** (`src/languages/`): Wraps `oxc-parser` for JS/TS/JSX/TSX. Match by file extension, parse to OXC AST.
-- **`Reporter`** (`src/reporters/`): Consumes `Report[]` after the run and formats output.
+```
+src/
+├── cli/           # CLI entry point, file collection, option parsing
+├── collectors/    # AST visitors + CollectorContext
+├── rules/         # Rule definitions, RuleContext
+├── reporters/     # Output formatters (only StdoutReporter exists currently)
+├── languages/     # Language-specific parser wrappers (js/ts/jsx/tsx)
+├── logger/        # ANSI color logger (no chalk — raw ANSI codes)
+└── types/         # Shared types
+```
 
-### Adding a New Rule
+## Adding a New Rule
 
-1. Create a `Collector` in `src/collectors/` (implement `createJSVisitor`, call `context.add({ key, location })`).
-2. Export it from `src/collectors/collectors.ts` and `src/collectors/index.ts`.
-3. Create a `Rule` in `src/rules/` using `Rule<[typeof myCollector]>` for typed `check` params.
-4. Export it from `src/rules/index.ts`.
+1. Add a Collector in `src/collectors/` (traverse AST → context.add())
+2. Export it from `src/collectors/index.ts`
+3. Implement the Rule in `src/rules/` (id, collectors, descriptions, check())
+4. Export it from `src/rules/index.ts`
+5. Register it in the rules array in `src/main.ts`
+
+## Key Types
+
+```ts
+interface Collector {
+  id: string;
+  createJSVisitor(context: CollectorContextMutationAPI): VisitorObject;
+}
+
+interface Rule {
+  id: string;
+  collectors: Collector[];
+  descriptions: Record<string, string>; // supports {{placeholder}} substitution
+  check(context: RuleContext, collectorContexts: CollectorContext[]): void;
+}
+```
+
+## Colored Output
+
+`src/logger/index.ts` and `src/reporters/stdout-reporter.ts` use raw ANSI escape codes directly (no chalk). Colors are always applied regardless of TTY detection.

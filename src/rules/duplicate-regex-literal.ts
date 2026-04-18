@@ -7,9 +7,6 @@ export const duplicateRegexLiteral: Rule = {
   descriptions: {
     duplicated: "RegExp `{{regexp}}` is duplicated {{count}} times",
   },
-  suggestions: {
-    duplicated: "Remove duplicate regex literals and reuse a single variable",
-  },
   check(context, [regexLiteral]) {
     for (const key of regexLiteral.keys()) {
       const collections = regexLiteral.getByKey(key);

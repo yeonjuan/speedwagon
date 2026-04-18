@@ -11,6 +11,7 @@ import {
 import { CollectorContext, type Collector } from "../collectors/index.js";
 import { RuleContext } from "../rules/index.js";
 import { nullishThrows } from "../utils/index.js";
+import { StdoutReporter } from "../reporters/stdout-reporter.js";
 
 export interface RunnerConfig {
   paths: string[];
@@ -50,6 +51,8 @@ export class Runner {
     for (const rule of this.config.rules) {
       this.checkRule(rule);
     }
+    const reporter = new StdoutReporter();
+    reporter.report(this.ruleContexts);
   }
 
   private async collectFromFile(path: string) {
