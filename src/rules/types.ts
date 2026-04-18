@@ -34,7 +34,6 @@ export interface ReportOccurrence {
 
 export interface Report {
   descriptionId: string;
-  suggestionId?: string;
   data?: Record<string, unknown>;
   occurrences?: ReportOccurrence[];
 }
