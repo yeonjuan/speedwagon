@@ -15,8 +15,6 @@ tester.run({
       reports: [
         {
           description: "RegExp `/foo/` is duplicated 2 times",
-          suggestion:
-            "Remove duplicate regex literals and reuse a single variable",
           occurrences: [
             { line: 1, column: 11 },
             { line: 1, column: 28 },

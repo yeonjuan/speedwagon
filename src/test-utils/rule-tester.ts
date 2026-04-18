@@ -12,7 +12,6 @@ interface ExpectedOccurrence {
 
 interface ExpectedReport {
   description?: string;
-  suggestion?: string;
   occurrences?: ExpectedOccurrence[];
 }
 
