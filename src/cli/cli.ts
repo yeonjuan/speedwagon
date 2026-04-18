@@ -7,6 +7,7 @@ import {
   duplicateRegexLiteral,
   duplicateUrlString,
   duplicateTypeDeclaration,
+  duplicateEnumDeclaration,
 } from "../rules/index.js";
 
 const DEFAULT_OUT: Record<Exclude<ReportFormat, "stdout">, string> = {
@@ -62,6 +63,7 @@ export class CLI {
           duplicateRegexLiteral,
           duplicateUrlString,
           duplicateTypeDeclaration,
+          duplicateEnumDeclaration,
         ],
       });
       const output = await runner.run();
