@@ -5,13 +5,16 @@ type CollectorContexts<TCollectors extends Collector[]> = {
   [K in keyof TCollectors]: CollectorContext;
 };
 
+export interface ResolvedReport {
+  ruleId: string;
+  description: string;
+  occurrences?: ReportOccurrence[];
+}
+
 export interface Rule<TCollectors extends Collector[] = Collector[]> {
   id: string;
   collectors: TCollectors;
   descriptions: {
-    [id: string]: string;
-  };
-  suggestions: {
     [id: string]: string;
   };
   check(

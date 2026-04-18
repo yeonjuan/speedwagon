@@ -9,15 +9,11 @@ export class StdoutReporter implements Reporter {
 
       console.log(`\n[${ruleId}]`);
       for (const report of reports) {
-        console.log(`  description: ${report.description}`);
-        if (report.suggestion) {
-          console.log(`  suggestion: ${report.suggestion}`);
-        }
+        console.log(`\n  ${report.description}`);
         if (report.occurrences && report.occurrences.length > 0) {
-          console.log(`  occurrences:`);
           for (const occurrence of report.occurrences) {
             const { line, column } = occurrence.location.start;
-            console.log(`    - ${occurrence.path}:${line}:${column}`);
+            console.log(`    ${occurrence.path}:${line}:${column}`);
           }
         }
       }
