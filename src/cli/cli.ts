@@ -3,7 +3,7 @@ import { parseArgs, generateHelp, type ReportFormat } from "./optionator.js";
 import { collectFiles } from "./collect-files.js";
 import { logger } from "../logger/index.js";
 import { Runner } from "./runner.js";
-import { duplicateRegexLiteral } from "../rules/index.js";
+import { duplicateRegexLiteral, duplicateUrlString } from "../rules/index.js";
 
 const DEFAULT_OUT: Record<Exclude<ReportFormat, "stdout">, string> = {
   json: "report.json",
@@ -54,7 +54,7 @@ export class CLI {
     try {
       const runner = new Runner({
         paths: files,
-        rules: [duplicateRegexLiteral],
+        rules: [duplicateRegexLiteral, duplicateUrlString],
       });
       const output = await runner.run();
 
