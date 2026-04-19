@@ -4,6 +4,7 @@ import { typeAliasDeclaration } from "./type-alias-declaration.js";
 import { typeAnnotation } from "./type-annotation.js";
 import { enumDeclaration } from "./enum-declaration.js";
 import { interfaceDeclaration } from "./interface-declaration.js";
+import { interfaceDeclaration } from "./interface-declaration.js";
 
 export const collectors = {
   regexLiteral,
