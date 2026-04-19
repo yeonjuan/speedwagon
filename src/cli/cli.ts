@@ -9,6 +9,7 @@ import {
   duplicateTypeDeclaration,
   duplicateEnumDeclaration,
   useDefinedType,
+  cognitiveComplexFunction,
 } from "../rules/index.js";
 
 const DEFAULT_OUT: Record<Exclude<ReportFormat, "stdout">, string> = {
@@ -66,6 +67,7 @@ export class CLI {
           duplicateTypeDeclaration,
           duplicateEnumDeclaration,
           useDefinedType,
+          cognitiveComplexFunction,
         ],
       });
       const output = await runner.run();
