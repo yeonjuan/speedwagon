@@ -11,7 +11,7 @@
     "build": "tsc --project tsconfig.build.json",
     "ts": "tsc --noEmit",
     "clean": "rm -rf dist",
-    "test": "vitest",
+    "test": "vitest --coverage",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "format": "prettier --write .",
