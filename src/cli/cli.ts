@@ -8,6 +8,7 @@ import {
   duplicateUrlString,
   duplicateTypeDeclaration,
   duplicateEnumDeclaration,
+  useDefinedType,
 } from "../rules/index.js";
 
 const DEFAULT_OUT: Record<Exclude<ReportFormat, "stdout">, string> = {
@@ -64,6 +65,7 @@ export class CLI {
           duplicateUrlString,
           duplicateTypeDeclaration,
           duplicateEnumDeclaration,
+          useDefinedType,
         ],
       });
       const output = await runner.run();

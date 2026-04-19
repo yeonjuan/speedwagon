@@ -14,7 +14,7 @@ tester.run({
       code: `type A = string | number; type B = string | number;`,
       reports: [
         {
-          description: "Type `string | number` is defined in 2 places",
+          description: "`A` is defined in 2 places",
           occurrences: [
             { line: 1, column: 1 },
             { line: 1, column: 27 },
@@ -26,7 +26,7 @@ tester.run({
       code: `type A = number | string; type B = string | number;`,
       reports: [
         {
-          description: "Type `number | string` is defined in 2 places",
+          description: "`A` is defined in 2 places",
           occurrences: [
             { line: 1, column: 1 },
             { line: 1, column: 27 },
@@ -41,8 +41,7 @@ type B = { id: number; name: string };
       `.trim(),
       reports: [
         {
-          description:
-            "Type `{ id: number; name: string }` is defined in 2 places",
+          description: "`A` is defined in 2 places",
           occurrences: [
             { line: 1, column: 1 },
             { line: 2, column: 1 },
@@ -58,7 +57,7 @@ type C = "rejected" | "pending" | "approved";
       `.trim(),
       reports: [
         {
-          description: `Type \`"pending" | "approved" | "rejected"\` is defined in 3 places`,
+          description: "`A` is defined in 3 places",
           occurrences: [
             { line: 1, column: 1 },
             { line: 2, column: 1 },
