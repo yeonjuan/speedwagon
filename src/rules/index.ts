@@ -6,3 +6,4 @@ export { duplicateTypeDeclaration } from "./duplicate-type-declaration.js";
 export { duplicateEnumDeclaration } from "./duplicate-enum-declaration.js";
 export { useDefinedType } from "./use-defined-type.js";
 export { duplicateInterfaceDeclaration } from "./duplicate-interface-declaration.js";
+export { duplicateStringInterpolation } from "./duplicate-string-interpolation.js";
