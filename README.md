@@ -1,132 +1,49 @@
-# Code Duplicate Detection Tool
+# lotor
 
-A scalable structural code duplicate detector using a memory-efficient Two-Phase Analysis approach.
+A CLI tool that detects structural code duplication in JavaScript/TypeScript projects.
 
-## 📋 Overview
+## The Problem
 
-A CLI tool that parses JavaScript/TypeScript files using OXC parser, extracts metadata without keeping ASTs in memory, and identifies duplicates through pattern matching.
+As a codebase grows, the same patterns tend to reappear — identical type definitions, duplicate enum declarations, repeated URL strings, and more. These duplicates are hard to spot during code review and gradually make refactoring more expensive.
 
-**Key Goal**: Handle large-scale projects without Out of Memory (OOM) issues by separating metadata collection from similarity analysis.
+`@lotor/cli` statically analyzes your JS/TS source files and surfaces these duplicates so you can consolidate them before they become technical debt.
 
-## 🚀 Quick Start
+## Installation
 
-### Prerequisites
+```bash
+npm install -D @lotor/cli
+```
+
+## Usage
+
+```bash
+# Check TypeScript source files
+npx lotor 'src/**/*.ts'
+
+# Check multiple patterns
+npx lotor 'src/**/*.ts' 'lib/**/*.ts'
+
+# Ignore certain paths
+npx lotor 'src/**/*.ts' --ignore 'src/**/*.spec.ts'
+
+```
+
+## Rules
+
+| Rule                              | Description                                                           |
+| --------------------------------- | --------------------------------------------------------------------- |
+| `duplicate-type-declaration`      | Detects `type` aliases with identical structures                      |
+| `duplicate-interface-declaration` | Detects `interface` declarations with identical structures            |
+| `duplicate-enum-declaration`      | Detects `enum` declarations with identical members                    |
+| `duplicate-url-string`            | Detects repeated URL string literals                                  |
+| `duplicate-regex-literal`         | Detects repeated regular expression literals                          |
+| `duplicate-string-interpolation`  | Detects repeated template literal patterns                            |
+| `use-defined-type`                | Detects inline type annotations that duplicate an existing named type |
+
+## Requirements
 
 - Node.js >= 20.19.0 or >= 22.12.0
-- pnpm >= 9.0.0
 
-### Installation
+## License
 
-```bash
-# Install dependencies
-pnpm install
-
-# Build the project
-pnpm build
-```
-
-### Usage
-
-```bash
-# Run the CLI
-node dist/cli/bin.js 'src/**/*.ts'
-
-# Or use the binary directly (after npm link)
-dedupe 'src/**/*.ts'
-```
-
-## 📁 Project Structure
-
-```
-src/
-├── core/           # Core duplicate detection engine
-│   ├── context.ts  # GlobalContext implementation
-│   └── runner.ts   # Two-Phase analysis orchestrator
-├── detectors/      # Built-in detectors
-│   └── magic-number/  # Detects duplicate literals
-├── reporters/      # Output formatters
-├── types/          # Type definitions
-├── cli/            # Command-line interface
-│   ├── bin.ts      # CLI entry point
-│   └── helpers/    # File collection utilities
-├── languages/      # Language-specific detectors (to be implemented)
-│   ├── js/
-│   ├── ts/
-│   ├── vue/
-│   └── svelte/
-└── index.ts        # Main library exports
-```
-
-## 🔧 Development
-
-### Build
-
-```bash
-# Build the project
-pnpm build
-
-# Watch mode
-pnpm dev
-
-# Clean build artifacts
-pnpm clean
-```
-
-### Format
-
-```bash
-pnpm format
-```
-
-### Test
-
-```bash
-pnpm test
-pnpm test:ui
-pnpm test:coverage
-```
-
-## 🏗️ Architecture
-
-### Two-Phase Analysis
-
-This architecture is central to how the system works:
-
-**Phase 1: Collection (Memory-Efficient)**
-
-1. Parse files using OXC parser
-2. Each detector's Collector visits AST nodes
-3. Extract only essential metadata into GlobalContext
-4. Immediately discard the AST - never keep ASTs in memory
-5. Store metadata in namespaced Maps
-
-**Phase 2: Analysis**
-
-1. All detectors' Analyzers process collected metadata
-2. Compare fingerprints across files to find duplicates
-3. Generate Reports with similarity scores and locations
-
-### Core Components
-
-- **Runner**: Orchestrates both phases synchronously
-- **GlobalContext**: Centralized metadata storage using nested Maps
-- **Detector**: Pluggable modules implementing `createCollector()` and `analyze()`
-- **Collector**: AST visitors that extract metadata during Phase 1
-- **Reporter**: Output formatters (stdout, json, html)
-
-## 📦 Built-in Detectors
-
-### MagicNumberDetector
-
-Finds duplicate literal values (numbers, strings, booleans, bigints)
-
-- **Configuration**: `minOccurrences` (default: 3)
-- **Skip Logic**: Ignores 0, 1, -1, small integers 2-10, and strings < 3 chars
-
-## 📚 Documentation
-
-See [CLAUDE.md](CLAUDE.md) for detailed architecture and implementation guide.
-
-## 📝 License
-
-ISC
+MIT
