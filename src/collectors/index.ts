@@ -3,6 +3,7 @@ import { urlString } from "./url-string.js";
 import { typeAliasDeclaration } from "./type-alias-declaration.js";
 import { typeAnnotation } from "./type-annotation.js";
 import { enumDeclaration } from "./enum-declaration.js";
+import { interfaceDeclaration } from "./interface-declaration.js";
 
 export const collectors = {
   regexLiteral,
@@ -10,6 +11,7 @@ export const collectors = {
   typeAliasDeclaration,
   typeAnnotation,
   enumDeclaration,
+  interfaceDeclaration,
 };
 
 export type { Collector } from "./types.js";
