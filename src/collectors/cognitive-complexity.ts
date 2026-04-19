@@ -26,6 +26,9 @@ export const cognitiveComplexity: Collector = {
     const elseIfNodes = new WeakSet<object>();
     // LogicalExpression nodes already counted as part of a same-operator sequence
     const coveredLogicalNodes = new WeakSet<object>();
+    // Start offsets of LogicalExpressions that match default-value patterns:
+    //   const x = a || literal  OR  a = a || literal
+    const defaultValueLogicals = new Set<number>();
 
     function currentFrame(): FunctionFrame | undefined {
       return frameStack[frameStack.length - 1];
@@ -78,6 +81,14 @@ export const cognitiveComplexity: Collector = {
           end: getPosition(context.code, frame.node.end),
         },
       });
+    }
+
+    function isDefaultValueLiteral(node: { type: string }): boolean {
+      return (
+        node.type === "Literal" ||
+        node.type === "ArrayExpression" ||
+        node.type === "ObjectExpression"
+      );
     }
 
     // Mark all same-operator children of a LogicalExpression as covered
@@ -186,9 +197,36 @@ export const cognitiveComplexity: Collector = {
         if (currentFrame()) decrementNesting();
       },
 
+      VariableDeclarator(node) {
+        // const x = a || literal
+        const { init } = node;
+        if (
+          init?.type === "LogicalExpression" &&
+          (init.operator === "||" || init.operator === "??") &&
+          isDefaultValueLiteral(init.right)
+        ) {
+          defaultValueLogicals.add(init.start);
+        }
+      },
+
+      AssignmentExpression(node) {
+        // a = a || literal  (same left-hand side)
+        const { right } = node;
+        if (
+          right.type === "LogicalExpression" &&
+          (right.operator === "||" || right.operator === "??") &&
+          isDefaultValueLiteral(right.right) &&
+          context.code.slice(node.left.start, node.left.end) ===
+            context.code.slice(right.left.start, right.left.end)
+        ) {
+          defaultValueLogicals.add(right.start);
+        }
+      },
+
       LogicalExpression(node: LogicalExpression) {
         if (!currentFrame()) return;
         if (coveredLogicalNodes.has(node)) return;
+        if (defaultValueLogicals.has(node.start)) return;
         // +1 flat for each distinct logical operator sequence
         addFlat();
         markCoveredLogical(node);

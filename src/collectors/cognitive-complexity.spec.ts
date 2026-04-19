@@ -171,6 +171,39 @@ describe("cognitiveComplexity collector", () => {
   });
 
   describe("logical operators", () => {
+    it("const x = a || literal is excluded (default value pattern)", async () => {
+      // These should have 0 complexity - the || is a default value, not control flow
+      const results = await collect(
+        nIfs(11).replace("{", "{ const x = a || null;"),
+      );
+      // 11 ifs = 11, but the || is excluded
+      expect(
+        await getComplexity(nIfs(11).replace("{", "{ const x = a || null;")),
+      ).toBe(11);
+      // Without the pattern, a plain || in a return would add 1
+      const withReturn = nIfs(11).replace("{", "{ return a || null;");
+      expect(await getComplexity(withReturn)).toBe(12);
+      void results;
+    });
+
+    it("const x = a ?? literal is excluded (default value pattern)", async () => {
+      expect(
+        await getComplexity(nIfs(11).replace("{", "{ const x = a ?? null;")),
+      ).toBe(11);
+    });
+
+    it("a = a || literal is excluded (self-assignment default)", async () => {
+      expect(
+        await getComplexity(nIfs(11).replace("{", "{ a = a || null;")),
+      ).toBe(11);
+    });
+
+    it("a = b || literal is NOT excluded (different left-hand sides)", async () => {
+      expect(
+        await getComplexity(nIfs(11).replace("{", "{ a = b || null;")),
+      ).toBe(12);
+    });
+
     it("long same-operator chain counts as 1 sequence", async () => {
       // a0&&a1&&...&&a11 = 1 sequence (complexity 1, not collected)
       const params = Array.from({ length: 12 }, (_, i) => `a${i}`).join(",");
