@@ -1,4 +1,4 @@
-import type { Visitor, VisitorObject } from "oxc-parser";
+import type { VisitorObject } from "oxc-parser";
 import type { Location } from "../types/index.js";
 
 export interface CollectAddData {
@@ -23,18 +23,6 @@ export interface CollectorQueryAPI {
   keys(): Iterable<string>;
   getByKey(key: string): Collection[];
 }
-
-export interface VisitorInstance {
-  context: CollectorContextMutationAPI;
-  path: string;
-  visitor(): Visitor;
-}
-
-export type VisitorFactory = (
-  context: CollectorContextMutationAPI,
-  path: string,
-  code: string,
-) => VisitorInstance;
 
 export interface Collector {
   id: string;

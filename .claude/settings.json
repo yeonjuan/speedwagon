@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path' | xargs pnpm exec prettier --write"
+            "command": "pnpm run format"
           }
         ]
       }

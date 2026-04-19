@@ -15,6 +15,7 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "knip": "knip"
   },
   "repository": {
@@ -31,7 +32,6 @@
   },
   "homepage": "https://github.com/yeonjuan/untitled#readme",
   "dependencies": {
-    "chalk": "^5.6.2",
     "fast-glob": "^3.3.3",
     "ignore": "^7.0.5",
     "optionator": "^0.9.4",

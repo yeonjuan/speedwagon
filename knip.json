@@ -1,8 +1,5 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
-  "entry": ["src/index.ts", "src/cli/bin.ts"],
   "project": ["src/**/*.ts"],
-  "ignore": ["src/languages/**/*"],
-  "ignoreDependencies": [],
   "ignoreExportsUsedInFile": true
 }
