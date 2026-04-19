@@ -1,4 +1,4 @@
-# lotor
+# speedwagon
 
 A CLI tool that detects structural code duplication in JavaScript/TypeScript projects.
 
@@ -6,25 +6,25 @@ A CLI tool that detects structural code duplication in JavaScript/TypeScript pro
 
 As a codebase grows, the same patterns tend to reappear — identical type definitions, duplicate enum declarations, repeated URL strings, and more. These duplicates are hard to spot during code review and gradually make refactoring more expensive.
 
-`@lotor/cli` statically analyzes your JS/TS source files and surfaces these duplicates so you can consolidate them before they become technical debt.
+`speedwagon` statically analyzes your JS/TS source files and surfaces these duplicates so you can consolidate them before they become technical debt.
 
 ## Installation
 
 ```bash
-npm install -D @lotor/cli
+npm install -D speedwagon
 ```
 
 ## Usage
 
 ```bash
 # Check TypeScript source files
-npx lotor 'src/**/*.ts'
+npx speedwagon 'src/**/*.ts'
 
 # Check multiple patterns
-npx lotor 'src/**/*.ts' 'lib/**/*.ts'
+npx speedwagon 'src/**/*.ts' 'lib/**/*.ts'
 
 # Ignore certain paths
-npx lotor 'src/**/*.ts' --ignore 'src/**/*.spec.ts'
+npx speedwagon 'src/**/*.ts' --ignore 'src/**/*.spec.ts'
 
 ```
 

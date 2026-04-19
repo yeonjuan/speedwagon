@@ -6,7 +6,7 @@ A CLI tool that detects code duplication in JS/TS files. Uses the OXC parser to 
 
 ```bash
 pnpm build                            # build to dist/
-node dist/main.js 'src/**/*.ts'       # run CLI
+node dist/main.js 'src/**/*.ts'       # or: npx speedwagon 'src/**/*.ts'       # run CLI
 pnpm test                             # run tests
 pnpm format                           # format code
 ```
