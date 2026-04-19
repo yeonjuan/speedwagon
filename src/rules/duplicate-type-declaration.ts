@@ -5,7 +5,7 @@ export const duplicateTypeDeclaration: Rule = {
   id: "duplicate-type-declaration",
   collectors: [collectors.typeAliasDeclaration],
   descriptions: {
-    duplicated: "Type `{{type}}` is defined in {{count}} places",
+    duplicated: "`{{type}}` is defined in {{count}} places",
   },
   check(context, [typeAliasDeclaration]) {
     for (const key of typeAliasDeclaration.keys()) {

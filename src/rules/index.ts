@@ -4,3 +4,4 @@ export { duplicateRegexLiteral } from "./duplicate-regex-literal.js";
 export { duplicateUrlString } from "./duplicate-url-string.js";
 export { duplicateTypeDeclaration } from "./duplicate-type-declaration.js";
 export { duplicateEnumDeclaration } from "./duplicate-enum-declaration.js";
+export { useDefinedType } from "./use-defined-type.js";
