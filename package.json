@@ -1,11 +1,11 @@
 {
-  "name": "@lotor/cli",
-  "version": "0.0.1",
+  "name": "speedwagon",
+  "version": "0.0.2",
   "description": "Code duplicate detection tool",
   "type": "module",
   "packageManager": "pnpm@9.0.0",
   "bin": {
-    "lotor": "dist/main.js"
+    "speedwagon": "dist/main.js"
   },
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
