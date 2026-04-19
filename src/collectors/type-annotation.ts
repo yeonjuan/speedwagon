@@ -1,9 +1,12 @@
 import type { TSType } from "oxc-parser";
 import type { Collector } from "./types.js";
-import { getPosition, isKeyword, normalizeTsType } from "./ast-utils/index.js";
+import {
+  getPosition,
+  isKeyword,
+  normalizeTsType,
+  getDisplayName,
+} from "./ast-utils/index.js";
 import { isTSTypeReference } from "./ast-utils/predicates.js";
-
-const MAX_LENGTH = 50;
 
 function addType(
   context: Parameters<Collector["createJSVisitor"]>[0],
@@ -12,12 +15,7 @@ function addType(
   if (isKeyword(tsType)) return;
   if (isTSTypeReference(tsType)) return;
   const key = normalizeTsType(tsType);
-  const raw = context.code
-    .slice(tsType.start, tsType.end)
-    .replace(/\s+/g, " ")
-    .trim();
-  const displayName =
-    raw.length > MAX_LENGTH ? raw.slice(0, MAX_LENGTH) + "..." : raw;
+  const displayName = getDisplayName(context.code, tsType.start, tsType.end);
   context.add({
     key,
     displayName,
