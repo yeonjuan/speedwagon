@@ -3,7 +3,20 @@ import { Visitor } from "oxc-parser";
 import type { Rule } from "../rules/types.js";
 import { CollectorContext } from "../collectors/index.js";
 import { RuleContext } from "../rules/index.js";
-import { tsLanguage } from "../languages/index.js";
+import {
+  tsLanguage,
+  tsxLanguage,
+  jsLanguage,
+  jsxLanguage,
+  type Language,
+} from "../languages/index.js";
+
+const languages: Language[] = [
+  jsxLanguage,
+  tsxLanguage,
+  jsLanguage,
+  tsLanguage,
+];
 
 interface ExpectedOccurrence {
   line: number;
@@ -81,7 +94,9 @@ export class RuleTester {
   }
 
   private async getReports(code: string, filename = "test.ts") {
-    const program = await tsLanguage.parse(code, filename);
+    const language =
+      languages.find((lang) => lang.match(filename)) ?? tsLanguage;
+    const program = await language.parse(code, filename);
     const collectContexts = new Map(
       this.rule.collectors.map((collector) => [
         collector.id,

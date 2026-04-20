@@ -17,6 +17,7 @@ import type {
   TSIntrinsicKeyword,
   TSUndefinedKeyword,
   TSTypeReference,
+  JSXIdentifier,
 } from "oxc-parser";
 
 type TSKeyword =
@@ -45,6 +46,10 @@ export function isRegExpLiteral(node: Node): node is RegExpLiteral {
 
 export function isTSTypeReference(node: Node): node is TSTypeReference {
   return node.type === "TSTypeReference";
+}
+
+export function isJSXIdentifier(node: Node): node is JSXIdentifier {
+  return node.type === "JSXIdentifier";
 }
 
 export function isKeyword(node: Node): node is TSKeyword {
