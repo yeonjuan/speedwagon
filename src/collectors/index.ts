@@ -6,6 +6,7 @@ import { enumDeclaration } from "./enum-declaration.js";
 import { interfaceDeclaration } from "./interface-declaration.js";
 import { stringInterpolation } from "./string-interpolation.js";
 import { cognitiveComplexity } from "./cognitive-complexity.js";
+import { cyclomaticComplexity } from "./cyclomatic-complexity.js";
 
 export const collectors = {
   regexLiteral,
@@ -16,6 +17,7 @@ export const collectors = {
   interfaceDeclaration,
   stringInterpolation,
   cognitiveComplexity,
+  cyclomaticComplexity,
 };
 
 export type { Collector } from "./types.js";
