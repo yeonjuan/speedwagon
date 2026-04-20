@@ -39,7 +39,7 @@ npx speedwagon 'src/**/*.ts' --ignore 'src/**/*.spec.ts'
 | `duplicate-regex-literal`         | Detects repeated regular expression literals                          |
 | `duplicate-string-interpolation`  | Detects repeated template literal patterns                            |
 | `use-defined-type`                | Detects inline type annotations that duplicate an existing named type |
-| `cognitive-complex-function`      | Detects functions with a cognitive complexity above 10                |
+| `cognitive-complex-function`      | Detects functions with a cognitive complexity above 15                |
 
 ## Requirements
 
