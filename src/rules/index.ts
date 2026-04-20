@@ -8,3 +8,4 @@ export { useDefinedType } from "./use-defined-type.js";
 export { duplicateInterfaceDeclaration } from "./duplicate-interface-declaration.js";
 export { duplicateStringInterpolation } from "./duplicate-string-interpolation.js";
 export { cognitiveComplexFunction } from "./cognitive-complex-function.js";
+export { cyclomaticComplexFunction } from "./cyclomatic-complex-function.js";
