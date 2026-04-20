@@ -16,7 +16,7 @@ export const cognitiveComplexFunction: Rule = {
           data: {
             name: collection.displayName.replace(/ \(complexity: \d+\)$/, ""),
             complexity: key,
-            threshold: 10,
+            threshold: 15,
           },
           occurrences: [
             { path: collection.path, location: collection.location },
