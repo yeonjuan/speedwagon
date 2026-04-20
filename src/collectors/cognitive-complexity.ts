@@ -16,27 +16,21 @@ interface FunctionFrame {
   node: AnyFunctionNode;
 }
 
-const threshold = 10;
+const threshold = 15;
 
 export const cognitiveComplexity: Collector = {
   id: `cognitive-complexity`,
   createJSVisitor(context) {
     const frameStack: FunctionFrame[] = [];
-    // IfStatements that appear as the alternate (else-if) of another IfStatement
     const elseIfNodes = new WeakSet<object>();
-    // LogicalExpression nodes already counted as part of a same-operator sequence
     const coveredLogicalNodes = new WeakSet<object>();
-    // Start offsets of LogicalExpressions that match default-value patterns:
-    //   const x = a || literal  OR  a = a || literal
-    const defaultValueLogicals = new Set<number>();
 
     function currentFrame(): FunctionFrame | undefined {
       return frameStack[frameStack.length - 1];
     }
 
-    // effectiveNesting = nesting from enclosing functions + local control-flow nesting
     function effectiveNesting(): number {
-      return frameStack.length - 1 + (currentFrame()?.localNesting ?? 0);
+      return currentFrame()?.localNesting ?? 0;
     }
 
     function addWithNesting() {
@@ -83,25 +77,23 @@ export const cognitiveComplexity: Collector = {
       });
     }
 
-    function isDefaultValueLiteral(node: { type: string }): boolean {
-      return (
-        node.type === "Literal" ||
-        node.type === "ArrayExpression" ||
-        node.type === "ObjectExpression"
-      );
-    }
-
-    // Mark all same-operator children of a LogicalExpression as covered
-    function markCoveredLogical(node: LogicalExpression) {
-      for (const child of [node.left, node.right]) {
-        if (
-          child.type === "LogicalExpression" &&
-          (child as LogicalExpression).operator === node.operator
-        ) {
-          coveredLogicalNodes.add(child);
-          markCoveredLogical(child as LogicalExpression);
-        }
+    function flattenLogicalExpression(
+      node: LogicalExpression,
+    ): LogicalExpression[] {
+      coveredLogicalNodes.add(node);
+      const result: LogicalExpression[] = [];
+      if (node.left.type === "LogicalExpression") {
+        result.push(
+          ...flattenLogicalExpression(node.left as LogicalExpression),
+        );
       }
+      result.push(node);
+      if (node.right.type === "LogicalExpression") {
+        result.push(
+          ...flattenLogicalExpression(node.right as LogicalExpression),
+        );
+      }
+      return result;
     }
 
     return {
@@ -197,39 +189,21 @@ export const cognitiveComplexity: Collector = {
         if (currentFrame()) decrementNesting();
       },
 
-      VariableDeclarator(node) {
-        // const x = a || literal
-        const { init } = node;
-        if (
-          init?.type === "LogicalExpression" &&
-          (init.operator === "||" || init.operator === "??") &&
-          isDefaultValueLiteral(init.right)
-        ) {
-          defaultValueLogicals.add(init.start);
-        }
-      },
-
-      AssignmentExpression(node) {
-        // a = a || literal  (same left-hand side)
-        const { right } = node;
-        if (
-          right.type === "LogicalExpression" &&
-          (right.operator === "||" || right.operator === "??") &&
-          isDefaultValueLiteral(right.right) &&
-          context.code.slice(node.left.start, node.left.end) ===
-            context.code.slice(right.left.start, right.left.end)
-        ) {
-          defaultValueLogicals.add(right.start);
-        }
-      },
-
       LogicalExpression(node: LogicalExpression) {
         if (!currentFrame()) return;
         if (coveredLogicalNodes.has(node)) return;
-        if (defaultValueLogicals.has(node.start)) return;
-        // +1 flat for each distinct logical operator sequence
-        addFlat();
-        markCoveredLogical(node);
+        const flattened = flattenLogicalExpression(node);
+        let prev: LogicalExpression | undefined;
+        for (const cur of flattened) {
+          if (
+            cur.operator !== "||" &&
+            cur.operator !== "??" &&
+            (!prev || prev.operator !== cur.operator)
+          ) {
+            addFlat();
+          }
+          prev = cur;
+        }
       },
 
       BreakStatement(node) {
