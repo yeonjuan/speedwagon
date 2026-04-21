@@ -12,22 +12,37 @@ import {
   cognitiveComplexFunction,
   cyclomaticComplexFunction,
 } from "../rules/index.js";
+import {
+  jsLanguage,
+  tsLanguage,
+  jsxLanguage,
+  tsxLanguage,
+} from "../languages/index.js";
 
 const DEFAULT_OUT: Record<Exclude<ReportFormat, "stdout">, string> = {
   json: "report.json",
   html: "report.html",
 };
 
+const SUPPORTED_LANGUAGES = [jsLanguage, tsLanguage, jsxLanguage, tsxLanguage];
+
+function buildDefaultPatterns(): string[] {
+  const extensions = SUPPORTED_LANGUAGES.flatMap((lang) => lang.extensions);
+  return [`**/*.{${extensions.map((ext) => ext.slice(1)).join(",")}}`];
+}
+
 export class CLI {
   async run(argv: string[]) {
     const { patterns, help, ignorePatterns, report, out } = parseArgs(argv);
 
-    if (help || patterns.length === 0) {
+    if (help) {
       logger.info(generateHelp());
       return;
     }
 
-    const files = await this.collect(patterns, ignorePatterns);
+    const resolvedPatterns =
+      patterns.length > 0 ? patterns : buildDefaultPatterns();
+    const files = await this.collect(resolvedPatterns, ignorePatterns);
     if (files.length === 0) {
       return;
     }

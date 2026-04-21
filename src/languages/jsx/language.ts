@@ -17,6 +17,7 @@ async function parse(sourceCode: string, filePath: string): Promise<Program> {
 }
 
 export const jsxLanguage: Language = {
+  extensions: [".jsx"],
   match,
   parse,
 };

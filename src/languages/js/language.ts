@@ -21,6 +21,7 @@ async function parse(sourceCode: string, filePath: string): Promise<Program> {
 }
 
 export const jsLanguage: Language = {
+  extensions: [".js", ".mjs", ".cjs"],
   match,
   parse,
 };
