@@ -17,15 +17,11 @@ npm install -D speedwagon
 ## Usage
 
 ```bash
-# Check TypeScript source files
-npx speedwagon 'src/**/*.ts'
-
-# Check multiple patterns
-npx speedwagon 'src/**/*.ts' 'lib/**/*.ts'
+# Run in current directory (auto-detects all supported JS/TS files)
+npx speedwagon
 
 # Ignore certain paths
-npx speedwagon 'src/**/*.ts' --ignore 'src/**/*.spec.ts'
-
+npx speedwagon --ignore 'src/**/*.spec.ts'
 ```
 
 ## Rules

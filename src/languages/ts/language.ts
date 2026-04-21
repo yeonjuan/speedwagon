@@ -21,6 +21,7 @@ async function parse(sourceCode: string, filePath: string): Promise<Program> {
 }
 
 export const tsLanguage: Language = {
+  extensions: [".ts", ".mts", ".cts"],
   match,
   parse,
 };
