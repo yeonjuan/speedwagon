@@ -1,7 +1,7 @@
 {
   "name": "speedwagon",
   "version": "0.0.2",
-  "description": "Code duplicate detection tool",
+  "description": "A CLI tool that detects structural code duplication in JavaScript/TypeScript projects",
   "type": "module",
   "packageManager": "pnpm@9.0.0",
   "bin": {
@@ -15,22 +15,21 @@
     "test:ui": "vitest --ui",
     "test:coverage": "vitest --coverage",
     "format": "prettier --write .",
-    "format:check": "prettier --check .",
-    "knip": "knip"
+    "format:check": "prettier --check ."
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yeonjuan/untitled.git"
+    "url": "git+https://github.com/yeonjuan/speedwagon.git"
   },
-  "author": "",
+  "author": "YeonJuAn",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
   "bugs": {
-    "url": "https://github.com/yeonjuan/untitled/issues"
+    "url": "https://github.com/yeonjuan/speedwagon/issues"
   },
-  "homepage": "https://github.com/yeonjuan/untitled#readme",
+  "homepage": "https://github.com/yeonjuan/speedwagon#readme",
   "dependencies": {
     "fast-glob": "^3.3.3",
     "ignore": "^7.0.5",
