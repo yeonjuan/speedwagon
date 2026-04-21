@@ -12,10 +12,13 @@ import { CollectorContext, type Collector } from "../collectors/index.js";
 import { RuleContext } from "../rules/index.js";
 import { nullishThrows } from "../utils/index.js";
 import { StdoutReporter } from "../reporters/stdout-reporter.js";
+import { HtmlReporter } from "../reporters/html-reporter.js";
+import type { ReportFormat } from "./optionator.js";
 
 export interface RunnerConfig {
   paths: string[];
   rules: Rule[];
+  format?: ReportFormat;
 }
 
 export class Runner {
@@ -44,15 +47,22 @@ export class Runner {
     );
   }
 
-  async run() {
+  async run(): Promise<string | undefined> {
     for (const path of this.config.paths) {
       await this.collectFromFile(path);
     }
     for (const rule of this.config.rules) {
       this.checkRule(rule);
     }
+
+    if (this.config.format === "html") {
+      const reporter = new HtmlReporter();
+      return reporter.report(this.ruleContexts);
+    }
+
     const reporter = new StdoutReporter();
     reporter.report(this.ruleContexts);
+    return undefined;
   }
 
   private async collectFromFile(path: string) {
