@@ -3,6 +3,7 @@ import type { Rule } from "./types.js";
 
 export const cognitiveComplexFunction: Rule = {
   id: "cognitive-complex-function",
+  category: "complexity",
   collectors: [collectors.cognitiveComplexity],
   descriptions: {
     complex:

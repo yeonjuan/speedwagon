@@ -13,6 +13,7 @@ export interface ResolvedReport {
 
 export interface Rule<TCollectors extends Collector[] = Collector[]> {
   id: string;
+  category: "complexity" | "duplication";
   collectors: TCollectors;
   descriptions: {
     [id: string]: string;

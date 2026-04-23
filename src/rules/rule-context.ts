@@ -21,4 +21,8 @@ export class RuleContext implements RuleContextMutationAPI {
   getReports(): ResolvedReport[] {
     return this.reports;
   }
+
+  getCategory(): Rule["category"] {
+    return this.rule.category;
+  }
 }

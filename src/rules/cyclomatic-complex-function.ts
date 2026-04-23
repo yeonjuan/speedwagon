@@ -3,6 +3,7 @@ import type { Rule } from "./types.js";
 
 export const cyclomaticComplexFunction: Rule = {
   id: "cyclomatic-complex-function",
+  category: "complexity",
   collectors: [collectors.cyclomaticComplexity],
   descriptions: {
     complex:
