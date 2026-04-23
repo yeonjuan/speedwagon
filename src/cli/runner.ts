@@ -13,7 +13,7 @@ import { RuleContext } from "../rules/index.js";
 import { nullishThrows } from "../utils/index.js";
 import { StdoutReporter } from "../reporters/stdout-reporter.js";
 
-export interface RunnerConfig {
+interface RunnerConfig {
   paths: string[];
   rules: Rule[];
 }

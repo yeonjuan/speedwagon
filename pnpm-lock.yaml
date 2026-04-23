@@ -22,7 +22,7 @@ importers:
         version: 0.123.0(@emnapi/core@1.9.2)(@emnapi/runtime@1.9.2)
     devDependencies:
       '@types/node':
-        specifier: ^22.15.5
+        specifier: ^22.19.17
         version: 22.19.17
       '@vitest/coverage-v8':
         specifier: ^4.1.2

@@ -11,6 +11,8 @@ import {
   useDefinedType,
   cognitiveComplexFunction,
   cyclomaticComplexFunction,
+  duplicateInterfaceDeclaration,
+  duplicateStringInterpolation,
 } from "../rules/index.js";
 import {
   jsLanguage,
@@ -82,6 +84,8 @@ export class CLI {
           duplicateUrlString,
           duplicateTypeDeclaration,
           duplicateEnumDeclaration,
+          duplicateInterfaceDeclaration,
+          duplicateStringInterpolation,
           useDefinedType,
           cognitiveComplexFunction,
           cyclomaticComplexFunction,
