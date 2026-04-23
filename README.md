@@ -24,6 +24,22 @@ npx speedwagon
 npx speedwagon --ignore 'src/**/*.spec.ts'
 ```
 
+## Configuration
+
+You can create a `speedwagon.json` in your project root to configure the tool.
+
+```json
+{
+  "ignores": ["**/*.spec.ts", "dist/**"]
+}
+```
+
+| Option    | Type       | Description                                      |
+| --------- | ---------- | ------------------------------------------------ |
+| `ignores` | `string[]` | Glob patterns for files to exclude from analysis |
+
+Files matched by `.gitignore` are automatically excluded.
+
 ## Rules
 
 | Rule                              | Description                                                           |
