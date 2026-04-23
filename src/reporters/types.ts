@@ -1,5 +1,7 @@
 import type { RuleContext } from "../rules";
 
 export interface Reporter {
-  report(collectorContexts: Map<string, RuleContext>): void;
+  report(
+    ruleContexts: Map<string, RuleContext>,
+  ): void | string | Promise<string>;
 }

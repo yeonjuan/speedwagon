@@ -79,6 +79,7 @@ export class CLI {
     try {
       const runner = new Runner({
         paths: files,
+        format,
         rules: [
           duplicateRegexLiteral,
           duplicateUrlString,
