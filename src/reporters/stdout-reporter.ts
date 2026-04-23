@@ -1,4 +1,5 @@
-import type { RuleContext } from "../rules";
+import { RuleCategory } from "../rules/index.js";
+import type { RuleContext } from "../rules/index.js";
 import type { Reporter } from "./types";
 
 const c = {
@@ -9,7 +10,10 @@ const c = {
   magenta: (s: string) => `\x1b[35m${s}\x1b[39m`,
 };
 
-const CATEGORY_ORDER = ["complexity", "duplication"] as const;
+const CATEGORY_ORDER = [
+  RuleCategory.Complexity,
+  RuleCategory.Duplication,
+] as const;
 
 export class StdoutReporter implements Reporter {
   report(ruleContexts: Map<string, RuleContext>): void {

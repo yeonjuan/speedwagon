@@ -1,9 +1,10 @@
 import { collectors } from "../collectors/index.js";
+import { RuleCategory } from "./types.js";
 import type { Rule } from "./types.js";
 
 export const duplicateEnumDeclaration: Rule = {
   id: "duplicate-enum-declaration",
-  category: "duplication",
+  category: RuleCategory.Duplication,
   collectors: [collectors.enumDeclaration],
   descriptions: {
     duplicated: "Enum `{{enum}}` is defined in {{count}} places",

@@ -1,9 +1,10 @@
 import { collectors } from "../collectors/index.js";
+import { RuleCategory } from "./types.js";
 import type { Rule } from "./types.js";
 
 export const cyclomaticComplexFunction: Rule = {
   id: "cyclomatic-complex-function",
-  category: "complexity",
+  category: RuleCategory.Complexity,
   collectors: [collectors.cyclomaticComplexity],
   descriptions: {
     complex:
