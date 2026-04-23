@@ -1,6 +1,11 @@
 import type { Collector, CollectorContext } from "../collectors/index.js";
 import type { RuleContext } from "./rule-context.js";
 
+export enum RuleCategory {
+  Complexity = "complexity",
+  Duplication = "duplication",
+}
+
 type CollectorContexts<TCollectors extends Collector[]> = {
   [K in keyof TCollectors]: CollectorContext;
 };
@@ -13,7 +18,7 @@ export interface ResolvedReport {
 
 export interface Rule<TCollectors extends Collector[] = Collector[]> {
   id: string;
-  category: "complexity" | "duplication";
+  category: RuleCategory;
   collectors: TCollectors;
   descriptions: {
     [id: string]: string;

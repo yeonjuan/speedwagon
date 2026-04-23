@@ -1,9 +1,10 @@
 import { collectors } from "../collectors/index.js";
+import { RuleCategory } from "./types.js";
 import type { Rule } from "./types.js";
 
 export const useDefinedType: Rule = {
   id: "use-defined-type",
-  category: "duplication",
+  category: RuleCategory.Duplication,
   collectors: [collectors.typeAliasDeclaration, collectors.typeAnnotation],
   descriptions: {
     useDefinedType:

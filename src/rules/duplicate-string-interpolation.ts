@@ -1,9 +1,10 @@
 import { collectors } from "../collectors/index.js";
+import { RuleCategory } from "./types.js";
 import type { Rule } from "./types.js";
 
 export const duplicateStringInterpolation: Rule = {
   id: "duplicate-string-interpolation",
-  category: "duplication",
+  category: RuleCategory.Duplication,
   collectors: [collectors.stringInterpolation],
   descriptions: {
     duplicated: "`{{template}}` is used in {{count}} places",

@@ -1,6 +1,7 @@
 import { writeFile } from "fs/promises";
 import { parseArgs, generateHelp, type ReportFormat } from "./optionator.js";
 import { collectFiles } from "./collect-files.js";
+import { loadConfig } from "./load-config.js";
 import { logger } from "../logger/index.js";
 import { Runner } from "./runner.js";
 import {
@@ -42,9 +43,15 @@ export class CLI {
       return;
     }
 
+    const config = await loadConfig();
+    const resolvedIgnorePatterns = [
+      ...ignorePatterns,
+      ...(config.ignores ?? []),
+    ];
+
     const resolvedPatterns =
       patterns.length > 0 ? patterns : buildDefaultPatterns();
-    const files = await this.collect(resolvedPatterns, ignorePatterns);
+    const files = await this.collect(resolvedPatterns, resolvedIgnorePatterns);
     if (files.length === 0) {
       return;
     }

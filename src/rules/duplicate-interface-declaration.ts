@@ -1,9 +1,10 @@
 import { collectors } from "../collectors/index.js";
+import { RuleCategory } from "./types.js";
 import type { Rule } from "./types.js";
 
 export const duplicateInterfaceDeclaration: Rule = {
   id: "duplicate-interface-declaration",
-  category: "duplication",
+  category: RuleCategory.Duplication,
   collectors: [collectors.interfaceDeclaration],
   descriptions: {
     duplicated:
