@@ -10,3 +10,4 @@ export { duplicateInterfaceDeclaration } from "./duplicate-interface-declaration
 export { duplicateStringInterpolation } from "./duplicate-string-interpolation.js";
 export { cognitiveComplexFunction } from "./cognitive-complex-function.js";
 export { cyclomaticComplexFunction } from "./cyclomatic-complex-function.js";
+export { duplicateFunction } from "./duplicate-function.js";

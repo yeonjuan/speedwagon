@@ -14,6 +14,7 @@ import {
   cyclomaticComplexFunction,
   duplicateInterfaceDeclaration,
   duplicateStringInterpolation,
+  duplicateFunction,
 } from "../rules/index.js";
 import {
   jsLanguage,
@@ -96,6 +97,7 @@ export class CLI {
           useDefinedType,
           cognitiveComplexFunction,
           cyclomaticComplexFunction,
+          duplicateFunction,
         ],
       });
       const output = await runner.run();

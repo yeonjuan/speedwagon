@@ -7,6 +7,7 @@ import { interfaceDeclaration } from "./interface-declaration.js";
 import { stringInterpolation } from "./string-interpolation.js";
 import { cognitiveComplexity } from "./cognitive-complexity.js";
 import { cyclomaticComplexity } from "./cyclomatic-complexity.js";
+import { functionBody } from "./function-body.js";
 
 export const collectors = {
   regexLiteral,
@@ -18,6 +19,7 @@ export const collectors = {
   stringInterpolation,
   cognitiveComplexity,
   cyclomaticComplexity,
+  functionBody,
 };
 
 export type { Collector } from "./types.js";
