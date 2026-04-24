@@ -2,22 +2,26 @@ import type {
   Function as FunctionNode,
   ArrowFunctionExpression,
 } from "oxc-parser";
+import { getUndeclaredIdentifiersInFunction } from "oxc-walker";
 import type { Collector } from "./types.js";
 import { getPosition } from "./ast-utils/index.js";
 
 type AnyFunctionNode = FunctionNode | ArrowFunctionExpression;
 
 class FunctionNormalizer {
-  private refCounter = 0;
+  private localCounter = 0;
   private genericCounter = 0;
-  private readonly refMap = new Map<string, string>();
+  private readonly localMap = new Map<string, string>();
   private readonly genericMap = new Map<string, string>();
 
-  private ref(name: string): string {
-    if (!this.refMap.has(name)) {
-      this.refMap.set(name, `$${this.refCounter++}`);
+  constructor(private readonly externalNames: Set<string>) {}
+
+  private resolveId(name: string): string {
+    if (this.externalNames.has(name)) return name;
+    if (!this.localMap.has(name)) {
+      this.localMap.set(name, `$v${this.localCounter++}`);
     }
-    return this.refMap.get(name)!;
+    return this.localMap.get(name)!;
   }
 
   private generic(name: string): string {
@@ -66,11 +70,9 @@ class FunctionNormalizer {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private normalizeParam(param: any): string {
-    // TSParameterProperty: class constructor `private x: string`
     if (param.type === "TSParameterProperty") {
       return this.normalizeParam(param.parameter);
     }
-    // FormalParameter is BindingPattern directly (type_annotation and optional are on the same object)
     const optional = param.optional ? "?" : "";
     const type = param.typeAnnotation
       ? `:${this.normalizeType(param.typeAnnotation.typeAnnotation)}`
@@ -82,7 +84,7 @@ class FunctionNormalizer {
   private normalizeBindingPattern(pattern: any): string {
     switch (pattern.type) {
       case "Identifier":
-        return this.ref(pattern.name);
+        return this.resolveId(pattern.name);
       case "ObjectPattern": {
         const props = pattern.properties.map((p: any) => {
           if (p.type === "RestElement") {
@@ -114,7 +116,7 @@ class FunctionNormalizer {
   }
 
   private normalizePropertyKey(key: any): string {
-    if (key.type === "Identifier") return this.ref(key.name);
+    if (key.type === "Identifier") return key.name;
     if (key.type === "Literal") return this.normalizeLiteral(key);
     return key.type;
   }
@@ -170,9 +172,9 @@ class FunctionNormalizer {
         return `switch(${disc}){${cases.join(";")}}`;
       }
       case "BreakStatement":
-        return `break${node.label ? ` ${this.ref(node.label.name)}` : ""}`;
+        return `break${node.label ? ` ${node.label.name}` : ""}`;
       case "ContinueStatement":
-        return `continue${node.label ? ` ${this.ref(node.label.name)}` : ""}`;
+        return `continue${node.label ? ` ${node.label.name}` : ""}`;
       case "ThrowStatement":
         return `throw ${this.normalizeExpr(node.argument)}`;
       case "TryStatement": {
@@ -197,11 +199,14 @@ class FunctionNormalizer {
         return `${node.kind} ${decls.join(",")}`;
       }
       case "FunctionDeclaration": {
-        const name = node.id ? this.ref(node.id.name) : "";
-        return `function ${name}${new FunctionNormalizer().normalize(node)}`;
+        const name = node.id ? this.resolveId(node.id.name) : "";
+        const externalNames = new Set(
+          getUndeclaredIdentifiersInFunction(node as AnyFunctionNode),
+        );
+        return `function ${name}${new FunctionNormalizer(externalNames).normalize(node as AnyFunctionNode)}`;
       }
       case "LabeledStatement":
-        return `${this.ref(node.label.name)}:${this.normalizeStmt(node.body)}`;
+        return `${node.label.name}:${this.normalizeStmt(node.body)}`;
       case "EmptyStatement":
         return "";
       case "DebuggerStatement":
@@ -225,7 +230,7 @@ class FunctionNormalizer {
     if (!node) return "";
     switch (node.type) {
       case "Identifier":
-        return this.ref(node.name);
+        return this.resolveId(node.name);
       case "Literal":
         return this.normalizeLiteral(node);
       case "TemplateLiteral": {
@@ -254,7 +259,7 @@ class FunctionNormalizer {
       case "ConditionalExpression":
         return `(${this.normalizeExpr(node.test)}?${this.normalizeExpr(node.consequent)}:${this.normalizeExpr(node.alternate)})`;
       case "CallExpression": {
-        const callee = this.normalizeCallee(node.callee);
+        const callee = this.normalizeExpr(node.callee);
         const typeArgs = node.typeArguments
           ? `<${node.typeArguments.params.map((t: any) => this.normalizeType(t)).join(",")}>`
           : "";
@@ -264,7 +269,7 @@ class FunctionNormalizer {
         return `${callee}${typeArgs}(${args})`;
       }
       case "NewExpression": {
-        const callee = this.normalizeCallee(node.callee);
+        const callee = this.normalizeExpr(node.callee);
         const typeArgs = node.typeArguments
           ? `<${node.typeArguments.params.map((t: any) => this.normalizeType(t)).join(",")}>`
           : "";
@@ -274,7 +279,7 @@ class FunctionNormalizer {
         return `new ${callee}${typeArgs}(${args})`;
       }
       case "MemberExpression": {
-        const obj = this.normalizeMemberExprObject(node.object);
+        const obj = this.normalizeExpr(node.object);
         const optional = node.optional ? "?" : "";
         if (node.computed) {
           return `${obj}${optional}[${this.normalizeExpr(node.property)}]`;
@@ -301,8 +306,14 @@ class FunctionNormalizer {
         return `{${props.join(",")}}`;
       }
       case "ArrowFunctionExpression":
-      case "FunctionExpression":
-        return new FunctionNormalizer().normalize(node as AnyFunctionNode);
+      case "FunctionExpression": {
+        const externalNames = new Set(
+          getUndeclaredIdentifiersInFunction(node as AnyFunctionNode),
+        );
+        return new FunctionNormalizer(externalNames).normalize(
+          node as AnyFunctionNode,
+        );
+      }
       case "SequenceExpression":
         return `(${node.expressions.map((e: any) => this.normalizeExpr(e)).join(",")})`;
       case "TaggedTemplateExpression":
@@ -331,31 +342,8 @@ class FunctionNormalizer {
     }
   }
 
-  private normalizeMemberExprObject(node: any): string {
-    if (node.type === "Identifier") return node.name;
-    if (node.type === "MemberExpression") {
-      const obj = this.normalizeMemberExprObject(node.object);
-      const optional = node.optional ? "?" : "";
-      if (node.computed) {
-        return `${obj}${optional}[${this.normalizeExpr(node.property)}]`;
-      }
-      return `${obj}${optional}.${node.property.name}`;
-    }
-    return this.normalizeExpr(node);
-  }
-
-  private normalizeCallee(node: any): string {
-    if (node.type === "Identifier") return node.name;
-    if (node.type === "MemberExpression" && !node.computed) {
-      const obj = this.normalizeExpr(node.object);
-      const optional = node.optional ? "?" : "";
-      return `${obj}${optional}.${node.property.name}`;
-    }
-    return this.normalizeExpr(node);
-  }
-
   private normalizeAssignTarget(node: any): string {
-    if (node.type === "Identifier") return this.ref(node.name);
+    if (node.type === "Identifier") return this.resolveId(node.name);
     if (node.type === "MemberExpression") return this.normalizeExpr(node);
     return this.normalizeBindingPattern(node);
   }
@@ -371,9 +359,12 @@ class FunctionNormalizer {
       return `...${this.normalizeExpr(prop.argument)}`;
     const key = this.normalizePropertyKey(prop.key);
     if (prop.method) {
-      return `${key}:${new FunctionNormalizer().normalize(prop.value)}`;
+      const externalNames = new Set(
+        getUndeclaredIdentifiersInFunction(prop.value as AnyFunctionNode),
+      );
+      return `${key}:${new FunctionNormalizer(externalNames).normalize(prop.value as AnyFunctionNode)}`;
     }
-    if (prop.shorthand) return this.normalizeExpr(prop.value);
+    if (prop.shorthand) return this.resolveId(prop.key.name);
     return `${key}:${this.normalizeExpr(prop.value)}`;
   }
 
@@ -423,7 +414,7 @@ class FunctionNormalizer {
         const args = node.typeArguments
           ? `<${node.typeArguments.params.map((t: any) => this.normalizeType(t)).join(",")}>`
           : "";
-        return `${this.ref(name)}${args}`;
+        return `${name}${args}`;
       }
       case "TSArrayType":
         return `${this.normalizeType(node.elementType)}[]`;
@@ -461,8 +452,7 @@ class FunctionNormalizer {
       case "TSTypeLiteral": {
         const members = node.members.map((m: any) => {
           if (m.type !== "TSPropertySignature") return m.type;
-          const key =
-            m.key.type === "Identifier" ? this.ref(m.key.name) : String(m.key);
+          const key = m.key.type === "Identifier" ? m.key.name : String(m.key);
           const type = m.typeAnnotation
             ? this.normalizeType(m.typeAnnotation.typeAnnotation)
             : "any";
@@ -485,7 +475,7 @@ class FunctionNormalizer {
       case "TSParenthesizedType":
         return `(${this.normalizeType(node.typeAnnotation)})`;
       case "TSTypeQuery":
-        return `typeof ${node.exprName.type === "Identifier" ? this.ref(node.exprName.name) : node.exprName.type}`;
+        return `typeof ${node.exprName.type === "Identifier" ? node.exprName.name : node.exprName.type}`;
       default:
         return node.type;
     }
@@ -499,7 +489,8 @@ export const functionBody: Collector = {
 
     function collect(node: AnyFunctionNode) {
       if (methodDepth > 0) return;
-      const key = new FunctionNormalizer().normalize(node);
+      const externalNames = new Set(getUndeclaredIdentifiersInFunction(node));
+      const key = new FunctionNormalizer(externalNames).normalize(node);
       const displayName =
         "id" in node && node.id ? node.id.name : "<anonymous>";
       context.add({

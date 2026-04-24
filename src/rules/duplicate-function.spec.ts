@@ -51,22 +51,8 @@ function g(a: any) { return a[0]; }
 
     {
       code: `
-function f(obj: any) { return obj.name; }
-function g(user: any) { return user.name; }
-      `.trim(),
-    },
-
-    {
-      code: `
 function f(a: any) { return a.name; }
 function g(a: any) { return a.id; }
-      `.trim(),
-    },
-
-    {
-      code: `
-function f(arr: number[]) { return arr[0]; }
-function g(list: number[]) { return list[0]; }
       `.trim(),
     },
 
@@ -159,6 +145,38 @@ function g<U>(b: U): U { return b; }
       code: `
 function f<T>(a: T, b: T): T { return a; }
 function g<U>(x: U, y: U): U { return x; }
+      `.trim(),
+      reports: [
+        {
+          description: "Function `f` is duplicated 2 times",
+          occurrences: [
+            { line: 1, column: 1 },
+            { line: 2, column: 1 },
+          ],
+        },
+      ],
+    },
+
+    {
+      code: `
+function f(obj: any) { return obj.name; }
+function g(user: any) { return user.name; }
+      `.trim(),
+      reports: [
+        {
+          description: "Function `f` is duplicated 2 times",
+          occurrences: [
+            { line: 1, column: 1 },
+            { line: 2, column: 1 },
+          ],
+        },
+      ],
+    },
+
+    {
+      code: `
+function f(arr: number[]) { return arr[0]; }
+function g(list: number[]) { return list[0]; }
       `.trim(),
       reports: [
         {
