@@ -287,6 +287,7 @@ class FunctionNormalizer {
         return `${obj}${optional}.${node.property.name}`;
       }
       case "ChainExpression":
+      case "ParenthesizedExpression":
         return this.normalizeExpr(node.expression);
       case "SpreadElement":
         return `...${this.normalizeExpr(node.argument)}`;
@@ -517,10 +518,12 @@ export const functionBody: Collector = {
         methodDepth--;
       },
       Property(node: any) {
-        if (node.method) methodDepth++;
+        if (node.method || node.kind === "get" || node.kind === "set")
+          methodDepth++;
       },
       "Property:exit"(node: any) {
-        if (node.method) methodDepth--;
+        if (node.method || node.kind === "get" || node.kind === "set")
+          methodDepth--;
       },
       FunctionDeclaration: collect,
       FunctionExpression: collect,

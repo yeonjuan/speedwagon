@@ -65,6 +65,27 @@ function g(a: number, b: number) { return a - b; }
 
     {
       code: `
+function f() { return { x: 1, y: 2 }; }
+function g() { return { x: 1, y: 3 }; }
+      `.trim(),
+    },
+
+    {
+      code: `
+function f() { return { x: 1 }; }
+function g() { return { x: 1, y: 2 }; }
+      `.trim(),
+    },
+
+    {
+      code: `
+function f(a: number) { return { value: a }; }
+function g(a: number) { return { result: a }; }
+      `.trim(),
+    },
+
+    {
+      code: `
 function f(a: number, b: number) { return a; }
 function g(a: number, b: number) { return b; }
       `.trim(),
@@ -74,6 +95,42 @@ function g(a: number, b: number) { return b; }
       code: `
 function f<T>(a: T): T { return a; }
 function g<T, U>(a: T, b: U): T { return a; }
+      `.trim(),
+    },
+
+    {
+      code: `
+function hasCompatTags(entry) {
+  return (
+    typeof entry === "object" &&
+    entry &&
+    "__compat" in entry &&
+    entry.__compat.tags
+  );
+}
+function isStaticString(node) {
+  return (
+    (node.type === AST_NODE_TYPES.Literal && typeof node.value === "string") ||
+    (node.type === AST_NODE_TYPES.TemplateLiteral &&
+      node.expressions.length === 0 &&
+      node.quasis.length === 1)
+  );
+}
+      `.trim(),
+    },
+
+    {
+      code: `
+const a = {
+  plugins: {
+    get ["@html-eslint/svelte"]() { return plugin; },
+  },
+};
+const b = {
+  plugins: {
+    get "@html-eslint"() { return plugin; },
+  },
+};
       `.trim(),
     },
 
@@ -177,6 +234,38 @@ function g(user: any) { return user.name; }
       code: `
 function f(arr: number[]) { return arr[0]; }
 function g(list: number[]) { return list[0]; }
+      `.trim(),
+      reports: [
+        {
+          description: "Function `f` is duplicated 2 times",
+          occurrences: [
+            { line: 1, column: 1 },
+            { line: 2, column: 1 },
+          ],
+        },
+      ],
+    },
+
+    {
+      code: `
+function f() { return { x: 1, y: 2 }; }
+function g() { return { x: 1, y: 2 }; }
+      `.trim(),
+      reports: [
+        {
+          description: "Function `f` is duplicated 2 times",
+          occurrences: [
+            { line: 1, column: 1 },
+            { line: 2, column: 1 },
+          ],
+        },
+      ],
+    },
+
+    {
+      code: `
+function f(a: number) { return { value: a }; }
+function g(b: number) { return { value: b }; }
       `.trim(),
       reports: [
         {
