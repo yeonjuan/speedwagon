@@ -11,3 +11,4 @@ export { duplicateStringInterpolation } from "./duplicate-string-interpolation.j
 export { cognitiveComplexFunction } from "./cognitive-complex-function.js";
 export { cyclomaticComplexFunction } from "./cyclomatic-complex-function.js";
 export { duplicateFunction } from "./duplicate-function.js";
+export { duplicateMagicNumbers } from "./duplicate-magic-numbers.js";

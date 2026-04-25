@@ -18,6 +18,7 @@ import type {
   TSUndefinedKeyword,
   TSTypeReference,
   JSXIdentifier,
+  NumericLiteral,
 } from "oxc-parser";
 
 type TSKeyword =
@@ -38,6 +39,10 @@ type TSKeyword =
 
 export function isStringLiteral(node: Node): node is StringLiteral {
   return node.type === "Literal" && typeof node.value === "string";
+}
+
+export function isNumericLiteral(node: Node): node is NumericLiteral {
+  return node.type === "Literal" && typeof node.value === "number";
 }
 
 export function isRegExpLiteral(node: Node): node is RegExpLiteral {
