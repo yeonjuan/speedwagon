@@ -171,6 +171,34 @@ function Bar() { return <div><span>world</span></div>; }
       `.trim(),
       filename: "test.tsx",
     },
+
+    {
+      code: `
+[1, 2].map(a => String(a));
+[1, 2].map(a => String(a));
+      `.trim(),
+    },
+
+    {
+      code: `
+[1, 2].map(a => a.name);
+[1, 2].map(a => a.name);
+      `.trim(),
+    },
+
+    {
+      code: `
+[1, 2].map(([a]) => a);
+[1, 2].map(([a]) => a);
+      `.trim(),
+    },
+
+    {
+      code: `
+new Promise((resolve) => resolve(1));
+new Promise((resolve) => resolve(1));
+      `.trim(),
+    },
   ],
 
   invalid: [

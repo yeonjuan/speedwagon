@@ -556,9 +556,11 @@ export const functionBody: Collector = {
   id: "function",
   createJSVisitor(context) {
     let methodDepth = 0;
+    let callArgDepth = 0;
 
     function collect(node: AnyFunctionNode) {
       if (methodDepth > 0) return;
+      if (callArgDepth > 0) return;
       const externalNames = new Set(getUndeclaredIdentifiersInFunction(node));
       const key = new FunctionNormalizer(externalNames).normalize(node);
       const displayName =
@@ -593,6 +595,18 @@ export const functionBody: Collector = {
       "Property:exit"(node: any) {
         if (node.method || node.kind === "get" || node.kind === "set")
           methodDepth--;
+      },
+      CallExpression() {
+        callArgDepth++;
+      },
+      "CallExpression:exit"() {
+        callArgDepth--;
+      },
+      NewExpression() {
+        callArgDepth++;
+      },
+      "NewExpression:exit"() {
+        callArgDepth--;
       },
       FunctionDeclaration: collect,
       FunctionExpression: collect,
