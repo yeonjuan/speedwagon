@@ -338,8 +338,77 @@ class FunctionNormalizer {
         return `${this.normalizeExpr(node.expression)}!`;
       case "TSInstantiationExpression":
         return `${this.normalizeExpr(node.expression)}<${node.typeArguments.params.map((t: any) => this.normalizeType(t)).join(",")}>`;
+      case "JSXElement":
+        return this.normalizeJSXElement(node);
+      case "JSXFragment":
+        return `<>${node.children.map((c: any) => this.normalizeJSXChild(c)).join("")}</>`;
       default:
         return node.type;
+    }
+  }
+
+  private normalizeJSXName(node: any): string {
+    switch (node.type) {
+      case "JSXIdentifier":
+        return node.name;
+      case "JSXMemberExpression":
+        return `${this.normalizeJSXName(node.object)}.${node.property.name}`;
+      case "JSXNamespacedName":
+        return `${node.namespace.name}:${node.name.name}`;
+      default:
+        return node.type;
+    }
+  }
+
+  private normalizeJSXAttrValue(value: any): string {
+    if (value.type === "Literal") return this.normalizeLiteral(value);
+    if (value.type === "JSXExpressionContainer")
+      return `{${this.normalizeExpr(value.expression)}}`;
+    if (value.type === "JSXElement") return this.normalizeJSXElement(value);
+    if (value.type === "JSXFragment")
+      return `<>${value.children.map((c: any) => this.normalizeJSXChild(c)).join("")}</>`;
+    return value.type;
+  }
+
+  private normalizeJSXAttr(attr: any): string {
+    if (attr.type === "JSXSpreadAttribute")
+      return `{...${this.normalizeExpr(attr.argument)}}`;
+    const name =
+      attr.name.type === "JSXIdentifier"
+        ? attr.name.name
+        : `${attr.name.namespace.name}:${attr.name.name.name}`;
+    if (attr.value === null) return name;
+    return `${name}=${this.normalizeJSXAttrValue(attr.value)}`;
+  }
+
+  private normalizeJSXElement(node: any): string {
+    const name = this.normalizeJSXName(node.openingElement.name);
+    const attrs = node.openingElement.attributes
+      .map((a: any) => this.normalizeJSXAttr(a))
+      .join(" ");
+    const children = node.children
+      .map((c: any) => this.normalizeJSXChild(c))
+      .join("");
+    if (node.openingElement.selfClosing) {
+      return `<${name}${attrs ? ` ${attrs}` : ""}/>`;
+    }
+    return `<${name}${attrs ? ` ${attrs}` : ""}>${children}</${name}>`;
+  }
+
+  private normalizeJSXChild(child: any): string {
+    switch (child.type) {
+      case "JSXText":
+        return `text:${child.value}`;
+      case "JSXExpressionContainer":
+        return `{${this.normalizeExpr(child.expression)}}`;
+      case "JSXSpreadChild":
+        return `{...${this.normalizeExpr(child.expression)}}`;
+      case "JSXElement":
+        return this.normalizeJSXElement(child);
+      case "JSXFragment":
+        return `<>${child.children.map((c: any) => this.normalizeJSXChild(c)).join("")}</>`;
+      default:
+        return child.type;
     }
   }
 
@@ -487,9 +556,11 @@ export const functionBody: Collector = {
   id: "function",
   createJSVisitor(context) {
     let methodDepth = 0;
+    let callArgDepth = 0;
 
     function collect(node: AnyFunctionNode) {
       if (methodDepth > 0) return;
+      if (callArgDepth > 0) return;
       const externalNames = new Set(getUndeclaredIdentifiersInFunction(node));
       const key = new FunctionNormalizer(externalNames).normalize(node);
       const displayName =
@@ -524,6 +595,18 @@ export const functionBody: Collector = {
       "Property:exit"(node: any) {
         if (node.method || node.kind === "get" || node.kind === "set")
           methodDepth--;
+      },
+      CallExpression() {
+        callArgDepth++;
+      },
+      "CallExpression:exit"() {
+        callArgDepth--;
+      },
+      NewExpression() {
+        callArgDepth++;
+      },
+      "NewExpression:exit"() {
+        callArgDepth--;
       },
       FunctionDeclaration: collect,
       FunctionExpression: collect,

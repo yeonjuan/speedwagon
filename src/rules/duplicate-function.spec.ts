@@ -147,6 +147,58 @@ const a = { foo(x: number) { return x; } };
 const b = { foo(x: number) { return x; } };
       `.trim(),
     },
+
+    {
+      code: `
+function Foo() { return <input type="txt" />; }
+function Bar() { return <input type="text" />; }
+      `.trim(),
+      filename: "test.tsx",
+    },
+
+    {
+      code: `
+function Foo() { return <div className="a" />; }
+function Bar() { return <div className="b" />; }
+      `.trim(),
+      filename: "test.tsx",
+    },
+
+    {
+      code: `
+function Foo() { return <div><span>hello</span></div>; }
+function Bar() { return <div><span>world</span></div>; }
+      `.trim(),
+      filename: "test.tsx",
+    },
+
+    {
+      code: `
+[1, 2].map(a => String(a));
+[1, 2].map(a => String(a));
+      `.trim(),
+    },
+
+    {
+      code: `
+[1, 2].map(a => a.name);
+[1, 2].map(a => a.name);
+      `.trim(),
+    },
+
+    {
+      code: `
+[1, 2].map(([a]) => a);
+[1, 2].map(([a]) => a);
+      `.trim(),
+    },
+
+    {
+      code: `
+new Promise((resolve) => resolve(1));
+new Promise((resolve) => resolve(1));
+      `.trim(),
+    },
   ],
 
   invalid: [
@@ -345,6 +397,40 @@ async function g(b: number) { return b; }
       reports: [
         {
           description: "Function `f` is duplicated 2 times",
+          occurrences: [
+            { line: 1, column: 1 },
+            { line: 2, column: 1 },
+          ],
+        },
+      ],
+    },
+
+    {
+      code: `
+function Foo() { return <input type="text" />; }
+function Bar() { return <input type="text" />; }
+      `.trim(),
+      filename: "test.tsx",
+      reports: [
+        {
+          description: "Function `Foo` is duplicated 2 times",
+          occurrences: [
+            { line: 1, column: 1 },
+            { line: 2, column: 1 },
+          ],
+        },
+      ],
+    },
+
+    {
+      code: `
+function Foo() { return <div><span>hello</span></div>; }
+function Bar() { return <div><span>hello</span></div>; }
+      `.trim(),
+      filename: "test.tsx",
+      reports: [
+        {
+          description: "Function `Foo` is duplicated 2 times",
           occurrences: [
             { line: 1, column: 1 },
             { line: 2, column: 1 },

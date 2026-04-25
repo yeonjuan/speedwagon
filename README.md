@@ -51,6 +51,7 @@ Files matched by `.gitignore` are automatically excluded.
 | `duplicate-regex-literal`         | Detects repeated regular expression literals                          |
 | `duplicate-string-interpolation`  | Detects repeated template literal patterns                            |
 | `use-defined-type`                | Detects inline type annotations that duplicate an existing named type |
+| `duplicate-function`              | Detects functions with identical implementations                      |
 | `cognitive-complex-function`      | Detects functions with a cognitive complexity above 15                |
 | `cyclomatic-complex-function`     | Detects functions with a cyclomatic complexity above 15               |
 
