@@ -35,7 +35,8 @@
     "fast-glob": "^3.3.3",
     "ignore": "^7.0.5",
     "optionator": "^0.9.4",
-    "oxc-parser": "^0.123.0"
+    "oxc-parser": "^0.123.0",
+    "oxc-walker": "^0.7.0"
   },
   "devDependencies": {
     "@types/node": "^22.19.17",
