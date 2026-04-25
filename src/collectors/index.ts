@@ -8,6 +8,7 @@ import { stringInterpolation } from "./string-interpolation.js";
 import { cognitiveComplexity } from "./cognitive-complexity.js";
 import { cyclomaticComplexity } from "./cyclomatic-complexity.js";
 import { functionBody } from "./function-body.js";
+import { magicNumber } from "./magic-number.js";
 
 export const collectors = {
   regexLiteral,
@@ -20,6 +21,7 @@ export const collectors = {
   cognitiveComplexity,
   cyclomaticComplexity,
   functionBody,
+  magicNumber,
 };
 
 export type { Collector } from "./types.js";
