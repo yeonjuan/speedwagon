@@ -16,8 +16,6 @@ export interface ResolvedReport {
   occurrences?: ReportOccurrence[];
 }
 
-export type RuleOptions = Record<string, unknown>;
-
 export interface Rule<
   TCollectors extends Collector[] = Collector[],
   TOptions extends object = object,
