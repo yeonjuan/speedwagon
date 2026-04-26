@@ -1,4 +1,4 @@
-import type { Collector, CollectorContext } from "../collectors/index.js";
+import type { Collector, CollectorQueryAPI } from "../collectors/index.js";
 import type { RuleContext } from "./rule-context.js";
 
 export enum RuleCategory {
@@ -7,7 +7,7 @@ export enum RuleCategory {
 }
 
 type CollectorContexts<TCollectors extends Collector[]> = {
-  [K in keyof TCollectors]: CollectorContext;
+  [K in keyof TCollectors]: CollectorQueryAPI;
 };
 
 export interface ResolvedReport {
