@@ -16,16 +16,23 @@ export interface ResolvedReport {
   occurrences?: ReportOccurrence[];
 }
 
-export interface Rule<TCollectors extends Collector[] = Collector[]> {
+export type RuleOptions = Record<string, unknown>;
+
+export interface Rule<
+  TCollectors extends Collector[] = Collector[],
+  TOptions extends object = object,
+> {
   id: string;
   category: RuleCategory;
   collectors: TCollectors;
+  defaultOptions: TOptions | null;
   descriptions: {
     [id: string]: string;
   };
   check(
     context: RuleContext,
     collectorContexts: CollectorContexts<TCollectors>,
+    options: TOptions,
   ): void;
 }
 

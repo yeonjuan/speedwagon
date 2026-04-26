@@ -16,11 +16,10 @@ interface FunctionFrame {
   node: AnyFunctionNode;
 }
 
-const threshold = 15;
-
 export const cognitiveComplexity: Collector = {
   id: `cognitive-complexity`,
-  createJSVisitor(context) {
+  createJSVisitor(context, options = {}) {
+    const threshold = (options.threshold as number | undefined) ?? 15;
     const frameStack: FunctionFrame[] = [];
     const elseIfNodes = new WeakSet<object>();
     const coveredLogicalNodes = new WeakSet<object>();

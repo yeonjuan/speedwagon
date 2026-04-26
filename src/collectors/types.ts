@@ -26,5 +26,8 @@ export interface CollectorQueryAPI {
 
 export interface Collector {
   id: string;
-  createJSVisitor: (context: CollectorContextMutationAPI) => VisitorObject;
+  createJSVisitor: (
+    context: CollectorContextMutationAPI,
+    options?: Record<string, unknown>,
+  ) => VisitorObject;
 }

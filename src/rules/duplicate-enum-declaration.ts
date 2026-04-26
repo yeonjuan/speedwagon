@@ -5,6 +5,7 @@ import type { Rule } from "./types.js";
 export const duplicateEnumDeclaration: Rule = {
   id: "duplicate-enum-declaration",
   category: RuleCategory.Duplication,
+  defaultOptions: null,
   collectors: [collectors.enumDeclaration],
   descriptions: {
     duplicated: "Enum `{{enum}}` is defined in {{count}} places",

@@ -58,7 +58,7 @@ export class CLI {
       return;
     }
 
-    await this.analyze(files, report, out);
+    await this.analyze(files, report, out, config);
   }
 
   private async collect(
@@ -82,6 +82,7 @@ export class CLI {
     files: string[],
     format: ReportFormat,
     out: string | undefined,
+    config: import("../types/index.js").Config,
   ) {
     logger.info("Starting duplicate detection...\n");
 
@@ -101,6 +102,7 @@ export class CLI {
           duplicateFunction,
           duplicateMagicNumbers,
         ],
+        config,
       });
       const output = await runner.run();
 

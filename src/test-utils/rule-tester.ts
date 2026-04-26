@@ -31,11 +31,13 @@ interface ExpectedReport {
 interface ValidCase {
   code: string;
   filename?: string;
+  options?: Record<string, unknown>;
 }
 
 interface InvalidCase {
   code: string;
   filename?: string;
+  options?: Record<string, unknown>;
   reports: ExpectedReport[];
 }
 
@@ -56,6 +58,7 @@ export class RuleTester {
               const reports = await this.getReports(
                 testCase.code,
                 testCase.filename,
+                testCase.options,
               );
               expect(reports).toHaveLength(0);
             });
@@ -70,6 +73,7 @@ export class RuleTester {
               const reports = await this.getReports(
                 testCase.code,
                 testCase.filename,
+                testCase.options,
               );
               expect(reports).toHaveLength(testCase.reports.length);
               for (let i = 0; i < testCase.reports.length; i++) {
@@ -93,10 +97,15 @@ export class RuleTester {
     });
   }
 
-  private async getReports(code: string, filename = "test.ts") {
+  private async getReports(
+    code: string,
+    filename = "test.ts",
+    optionsOverride?: Record<string, unknown>,
+  ) {
     const language =
       languages.find((lang) => lang.match(filename)) ?? tsLanguage;
     const program = await language.parse(code, filename);
+    const options = { ...(this.rule.defaultOptions ?? {}), ...optionsOverride };
     const collectContexts = new Map(
       this.rule.collectors.map((collector) => [
         collector.id,
@@ -107,7 +116,9 @@ export class RuleTester {
     for (const collector of this.rule.collectors) {
       const collectContext = collectContexts.get(collector.id)!;
       const mutationApi = collectContext.mutationApi(filename, code);
-      const visitor = new Visitor(collector.createJSVisitor(mutationApi));
+      const visitor = new Visitor(
+        collector.createJSVisitor(mutationApi, options),
+      );
       visitor.visit(program);
     }
 
@@ -117,6 +128,7 @@ export class RuleTester {
       this.rule.collectors.map(
         (collector) => collectContexts.get(collector.id)!,
       ),
+      options,
     );
 
     return ruleContext.getReports();

@@ -7,6 +7,7 @@ const IGNORED_NUMBERS = new Set(["-1", "0", "1"]);
 export const duplicateMagicNumbers: Rule = {
   id: "duplicate-magic-numbers",
   category: RuleCategory.Duplication,
+  defaultOptions: null,
   collectors: [collectors.magicNumber],
   descriptions: {
     duplicated: "Magic number `{{number}}` is duplicated {{count}} times",
