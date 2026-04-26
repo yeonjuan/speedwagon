@@ -40,6 +40,50 @@ You can create a `speedwagon.json` in your project root to configure the tool.
 
 Files matched by `.gitignore` are automatically excluded.
 
+### Rule options
+
+Rules can be configured per-category in `speedwagon.json`. Each rule supports the following common options:
+
+| Option    | Type       | Description                                            |
+| --------- | ---------- | ------------------------------------------------------ |
+| `ignores` | `string[]` | Glob patterns for files to exclude from this rule only |
+
+**Complexity rules** (`cognitive-complex-function`, `cyclomatic-complex-function`) also support:
+
+| Option      | Type     | Default | Description                               |
+| ----------- | -------- | ------- | ----------------------------------------- |
+| `threshold` | `number` | `15`    | Minimum complexity score before reporting |
+
+#### Examples
+
+Exclude test files from a specific rule:
+
+```json
+{
+  "duplication": {
+    "duplicate-magic-numbers": {
+      "ignores": ["**/*.spec.ts", "**/*.test.ts"]
+    }
+  }
+}
+```
+
+Adjust the complexity threshold:
+
+```json
+{
+  "complexity": {
+    "cognitive-complex-function": {
+      "threshold": 10
+    },
+    "cyclomatic-complex-function": {
+      "threshold": 20,
+      "ignores": ["src/generated/**"]
+    }
+  }
+}
+```
+
 ## Rules
 
 | Rule                              | Description                                                           |
