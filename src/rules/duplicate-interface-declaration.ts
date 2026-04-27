@@ -5,6 +5,7 @@ import type { Rule } from "./types.js";
 export const duplicateInterfaceDeclaration: Rule = {
   id: "duplicate-interface-declaration",
   category: RuleCategory.Duplication,
+  defaultOptions: null,
   collectors: [collectors.interfaceDeclaration],
   descriptions: {
     duplicated:

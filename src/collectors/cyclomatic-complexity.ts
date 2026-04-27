@@ -15,11 +15,10 @@ interface FunctionFrame {
   node: AnyFunctionNode;
 }
 
-const threshold = 15;
-
 export const cyclomaticComplexity: Collector = {
   id: "cyclomatic-complexity",
-  createJSVisitor(context) {
+  createJSVisitor(context, options = {}) {
+    const threshold = (options.threshold as number | undefined) ?? 15;
     const frameStack: FunctionFrame[] = [];
 
     function currentFrame() {

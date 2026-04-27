@@ -5,6 +5,7 @@ import type { Rule } from "./types.js";
 export const duplicateRegexLiteral: Rule = {
   id: "duplicate-regex-literal",
   category: RuleCategory.Duplication,
+  defaultOptions: null,
   collectors: [collectors.regexLiteral],
   descriptions: {
     duplicated: "RegExp `{{regexp}}` is duplicated {{count}} times",

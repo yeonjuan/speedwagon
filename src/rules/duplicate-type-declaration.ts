@@ -5,6 +5,7 @@ import type { Rule } from "./types.js";
 export const duplicateTypeDeclaration: Rule = {
   id: "duplicate-type-declaration",
   category: RuleCategory.Duplication,
+  defaultOptions: null,
   collectors: [collectors.typeAliasDeclaration],
   descriptions: {
     duplicated: "`{{type}}` is defined in {{count}} places",

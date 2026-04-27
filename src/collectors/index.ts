@@ -24,5 +24,5 @@ export const collectors = {
   magicNumber,
 };
 
-export type { Collector } from "./types.js";
+export type { Collector, CollectorQueryAPI } from "./types.js";
 export { CollectorContext } from "./context/index.js";

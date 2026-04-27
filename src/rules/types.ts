@@ -1,4 +1,4 @@
-import type { Collector, CollectorContext } from "../collectors/index.js";
+import type { Collector, CollectorQueryAPI } from "../collectors/index.js";
 import type { RuleContext } from "./rule-context.js";
 
 export enum RuleCategory {
@@ -7,7 +7,7 @@ export enum RuleCategory {
 }
 
 type CollectorContexts<TCollectors extends Collector[]> = {
-  [K in keyof TCollectors]: CollectorContext;
+  [K in keyof TCollectors]: CollectorQueryAPI;
 };
 
 export interface ResolvedReport {
@@ -16,16 +16,21 @@ export interface ResolvedReport {
   occurrences?: ReportOccurrence[];
 }
 
-export interface Rule<TCollectors extends Collector[] = Collector[]> {
+export interface Rule<
+  TCollectors extends Collector[] = Collector[],
+  TOptions extends object = object,
+> {
   id: string;
   category: RuleCategory;
   collectors: TCollectors;
+  defaultOptions: TOptions | null;
   descriptions: {
     [id: string]: string;
   };
   check(
     context: RuleContext,
     collectorContexts: CollectorContexts<TCollectors>,
+    options: TOptions,
   ): void;
 }
 

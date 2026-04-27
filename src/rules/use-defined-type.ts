@@ -5,6 +5,7 @@ import type { Rule } from "./types.js";
 export const useDefinedType: Rule = {
   id: "use-defined-type",
   category: RuleCategory.Duplication,
+  defaultOptions: null,
   collectors: [collectors.typeAliasDeclaration, collectors.typeAnnotation],
   descriptions: {
     useDefinedType:

@@ -5,6 +5,7 @@ import type { Rule } from "./types.js";
 export const duplicateUrlString: Rule = {
   id: "duplicate-url-string",
   category: RuleCategory.Duplication,
+  defaultOptions: null,
   collectors: [collectors.urlString],
   descriptions: {
     duplicated: "URL `{{url}}` is duplicated {{count}} times",
