@@ -9,6 +9,8 @@ tester.run({
     { code: "const a = `hello ${foo}`; const b = `world ${foo}`;" },
     { code: "const a = `${foo}`;" },
     { code: "const a = `${foo}`; const b = `${bar}`;" },
+    { code: "const a = `${foo}${bar}`; const b = `${foo}${bar}`;" },
+    { code: "const a = `${foo}${bar}${baz}`; const b = `${foo}${bar}${baz}`;" },
     { code: "const a = `hello`;" },
   ],
   invalid: [

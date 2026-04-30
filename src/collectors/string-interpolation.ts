@@ -7,11 +7,7 @@ function normalize(node: TemplateLiteral): string {
 }
 
 function isSimpleConversion(node: TemplateLiteral): boolean {
-  return (
-    node.expressions.length === 1 &&
-    node.quasis[0].value.cooked === "" &&
-    node.quasis[1].value.cooked === ""
-  );
+  return node.quasis.every((q) => (q.value.cooked ?? q.value.raw) === "");
 }
 
 export const stringInterpolation: Collector = {
