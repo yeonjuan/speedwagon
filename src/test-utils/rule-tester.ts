@@ -28,15 +28,22 @@ interface ExpectedReport {
   occurrences?: ExpectedOccurrence[];
 }
 
-interface ValidCase {
+interface FileEntry {
   code: string;
+  filename: string;
+}
+
+interface ValidCase {
+  code?: string;
   filename?: string;
+  files?: FileEntry[];
   options?: Record<string, unknown>;
 }
 
 interface InvalidCase {
-  code: string;
+  code?: string;
   filename?: string;
+  files?: FileEntry[];
   options?: Record<string, unknown>;
   reports: ExpectedReport[];
 }
@@ -54,12 +61,9 @@ export class RuleTester {
       if (cases.valid) {
         describe("valid", () => {
           for (const testCase of cases.valid!) {
-            it(testCase.code, async () => {
-              const reports = await this.getReports(
-                testCase.code,
-                testCase.filename,
-                testCase.options,
-              );
+            const name = this.getTestName(testCase);
+            it(name, async () => {
+              const reports = await this.getReports(testCase);
               expect(reports).toHaveLength(0);
             });
           }
@@ -69,12 +73,9 @@ export class RuleTester {
       if (cases.invalid) {
         describe("invalid", () => {
           for (const testCase of cases.invalid!) {
-            it(testCase.code, async () => {
-              const reports = await this.getReports(
-                testCase.code,
-                testCase.filename,
-                testCase.options,
-              );
+            const name = this.getTestName(testCase);
+            it(name, async () => {
+              const reports = await this.getReports(testCase);
               expect(reports).toHaveLength(testCase.reports.length);
               for (let i = 0; i < testCase.reports.length; i++) {
                 const { occurrences, ...rest } = testCase.reports[i];
@@ -97,15 +98,26 @@ export class RuleTester {
     });
   }
 
-  private async getReports(
-    code: string,
-    filename = "test.ts",
-    optionsOverride?: Record<string, unknown>,
-  ) {
-    const language =
-      languages.find((lang) => lang.match(filename)) ?? tsLanguage;
-    const program = await language.parse(code, filename);
-    const options = { ...(this.rule.defaultOptions ?? {}), ...optionsOverride };
+  private getTestName(testCase: ValidCase | InvalidCase): string {
+    if (testCase.code) return testCase.code;
+    if (testCase.files) return testCase.files.map((f) => f.code).join(" | ");
+    return "";
+  }
+
+  private async getReports(testCase: ValidCase | InvalidCase) {
+    const files: FileEntry[] = testCase.files
+      ? [...testCase.files]
+      : [
+          {
+            code: testCase.code ?? "",
+            filename: testCase.filename ?? "test.ts",
+          },
+        ];
+
+    const options = {
+      ...(this.rule.defaultOptions ?? {}),
+      ...testCase.options,
+    };
     const collectContexts = new Map(
       this.rule.collectors.map((collector) => [
         collector.id,
@@ -113,13 +125,19 @@ export class RuleTester {
       ]),
     );
 
-    for (const collector of this.rule.collectors) {
-      const collectContext = collectContexts.get(collector.id)!;
-      const mutationApi = collectContext.mutationApi(filename, code);
-      const visitor = new Visitor(
-        collector.createJSVisitor(mutationApi, options),
-      );
-      visitor.visit(program);
+    for (const { code, filename } of files) {
+      const language =
+        languages.find((lang) => lang.match(filename)) ?? tsLanguage;
+      const program = await language.parse(code, filename);
+
+      for (const collector of this.rule.collectors) {
+        const collectContext = collectContexts.get(collector.id)!;
+        const mutationApi = collectContext.mutationApi(filename, code);
+        const visitor = new Visitor(
+          collector.createJSVisitor(mutationApi, options),
+        );
+        visitor.visit(program);
+      }
     }
 
     const ruleContext = new RuleContext(this.rule);

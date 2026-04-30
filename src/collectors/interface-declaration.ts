@@ -76,9 +76,23 @@ function normalizeMember(member: TSSignature): string {
   }
 }
 
+function normalizeHeritageExpression(
+  expr: TSInterfaceHeritage["expression"],
+): string {
+  if (expr.type === "Identifier") return expr.name;
+  if (expr.type === "MemberExpression") {
+    const obj = normalizeHeritageExpression(
+      expr.object as TSInterfaceHeritage["expression"],
+    );
+    const prop = expr.property;
+    const propName = "name" in prop ? prop.name : prop.type;
+    return `${obj}.${propName}`;
+  }
+  return expr.type;
+}
+
 function normalizeHeritage(heritage: TSInterfaceHeritage): string {
-  const expr = heritage.expression;
-  const name = expr.type === "Identifier" ? expr.name : expr.type;
+  const name = normalizeHeritageExpression(heritage.expression);
   const typeArgs = heritage.typeArguments;
   const args =
     typeArgs && typeArgs.params.length > 0

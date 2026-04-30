@@ -13,6 +13,33 @@ tester.run({
     {
       code: `interface A extends Base { x: number } interface B extends Other { x: number }`,
     },
+    {
+      files: [
+        {
+          code: `interface Foo extends Bar { name: string }`,
+          filename: "a.ts",
+        },
+        {
+          code: `interface Foo extends Baz { name: string }`,
+          filename: "b.ts",
+        },
+      ],
+    },
+    {
+      code: `interface A extends Bar.Baz { x: number } interface B extends Bar.Qux { x: number }`,
+    },
+    {
+      files: [
+        {
+          code: `interface Foo extends Bar.Baz { name: string }`,
+          filename: "a.ts",
+        },
+        {
+          code: `interface Foo extends Other.Baz { name: string }`,
+          filename: "b.ts",
+        },
+      ],
+    },
     { code: `interface A { x: number } interface B { x?: number }` },
   ],
   invalid: [
@@ -83,6 +110,42 @@ interface B extends Base { x: number }
           occurrences: [
             { line: 1, column: 1 },
             { line: 2, column: 1 },
+          ],
+        },
+      ],
+    },
+    {
+      code: `
+interface A extends Bar.Baz { x: number }
+interface B extends Bar.Baz { x: number }
+      `.trim(),
+      reports: [
+        {
+          description: "'A' interface is defined identically in 2 places",
+          occurrences: [
+            { line: 1, column: 1 },
+            { line: 2, column: 1 },
+          ],
+        },
+      ],
+    },
+    {
+      files: [
+        {
+          code: `interface Foo extends Base { name: string }`,
+          filename: "a.ts",
+        },
+        {
+          code: `interface Foo extends Base { name: string }`,
+          filename: "b.ts",
+        },
+      ],
+      reports: [
+        {
+          description: "'Foo' interface is defined identically in 2 places",
+          occurrences: [
+            { line: 1, column: 1 },
+            { line: 1, column: 1 },
           ],
         },
       ],
