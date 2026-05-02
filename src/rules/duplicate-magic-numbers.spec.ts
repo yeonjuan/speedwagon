@@ -10,6 +10,7 @@ tester.run({
     { code: "const a = 0; const b = 0;" },
     { code: "const a = 1; const b = 1; const c = 1;" },
     { code: "const a = -1; const b = -1;" },
+    { code: "const a = { name: 42 }; const b = { name: 42 };" },
   ],
   invalid: [
     {
