@@ -48,12 +48,6 @@ Rules can be configured per-category in `speedwagon.json`. Each rule supports th
 | --------- | ---------- | ------------------------------------------------------ |
 | `ignores` | `string[]` | Glob patterns for files to exclude from this rule only |
 
-**Complexity rules** (`cognitive-complex-function`, `cyclomatic-complex-function`) also support:
-
-| Option      | Type     | Default | Description                               |
-| ----------- | -------- | ------- | ----------------------------------------- |
-| `threshold` | `number` | `15`    | Minimum complexity score before reporting |
-
 #### Examples
 
 Exclude test files from a specific rule:
@@ -63,22 +57,6 @@ Exclude test files from a specific rule:
   "duplication": {
     "duplicate-magic-numbers": {
       "ignores": ["**/*.spec.ts", "**/*.test.ts"]
-    }
-  }
-}
-```
-
-Adjust the complexity threshold:
-
-```json
-{
-  "complexity": {
-    "cognitive-complex-function": {
-      "threshold": 10
-    },
-    "cyclomatic-complex-function": {
-      "threshold": 20,
-      "ignores": ["src/generated/**"]
     }
   }
 }
@@ -95,10 +73,7 @@ Adjust the complexity threshold:
 | `duplicate-regex-literal`         | Detects repeated regular expression literals                          |
 | `duplicate-string-interpolation`  | Detects repeated template literal patterns                            |
 | `use-defined-type`                | Detects inline type annotations that duplicate an existing named type |
-| `duplicate-function`              | Detects functions with identical implementations                      |
 | `duplicate-magic-numbers`         | Detects repeated magic numbers (ignores -1, 0, 1)                     |
-| `cognitive-complex-function`      | Detects functions with a cognitive complexity above 15                |
-| `cyclomatic-complex-function`     | Detects functions with a cyclomatic complexity above 15               |
 
 ## Requirements
 
