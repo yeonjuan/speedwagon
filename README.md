@@ -4,7 +4,7 @@ A CLI tool that detects structural code duplication in JavaScript/TypeScript pro
 
 ## The Problem
 
-As a codebase grows, the same patterns tend to reappear — identical type definitions, duplicate enum declarations, repeated URL strings, and more. These duplicates are hard to spot during code review and gradually make refactoring more expensive.
+As a codebase grows, the same patterns tend to reappear — identical type definitions, duplicate enum declarations, repeated regex literals, and more. These duplicates are hard to spot during code review and gradually make refactoring more expensive.
 
 `speedwagon` statically analyzes your JS/TS source files and surfaces these duplicates so you can consolidate them before they become technical debt.
 
@@ -20,64 +20,25 @@ npm install -D speedwagon
 # Run in current directory (auto-detects all supported JS/TS files)
 npx speedwagon
 
-# Ignore certain paths
-npx speedwagon --ignore 'src/**/*.spec.ts'
+# Enable debug logging
+npx speedwagon --debug
 ```
-
-## Configuration
-
-You can create a `speedwagon.json` in your project root to configure the tool.
-
-```json
-{
-  "ignores": ["**/*.spec.ts", "dist/**"]
-}
-```
-
-| Option    | Type       | Description                                      |
-| --------- | ---------- | ------------------------------------------------ |
-| `ignores` | `string[]` | Glob patterns for files to exclude from analysis |
 
 Files matched by `.gitignore` are automatically excluded.
 
-### Rule options
+## Supported File Types
 
-Rules can be configured per-category in `speedwagon.json`. Each rule supports the following common options:
-
-| Option    | Type       | Description                                            |
-| --------- | ---------- | ------------------------------------------------------ |
-| `ignores` | `string[]` | Glob patterns for files to exclude from this rule only |
-
-#### Examples
-
-Exclude test files from a specific rule:
-
-```json
-{
-  "duplication": {
-    "duplicate-magic-numbers": {
-      "ignores": ["**/*.spec.ts", "**/*.test.ts"]
-    }
-  }
-}
-```
+`.js`, `.mjs`, `.cjs`, `.ts`, `.mts`, `.cts`, `.jsx`, `.tsx`
 
 ## Rules
 
-| Rule                              | Description                                                           |
-| --------------------------------- | --------------------------------------------------------------------- |
-| `duplicate-type-declaration`      | Detects `type` aliases with identical structures                      |
-| `duplicate-interface-declaration` | Detects `interface` declarations with identical structures            |
-| `duplicate-enum-declaration`      | Detects `enum` declarations with identical members                    |
-| `duplicate-url-string`            | Detects repeated URL string literals                                  |
-| `duplicate-regex-literal`         | Detects repeated regular expression literals                          |
-| `duplicate-string-interpolation`  | Detects repeated template literal patterns                            |
-| `use-defined-type`                | Detects inline type annotations that duplicate an existing named type |
-| `duplicate-magic-numbers`         | Detects repeated magic numbers (ignores -1, 0, 1)                     |
-
-## Requirements
-
-- Node.js >= 20.19.0 or >= 22.12.0
+| Rule                       | Description                                                                                   |
+| -------------------------- | --------------------------------------------------------------------------------------------- |
+| Duplicate RegExp literal   | Detects the same regular expression used across multiple files                                |
+| Duplicate type declaration | Detects `type` aliases with identical structures (order-independent for unions/intersections) |
+| Duplicate enum declaration | Detects `enum` declarations with identical members                                            |
+| Duplicate JSX SVG          | Detects the same `<svg>` element used across multiple files                                   |
+| Duplicate class names      | Detects duplicate CSS class names within a single `className`/`class` attribute               |
 
 ## License
 

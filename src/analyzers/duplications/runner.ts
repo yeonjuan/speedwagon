@@ -9,21 +9,32 @@ import type {
   VisitorContext,
 } from "./types.js";
 
+function isNewLine(code: number): boolean {
+  return code === 10 || code === 13 || code === 0x2028 || code === 0x2029;
+}
+
+function nextLineBreak(source: string, from: number, end: number): number {
+  for (let i = from; i < end; i++) {
+    const next = source.charCodeAt(i);
+    if (isNewLine(next)) {
+      return i < end - 1 && next === 13 && source.charCodeAt(i + 1) === 10
+        ? i + 2
+        : i + 1;
+    }
+  }
+  return -1;
+}
+
 function getLineColumn(
   source: string,
   offset: number,
 ): { line: number; column: number } {
-  let line = 1;
-  let column = 0;
-  for (let i = 0; i < offset && i < source.length; i++) {
-    if (source[i] === "\n") {
-      line++;
-      column = 0;
-    } else {
-      column++;
-    }
+  for (let line = 1, cur = 0; ; ) {
+    const nextBreak = nextLineBreak(source, cur, offset);
+    if (nextBreak < 0) return { line, column: offset - cur };
+    line++;
+    cur = nextBreak;
   }
-  return { line, column };
 }
 
 export async function runDuplicationsAnalyzers(
