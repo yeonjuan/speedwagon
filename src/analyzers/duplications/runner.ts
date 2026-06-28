@@ -1,7 +1,9 @@
 import { walk } from "oxc-walker";
 import fs from "node:fs/promises";
+import path from "node:path";
 import { logger } from "../../logger.js";
 import type { Language } from "../../languages/types.js";
+import type { ProjectContext } from "../../project/types.js";
 import type {
   DuplicationsAnalyzer,
   CollectedItem,
@@ -37,10 +39,22 @@ function getLineColumn(
   }
 }
 
+function getScopeForFile(filePath: string, project: ProjectContext): string {
+  if (!project.monorepo) return project.rootPath;
+  const pkg = project.monorepo.packages
+    .filter((p) => {
+      const rel = path.relative(p.rootPath, filePath);
+      return !rel.startsWith("..") && !path.isAbsolute(rel);
+    })
+    .sort((a, b) => b.rootPath.length - a.rootPath.length)[0];
+  return pkg ? pkg.rootPath : project.rootPath;
+}
+
 export async function runDuplicationsAnalyzers(
   filePaths: string[],
   languages: Language[],
   analyzers: DuplicationsAnalyzer[],
+  project: ProjectContext,
 ): Promise<ReportItem[]> {
   const itemsByAnalyzer: CollectedItem[][] = analyzers.map(() => []);
 
@@ -68,10 +82,13 @@ export async function runDuplicationsAnalyzers(
       continue;
     }
 
+    const scope = getScopeForFile(filePath, project);
+
     const visitorObjects = analyzers.map((analyzer, i) => {
       const context: VisitorContext = {
         filePath,
         languageId: language.extensions[0],
+        scope,
         collect({ key, display, offset }) {
           const { line, column } = getLineColumn(sourceCode, offset);
           itemsByAnalyzer[i].push({
@@ -79,6 +96,7 @@ export async function runDuplicationsAnalyzers(
             display,
             filePath,
             languageId: language.extensions[0],
+            scope,
             line,
             column,
           });

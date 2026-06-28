@@ -7,7 +7,7 @@ export function analyzeCrossFileDuplicates(
   const groups = new Map<string, Map<string, CollectedItem>>();
 
   for (const item of context.items) {
-    const groupKey = `${item.languageId}:::${item.key}`;
+    const groupKey = `${item.scope}:::${item.languageId}:::${item.key}`;
     if (!groups.has(groupKey)) groups.set(groupKey, new Map());
     const byFile = groups.get(groupKey)!;
     if (!byFile.has(item.filePath)) byFile.set(item.filePath, item);

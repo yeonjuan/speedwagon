@@ -5,6 +5,7 @@ export interface CollectedItem {
   display: string;
   filePath: string;
   languageId: string;
+  scope: string;
   line: number;
   column: number;
 }
@@ -12,6 +13,7 @@ export interface CollectedItem {
 export interface VisitorContext {
   filePath: string;
   languageId: string;
+  scope: string;
   collect(item: { key: string; display: string; offset: number }): void;
 }
 

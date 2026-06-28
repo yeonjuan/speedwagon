@@ -6,6 +6,7 @@ import {
   runDuplicationsAnalyzers,
   analyzers,
 } from "../analyzers/duplications/index.js";
+import { detectProject } from "../project/detect.js";
 import { jsLanguage } from "../languages/js.js";
 import { tsLanguage } from "../languages/ts.js";
 import { jsxLanguage } from "../languages/jsx.js";
@@ -42,7 +43,13 @@ export class CLI {
       ignorePatterns: args.ignorePatterns,
     });
 
-    const reports = await runDuplicationsAnalyzers(files, LANGUAGES, analyzers);
+    const project = await detectProject(cwd);
+    const reports = await runDuplicationsAnalyzers(
+      files,
+      LANGUAGES,
+      analyzers,
+      project,
+    );
 
     if (reports.length === 0) {
       console.log("No duplications found.");

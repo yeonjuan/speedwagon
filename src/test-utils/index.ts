@@ -14,6 +14,7 @@ export interface FileInput {
   filePath: string;
   code: string;
   language: Language;
+  scope?: string;
 }
 
 export async function runAnalyzer(
@@ -21,11 +22,12 @@ export async function runAnalyzer(
   files: FileInput[],
 ): Promise<ReportItem[]> {
   const items: CollectedItem[] = [];
-  for (const { filePath, code, language } of files) {
+  for (const { filePath, code, language, scope = "" } of files) {
     const program = await language.parse(code, filePath);
     const ctx = {
       filePath,
       languageId: language.extensions[0],
+      scope,
       collect({
         key,
         display,
@@ -41,6 +43,7 @@ export async function runAnalyzer(
           display,
           filePath,
           languageId: language.extensions[0],
+          scope,
           line: lines.length,
           column: lines[lines.length - 1].length,
         });
