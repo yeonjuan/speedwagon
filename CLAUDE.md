@@ -36,59 +36,59 @@ src/analyzers/duplications/
   jsx-svg.ts                        # duplicate <svg> JSX elements
   class-name.ts                     # duplicate class names within a single attribute
   serialize-type.ts                 # TSType → canonical string
+src/analyzers/useless/
+  types.ts                          # UselessAnalyzer, ReportItem, VisitorContext
+  runner.ts                         # AST walk → report (no collect phase)
+  index.ts                          # barrel + analyzers array
+  class-name-space.ts               # unnecessary whitespace in className/class attribute
+src/test-utils/
+  index.ts                          # runAnalyzer, runUselessAnalyzer test helpers
 src/logger.ts                       # stderr debug logger (enabled via --debug)
 ```
 
-## Key Types
+## Analyzer Patterns
+
+Two distinct patterns depending on analyzer category:
+
+### duplications — collect-then-analyze
 
 ```ts
 interface DuplicationsAnalyzer {
-  visitor(context: VisitorContext): VisitorObject; // oxc-walker visitor
+  visitor(context: VisitorContext): VisitorObject;
   analyze(context: AnalyzeContext): void;
 }
-
-interface VisitorContext {
-  filePath: string;
-  languageId: string; // first extension of the matched language e.g. ".ts"
-  collect(item: { key: string; display: string; offset: number }): void;
-}
-
-interface CollectedItem {
-  key: string;
-  display: string;
-  filePath: string;
-  languageId: string;
-  line: number;
-  column: number;
-}
-
-interface ReportItem {
-  message: string;
-  locations: { filePath: string; line: number; column: number }[];
-}
+// VisitorContext.collect() stores items; analyze() groups and reports cross-file duplicates
+// ReportItem: { message: string; locations: { filePath, line, column }[] }
 ```
 
-## Runner Flow
-
-1. Match each file to a language → parse with oxc-parser
-2. Walk AST with oxc-walker → call each analyzer's `visitor()` → collect items via `collect()`
-3. After all files processed → call each analyzer's `analyze()` → report duplicates via `report()`
-4. CLI prints results to stdout
-
-## Duplication Rules
+Flow: walk all files → collect items → analyze() groups by `languageId:::key` → report if 2+ files
 
 - Cross-file duplicates only (same `languageId` required)
-- `analyzeCrossFileDuplicates`: groups by `languageId:::key`, reports if 2+ files contain the same key
-- `className` is the exception: detects duplicate class names within a single attribute in one file
+- `analyzeCrossFileDuplicates` helper handles the grouping logic
+- `className` is the exception: within-attribute duplicate class detection, single file
+
+### useless — report-on-visit
+
+```ts
+interface UselessAnalyzer {
+  visitor(context: VisitorContext): VisitorObject;
+}
+// VisitorContext.report() emits immediately during AST walk (no collect phase)
+// ReportItem: { message: string; location: { filePath, line, column } }
+```
+
+Flow: walk each file → report() called directly inside visitor
 
 ## Adding a New Analyzer
 
-1. Create `src/analyzers/duplications/<name>.ts`, implement `DuplicationsAnalyzer`
-2. Add to the `analyzers` array in `src/analyzers/duplications/index.ts`
+**duplications:** create `src/analyzers/duplications/<name>.ts`, implement `DuplicationsAnalyzer`, add to `src/analyzers/duplications/index.ts` analyzers array
+
+**useless:** create `src/analyzers/useless/<name>.ts`, implement `UselessAnalyzer`, add to `src/analyzers/useless/index.ts` analyzers array
 
 ## Not Yet Implemented
 
 - `speedwagon.json` config file exists in the repo but is not read by the CLI
 - `--ignore`, `--report`, `--out` CLI options are typed in `optionator.ts` but not registered as actual options
+- `runUselessAnalyzers` not yet wired into the CLI (`src/cli/index.ts`)
 - `src/analyzers/unused/` — unused files analyzer (planned)
 - Framework/library-specific rules (planned)
