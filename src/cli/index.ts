@@ -1,6 +1,7 @@
 import path from "node:path";
 import { collectFiles } from "./collect-files.js";
 import { parseArgs, generateHelp } from "./optionator.js";
+import { logger } from "../logger.js";
 import {
   runDuplicationsAnalyzers,
   analyzers,
@@ -31,6 +32,8 @@ export class CLI {
       return;
     }
 
+    if (args.debug) logger.enable();
+
     const cwd = process.cwd();
     const patterns =
       args.patterns.length > 0 ? args.patterns : DEFAULT_PATTERNS;
@@ -41,7 +44,10 @@ export class CLI {
 
     const reports = await runDuplicationsAnalyzers(files, LANGUAGES, analyzers);
 
-    if (reports.length === 0) return;
+    if (reports.length === 0) {
+      console.log("No duplications found.");
+      return;
+    }
 
     for (const report of reports) {
       console.log(report.message);

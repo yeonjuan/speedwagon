@@ -31,8 +31,7 @@ export async function collectFiles(
   }
 
   const files = await fg(patterns, { cwd, absolute: true });
-
-  return files.filter((file) => {
+  const filtered = files.filter((file) => {
     const relativePath = toPosixPath(path.relative(cwd, file));
 
     if (isGitignored(relativePath, gitignoreMatchers)) {
@@ -41,6 +40,7 @@ export async function collectFiles(
 
     return !customIg.ignores(relativePath);
   });
+  return filtered;
 }
 
 async function buildGitignoreMatchers(

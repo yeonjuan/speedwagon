@@ -5,6 +5,7 @@ export type ReportFormat = "stdout" | "json" | "html";
 interface ParsedArgs {
   patterns: string[];
   help?: boolean;
+  debug?: boolean;
   ignorePatterns: string[];
   report: ReportFormat;
   out?: string;
@@ -18,6 +19,11 @@ const parser = optionator({
       alias: "h",
       type: "Boolean",
       description: "Show help",
+    },
+    {
+      option: "debug",
+      type: "Boolean",
+      description: "Enable debug logging",
     },
   ],
 });

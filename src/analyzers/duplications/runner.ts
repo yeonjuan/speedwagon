@@ -1,5 +1,6 @@
 import { walk } from "oxc-walker";
 import fs from "node:fs/promises";
+import { logger } from "../../logger.js";
 import type { Language } from "../../languages/types.js";
 import type {
   DuplicationsAnalyzer,
@@ -32,14 +33,19 @@ export async function runDuplicationsAnalyzers(
 ): Promise<ReportItem[]> {
   const itemsByAnalyzer: CollectedItem[][] = analyzers.map(() => []);
 
+  logger.debug(`Analyzing ${filePaths.length} files`);
+
   for (const filePath of filePaths) {
     const language = languages.find((lang) => lang.match(filePath));
     if (!language) continue;
+
+    logger.debug(`Processing ${filePath}`);
 
     let sourceCode: string;
     try {
       sourceCode = await fs.readFile(filePath, "utf-8");
     } catch {
+      logger.debug(`Failed to read ${filePath}`);
       continue;
     }
 
@@ -47,6 +53,7 @@ export async function runDuplicationsAnalyzers(
     try {
       program = await language.parse(sourceCode, filePath);
     } catch {
+      logger.debug(`Failed to parse ${filePath}`);
       continue;
     }
 
@@ -80,6 +87,12 @@ export async function runDuplicationsAnalyzers(
       },
     });
   }
+
+  const totalItems = itemsByAnalyzer.reduce(
+    (sum, items) => sum + items.length,
+    0,
+  );
+  logger.debug(`Collected ${totalItems} items total`);
 
   const reports: ReportItem[] = [];
 
