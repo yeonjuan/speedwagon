@@ -10,7 +10,7 @@ export const classNameSpace: UselessAnalyzer = {
       JSXAttribute(node) {
         if (node.name.type !== "JSXIdentifier") return;
         const attrName = node.name.name;
-        if (attrName !== "className" && attrName !== "class") return;
+        if (attrName !== "className") return;
         if (!node.value || node.value.type !== "Literal") return;
         if (typeof node.value.value !== "string") return;
         if (!hasUnnecessarySpaces(node.value.value)) return;
