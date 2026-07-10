@@ -1,5 +1,5 @@
 import { walk } from "oxc-walker";
-import type { Language } from "../languages/types.js";
+import type { Language, CssLanguage } from "../languages/types.js";
 import type {
   CollectedItem,
   DuplicationsAnalyzer,
@@ -9,6 +9,10 @@ import type {
   UselessAnalyzer,
   ReportItem as UselessReportItem,
 } from "../analyzers/useless/types.js";
+import type {
+  UnusedAnalyzer,
+  ReportItem as UnusedReportItem,
+} from "../analyzers/unused/types.js";
 
 export interface FileInput {
   filePath: string;
@@ -92,5 +96,35 @@ export async function runUselessAnalyzer(
       },
     });
   }
+  return reports;
+}
+
+export interface UnusedCssFile {
+  filePath: string;
+  content: string;
+  language: CssLanguage;
+}
+
+export async function runUnusedAnalyzer(
+  analyzer: UnusedAnalyzer,
+  cssFiles: UnusedCssFile[],
+  jsFiles: FileInput[],
+): Promise<UnusedReportItem[]> {
+  const definedClasses = cssFiles.flatMap(({ filePath, content, language }) =>
+    analyzer.extractClasses(filePath, language.parse(content)),
+  );
+
+  const usedClasses = [];
+  for (const { filePath, code, language } of jsFiles) {
+    const program = await language.parse(code, filePath);
+    usedClasses.push(...analyzer.collectUsages(filePath, program));
+  }
+
+  const reports: UnusedReportItem[] = [];
+  analyzer.analyze({
+    definedClasses,
+    usedClasses,
+    report: (item) => reports.push(item),
+  });
   return reports;
 }

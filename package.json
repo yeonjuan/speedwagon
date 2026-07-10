@@ -36,7 +36,10 @@
     "ignore": "^7.0.5",
     "optionator": "^0.9.4",
     "oxc-parser": "^0.123.0",
-    "oxc-walker": "^0.7.0"
+    "oxc-walker": "^0.7.0",
+    "postcss": "^8.5.16",
+    "postcss-scss": "^4.0.9",
+    "postcss-selector-parser": "^7.1.4"
   },
   "devDependencies": {
     "@types/node": "^22.19.17",
