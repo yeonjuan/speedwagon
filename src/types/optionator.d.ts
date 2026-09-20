@@ -14,10 +14,14 @@ declare module "optionator" {
     example?: string | string[];
   }
 
+  interface HeadingDefinition {
+    heading: string;
+  }
+
   interface LibOptions {
     prepend?: string;
     append?: string;
-    options: OptionDefinition[];
+    options: (OptionDefinition | HeadingDefinition)[];
     helpStyle?: object;
     mutuallyExclusive?: string[][];
     concatRepeatedArrays?: boolean;

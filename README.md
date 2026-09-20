@@ -20,6 +20,12 @@ npm install -D speedwagon
 # Run in current directory (auto-detects all supported JS/TS files)
 npx speedwagon
 
+# Run only specific analyzer categories (all run when none is given)
+npx speedwagon --duplication
+npx speedwagon --unused
+npx speedwagon --useless
+npx speedwagon --browser-support
+
 # Enable debug logging
 npx speedwagon --debug
 ```
