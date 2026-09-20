@@ -14,7 +14,7 @@ import type {
   ReportItem as UnusedReportItem,
 } from "../analyzers/unused/types.js";
 
-export interface FileInput {
+interface FileInput {
   filePath: string;
   code: string;
   language: Language;
@@ -99,7 +99,7 @@ export async function runUselessAnalyzer(
   return reports;
 }
 
-export interface UnusedCssFile {
+interface UnusedCssFile {
   filePath: string;
   content: string;
   language: CssLanguage;

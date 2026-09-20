@@ -41,6 +41,15 @@ src/analyzers/useless/
   runner.ts                         # AST walk → report (no collect phase)
   index.ts                          # barrel + analyzers array
   class-name-space.ts               # unnecessary whitespace in className/class attribute
+src/analyzers/browser-support/
+  types.ts                          # FoundFeature, Conflict, BrowserTarget, etc.
+  resolver.ts                       # browserslist targets → BCD browser names + min versions
+  version.ts                        # version string compare/normalize helpers
+  js-scanner.ts                     # oxc-walker two-pass scan → member/new/identifier features
+  css-scanner.ts                    # postcss scan → css-property/css-value/css-at-rule features
+  bcd-mapper.ts                     # features + targets → Conflict[] via @mdn/browser-compat-data
+  runner.ts                         # orchestrates resolver → scanners → mapper → report items
+  index.ts                          # barrel (runBrowserSupportAnalyzer)
 src/test-utils/
   index.ts                          # runAnalyzer, runUselessAnalyzer test helpers
 src/logger.ts                       # stderr debug logger (enabled via --debug)
@@ -79,6 +88,15 @@ interface UselessAnalyzer {
 
 Flow: walk each file → report() called directly inside visitor
 
+### browser-support — whole-project analysis
+
+Not a per-file visitor analyzer like the two above. `runBrowserSupportAnalyzer(filePaths, languages, cwd)`:
+resolve browserslist targets once (`resolver.ts`) → scan every JS/TS file (`js-scanner.ts`, oxc-walker with a
+`ScopeTracker` two-pass so locally-shadowed globals aren't false positives) and every `.css`/`.scss` file
+(`css-scanner.ts`, postcss) into `FoundFeature[]` → match all features against the resolved targets in one pass
+(`bcd-mapper.ts`, using `@mdn/browser-compat-data`) → map `Conflict[]` to `{ message, locations }` report items.
+CSS files are collected via `**/*.css`/`**/*.scss` (not the `.module.css` `CssLanguage`s, which are unused-CSS-class-only).
+
 ## Adding a New Analyzer
 
 **duplications:** create `src/analyzers/duplications/<name>.ts`, implement `DuplicationsAnalyzer`, add to `src/analyzers/duplications/index.ts` analyzers array
@@ -89,6 +107,5 @@ Flow: walk each file → report() called directly inside visitor
 
 - `speedwagon.json` config file exists in the repo but is not read by the CLI
 - `--ignore`, `--report`, `--out` CLI options are typed in `optionator.ts` but not registered as actual options
-- `--browser-support` flag is registered but no analyzer exists yet (prints "not implemented")
 - `src/analyzers/unused/` — unused files analyzer (planned; currently only unused CSS module classes)
 - Framework/library-specific rules (planned)

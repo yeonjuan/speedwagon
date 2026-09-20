@@ -32,6 +32,8 @@
   },
   "homepage": "https://github.com/yeonjuan/speedwagon#readme",
   "dependencies": {
+    "@mdn/browser-compat-data": "^8.1.2",
+    "browserslist": "^4.29.0",
     "fast-glob": "^3.3.3",
     "ignore": "^7.0.5",
     "optionator": "^0.9.4",
