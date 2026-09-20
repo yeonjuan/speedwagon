@@ -18,6 +18,7 @@ import {
   runUselessAnalyzers,
   analyzers as uselessAnalyzers,
 } from "../analyzers/useless/index.js";
+import { runBrowserSupportAnalyzer } from "../analyzers/browser-support/index.js";
 import { detectProject } from "../project/detect.js";
 import { jsLanguage } from "../languages/js.js";
 import { tsLanguage } from "../languages/ts.js";
@@ -44,6 +45,8 @@ const CSS_PATTERNS = CSS_LANGUAGES.flatMap((lang) =>
   lang.extensions.map((ext) => `**/*${ext}`),
 );
 
+const BROWSER_SUPPORT_CSS_PATTERNS = ["**/*.css", "**/*.scss"];
+
 interface Location {
   filePath: string;
   line: number;
@@ -54,6 +57,7 @@ interface Section {
   title: string;
   emptyMessage: string;
   reports: { message: string; locations: Location[] }[];
+  summaryLines?: string[];
 }
 
 export class CLI {
@@ -71,9 +75,13 @@ export class CLI {
     const categories = new Set<AnalyzerCategory>(args.categories);
     logger.debug(`Categories: ${[...categories].join(", ")}`);
 
-    const defaultPatterns = categories.has("unused")
-      ? [...JS_PATTERNS, ...CSS_PATTERNS]
-      : JS_PATTERNS;
+    const defaultPatterns = [
+      ...JS_PATTERNS,
+      ...(categories.has("unused") ? CSS_PATTERNS : []),
+      ...(categories.has("browser-support")
+        ? BROWSER_SUPPORT_CSS_PATTERNS
+        : []),
+    ];
     const patterns = args.patterns.length > 0 ? args.patterns : defaultPatterns;
     const files = await collectFiles(patterns, {
       cwd,
@@ -131,10 +139,25 @@ export class CLI {
     }
 
     if (categories.has("browser-support")) {
+      const { items, supportedBrowsers, warnings } =
+        await runBrowserSupportAnalyzer(files, LANGUAGES, cwd);
+      for (const warning of warnings) console.error(warning);
+      const summaryLines =
+        supportedBrowsers.length > 0
+          ? [
+              "Supported browsers:",
+              ...supportedBrowsers.map(
+                (b) =>
+                  `  ${b.name} ${b.version === null ? "not supported" : `>= ${b.version}`}`,
+              ),
+              "",
+            ]
+          : [];
       sections.push({
         title: "Browser support",
-        emptyMessage: "Browser support analyzers are not implemented yet.",
-        reports: [],
+        emptyMessage: "No browser support issues found.",
+        reports: items,
+        summaryLines,
       });
     }
 
@@ -144,6 +167,7 @@ export class CLI {
         if (index > 0) console.log("");
         console.log(`## ${section.title}`);
       }
+      for (const line of section.summaryLines ?? []) console.log(line);
       if (section.reports.length === 0) {
         console.log(section.emptyMessage);
         return;
