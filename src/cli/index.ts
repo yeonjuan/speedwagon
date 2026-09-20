@@ -1,17 +1,31 @@
 import path from "node:path";
 import { collectFiles } from "./collect-files.js";
-import { parseArgs, generateHelp } from "./optionator.js";
+import {
+  parseArgs,
+  generateHelp,
+  type AnalyzerCategory,
+} from "./optionator.js";
 import { logger } from "../logger.js";
 import {
   runDuplicationsAnalyzers,
-  analyzers,
+  analyzers as duplicationsAnalyzers,
 } from "../analyzers/duplications/index.js";
+import {
+  runUnusedAnalyzers,
+  analyzers as unusedAnalyzers,
+} from "../analyzers/unused/index.js";
+import {
+  runUselessAnalyzers,
+  analyzers as uselessAnalyzers,
+} from "../analyzers/useless/index.js";
 import { detectProject } from "../project/detect.js";
 import { jsLanguage } from "../languages/js.js";
 import { tsLanguage } from "../languages/ts.js";
 import { jsxLanguage } from "../languages/jsx.js";
 import { tsxLanguage } from "../languages/tsx.js";
-import type { Language } from "../languages/types.js";
+import { cssModuleLanguage } from "../languages/css.js";
+import { scssModuleLanguage } from "../languages/scss.js";
+import type { Language, CssLanguage } from "../languages/types.js";
 
 const LANGUAGES: Language[] = [
   jsLanguage,
@@ -20,9 +34,27 @@ const LANGUAGES: Language[] = [
   tsxLanguage,
 ];
 
-const DEFAULT_PATTERNS = LANGUAGES.flatMap((lang) =>
+const CSS_LANGUAGES: CssLanguage[] = [cssModuleLanguage, scssModuleLanguage];
+
+const JS_PATTERNS = LANGUAGES.flatMap((lang) =>
   lang.extensions.map((ext) => `**/*${ext}`),
 );
+
+const CSS_PATTERNS = CSS_LANGUAGES.flatMap((lang) =>
+  lang.extensions.map((ext) => `**/*${ext}`),
+);
+
+interface Location {
+  filePath: string;
+  line: number;
+  column: number;
+}
+
+interface Section {
+  title: string;
+  emptyMessage: string;
+  reports: { message: string; locations: Location[] }[];
+}
 
 export class CLI {
   async run(argv: string[]): Promise<void> {
@@ -36,32 +68,93 @@ export class CLI {
     if (args.debug) logger.enable();
 
     const cwd = process.cwd();
-    const patterns =
-      args.patterns.length > 0 ? args.patterns : DEFAULT_PATTERNS;
+    const categories = new Set<AnalyzerCategory>(args.categories);
+    logger.debug(`Categories: ${[...categories].join(", ")}`);
+
+    const defaultPatterns = categories.has("unused")
+      ? [...JS_PATTERNS, ...CSS_PATTERNS]
+      : JS_PATTERNS;
+    const patterns = args.patterns.length > 0 ? args.patterns : defaultPatterns;
     const files = await collectFiles(patterns, {
       cwd,
       ignorePatterns: args.ignorePatterns,
     });
 
-    const project = await detectProject(cwd);
-    const reports = await runDuplicationsAnalyzers(
-      files,
-      LANGUAGES,
-      analyzers,
-      project,
-    );
+    const sections: Section[] = [];
 
-    if (reports.length === 0) {
-      console.log("No duplications found.");
-      return;
+    if (categories.has("duplication")) {
+      const project = await detectProject(cwd);
+      const reports = await runDuplicationsAnalyzers(
+        files,
+        LANGUAGES,
+        duplicationsAnalyzers,
+        project,
+      );
+      sections.push({
+        title: "Duplications",
+        emptyMessage: "No duplications found.",
+        reports,
+      });
     }
 
-    for (const report of reports) {
-      console.log(report.message);
-      for (const loc of report.locations) {
-        const relPath = path.relative(cwd, loc.filePath);
-        console.log(`  ${relPath}:${loc.line}:${loc.column}`);
+    if (categories.has("unused")) {
+      const reports = await runUnusedAnalyzers(
+        files,
+        LANGUAGES,
+        CSS_LANGUAGES,
+        unusedAnalyzers,
+      );
+      sections.push({
+        title: "Unused",
+        emptyMessage: "No unused code found.",
+        reports: reports.map((r) => ({
+          message: r.message,
+          locations: [r.location],
+        })),
+      });
+    }
+
+    if (categories.has("useless")) {
+      const reports = await runUselessAnalyzers(
+        files,
+        LANGUAGES,
+        uselessAnalyzers,
+      );
+      sections.push({
+        title: "Useless",
+        emptyMessage: "No useless code found.",
+        reports: reports.map((r) => ({
+          message: r.message,
+          locations: [r.location],
+        })),
+      });
+    }
+
+    if (categories.has("browser-support")) {
+      sections.push({
+        title: "Browser support",
+        emptyMessage: "Browser support analyzers are not implemented yet.",
+        reports: [],
+      });
+    }
+
+    const multiple = sections.length > 1;
+    sections.forEach((section, index) => {
+      if (multiple) {
+        if (index > 0) console.log("");
+        console.log(`## ${section.title}`);
       }
-    }
+      if (section.reports.length === 0) {
+        console.log(section.emptyMessage);
+        return;
+      }
+      for (const report of section.reports) {
+        console.log(report.message);
+        for (const loc of report.locations) {
+          const relPath = path.relative(cwd, loc.filePath);
+          console.log(`  ${relPath}:${loc.line}:${loc.column}`);
+        }
+      }
+    });
   }
 }

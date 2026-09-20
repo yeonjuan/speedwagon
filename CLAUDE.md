@@ -20,7 +20,7 @@ src/main.ts                         # entry: new CLI().run(process.argv)
 src/cli/
   index.ts                          # CLI class, orchestrates everything
   collect-files.ts                  # fast-glob + gitignore filtering
-  optionator.ts                     # arg parsing (--help, --debug)
+  optionator.ts                     # arg parsing (--help, --debug, --duplication, --unused, --useless, --browser-support)
 src/languages/
   types.ts                          # Language interface: extensions, match(), parse()
   js.ts / ts.ts / jsx.ts / tsx.ts   # Language implementations using oxc-parser
@@ -89,6 +89,6 @@ Flow: walk each file → report() called directly inside visitor
 
 - `speedwagon.json` config file exists in the repo but is not read by the CLI
 - `--ignore`, `--report`, `--out` CLI options are typed in `optionator.ts` but not registered as actual options
-- `runUselessAnalyzers` not yet wired into the CLI (`src/cli/index.ts`)
-- `src/analyzers/unused/` — unused files analyzer (planned)
+- `--browser-support` flag is registered but no analyzer exists yet (prints "not implemented")
+- `src/analyzers/unused/` — unused files analyzer (planned; currently only unused CSS module classes)
 - Framework/library-specific rules (planned)
