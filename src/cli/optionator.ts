@@ -1,6 +1,6 @@
 import optionator from "optionator";
 
-export type ReportFormat = "stdout" | "json" | "html";
+type ReportFormat = "stdout" | "json" | "html";
 
 export const ANALYZER_CATEGORIES = [
   "duplication",

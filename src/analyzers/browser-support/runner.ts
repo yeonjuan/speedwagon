@@ -8,23 +8,23 @@ import { collectCssFeatures } from "./css-scanner.js";
 import { maxVersion } from "./version.js";
 import type { Conflict, FoundFeature, ResolvedConfig } from "./types.js";
 
-export interface ReportLocation {
+interface ReportLocation {
   filePath: string;
   line: number;
   column: number;
 }
 
-export interface ReportItem {
+interface ReportItem {
   message: string;
   locations: ReportLocation[];
 }
 
-export interface SupportedBrowser {
+interface SupportedBrowser {
   name: string;
   version: string | null;
 }
 
-export interface BrowserSupportResult {
+interface BrowserSupportResult {
   items: ReportItem[];
   supportedBrowsers: SupportedBrowser[];
   warnings: string[];
